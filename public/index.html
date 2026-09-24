@@ -843,16 +843,7 @@
       </div>
     </div>
 
-    <!-- Section Meta -->
-    <div class="section-meta">
-      <div class="section-title">
-        <span id="categoryHeading">GLOBAL VIRAL 50</span>
-        <span class="track-count-badge" id="trackCountBadge">30 Tracks</span>
-      </div>
-      <div class="font-mono" style="font-size: 0.75rem; color: var(--color-text-muted);">
-        UPDATED: <span id="syncTime">REAL-TIME</span>
-      </div>
-    </div>
+
 
     <!-- Tracks Container -->
     <div id="tracksGrid" class="tracks-grid">
@@ -1027,8 +1018,8 @@
         const data = await res.json();
         state.tracks = data.data || [];
         renderTracks();
-        trackCountBadge.textContent = `${state.tracks.length} Tracks`;
-        syncTime.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        if (trackCountBadge) trackCountBadge.textContent = `${state.tracks.length} Tracks`;
+        if (syncTime) syncTime.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       } catch (err) {
         console.error(err);
         tracksGrid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--color-danger); font-family: 'Space Mono';">Gagal mengambil chart musik. Pastikan koneksi internet aktif.</div>`;
@@ -1038,7 +1029,7 @@
     // Search Query
     async function runSearch(query) {
       if (!query.trim()) return;
-      categoryHeading.textContent = `HASIL PENCARIAN: "${query.toUpperCase()}"`;
+      if (categoryHeading) categoryHeading.textContent = `HASIL PENCARIAN: "${query.toUpperCase()}"`;
       tracksGrid.innerHTML = `
         <div class="skeleton-grid" style="grid-column: 1 / -1;">
           <div class="skeleton-card"></div>
@@ -1051,7 +1042,7 @@
         const data = await res.json();
         state.tracks = data.data || [];
         renderTracks();
-        trackCountBadge.textContent = `${state.tracks.length} Results`;
+        if (trackCountBadge) trackCountBadge.textContent = `${state.tracks.length} Results`;
       } catch (err) {
         console.error(err);
         tracksGrid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--color-danger); font-family: 'Space Mono';">Pencarian gagal.</div>`;
@@ -1294,7 +1285,7 @@
       document.querySelectorAll('.neu-tab-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       const cat = btn.dataset.cat;
-      categoryHeading.textContent = btn.textContent.trim().toUpperCase();
+      if (categoryHeading) categoryHeading.textContent = btn.textContent.trim().toUpperCase();
       loadTracks(cat);
     });
 
@@ -1348,8 +1339,8 @@
     if (window.INITIAL_TRACKS && Array.isArray(window.INITIAL_TRACKS) && window.INITIAL_TRACKS.length > 0) {
       state.tracks = window.INITIAL_TRACKS;
       renderTracks();
-      trackCountBadge.textContent = `${state.tracks.length} Tracks`;
-      syncTime.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      if (trackCountBadge) trackCountBadge.textContent = `${state.tracks.length} Tracks`;
+      if (syncTime) syncTime.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     } else {
       loadTracks('global');
     }
