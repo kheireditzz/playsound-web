@@ -1058,27 +1058,47 @@
       }
     }
 
+    // Safe HTML Escape
+    function escapeHtml(text) {
+      if (!text) return '';
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
     // Render Track Cards
     function renderTracks() {
       if (state.tracks.length === 0) {
-        tracksGrid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--color-text-muted); font-family: 'Space Mono';">Tidak ada musik ditemukan.</div>`;
+        tracksGrid.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--color-text-muted); font-family: 'Space Mono';">
+            Tidak ada musik ditemukan.
+            <div style="margin-top: 14px;">
+              <button class="tactile-btn play-btn-primary" onclick="loadTracks(state.currentCategory)">Muat Ulang</button>
+            </div>
+          </div>
+        `;
         return;
       }
 
       tracksGrid.innerHTML = state.tracks.map((track, idx) => {
         const isCurrent = state.currentTrack && state.currentTrack.id === track.id;
         const isPlayingThis = isCurrent && state.isPlaying;
+        const safeTitle = escapeHtml(track.title);
+        const safeArtist = escapeHtml(track.artist);
 
         return `
           <div class="song-card ${isPlayingThis ? 'is-playing' : ''}" id="card-${track.id}">
             <div class="card-top">
               <div class="cover-wrapper">
-                <img src="${track.cover || 'data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'76\\' height=\\'76\\' fill=\\'%23ccc\\'%3E%3Crect width=\\'76\\' height=\\'76\\'/%3E%3C/svg%3E'}" alt="${track.title}" class="cover-img" loading="lazy">
+                <img src="${track.cover || 'data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'76\\' height=\\'76\\' fill=\\'%23ccc\\'%3E%3Crect width=\\'76\\' height=\\'76\\'/%3E%3C/svg%3E'}" alt="${safeTitle}" class="cover-img" loading="lazy">
                 <span class="rank-pill">#${track.rank}</span>
               </div>
               <div class="card-info">
-                <div class="song-title" title="${track.title}">${track.title}</div>
-                <div class="song-artist" title="${track.artist}">${track.artist}</div>
+                <div class="song-title" title="${safeTitle}">${safeTitle}</div>
+                <div class="song-artist" title="${safeArtist}">${safeArtist}</div>
                 <div class="badges-row">
                   <span class="velocity-badge">${track.trendVelocity}</span>
                   <span class="origin-badge">${track.origin}</span>
@@ -1101,12 +1121,12 @@
                     </svg>
                   </a>
                 ` : ''}
-                <button class="tactile-btn external-btn" onclick="openYouTubeModal('${encodeURIComponent(track.artist + ' ' + track.title)}', '${encodeURIComponent(track.title)}')" title="Putar Lagu Utuh (YouTube)">
+                <button class="tactile-btn external-btn" onclick="openYouTubeModalByIndex(${idx})" title="Putar Lagu Utuh (YouTube)">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="#FF2157">
                     <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
                   </svg>
                 </button>
-                <a href="${track.externalUrls.youtube}" target="_blank" rel="noopener noreferrer" class="tactile-btn external-btn" title="Buka di YouTube Link">
+                <a href="${track.externalUrls?.youtube || '#'}" target="_blank" rel="noopener noreferrer" class="tactile-btn external-btn" title="Buka di YouTube Link">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
                     <polyline points="15 3 21 3 21 9"></polyline>
@@ -1290,9 +1310,13 @@
     });
 
     // YouTube Modal Function
-    window.openYouTubeModal = function(queryEncoded, titleEncoded) {
-      const title = decodeURIComponent(titleEncoded);
-      const query = decodeURIComponent(queryEncoded);
+    window.openYouTubeModalByIndex = function(idx) {
+      if (idx < 0 || idx >= state.tracks.length) return;
+      const track = state.tracks[idx];
+      window.openYouTubeModal(track.artist + ' ' + track.title, track.title);
+    };
+
+    window.openYouTubeModal = function(query, title) {
       modalSongTitle.textContent = title;
       
       // Use YouTube embed search or embed player
@@ -1320,8 +1344,15 @@
       }
     });
 
-    // Init
-    loadTracks('global');
+    // Init: tampilkan langsung dari data server atau fetch fallback
+    if (window.INITIAL_TRACKS && Array.isArray(window.INITIAL_TRACKS) && window.INITIAL_TRACKS.length > 0) {
+      state.tracks = window.INITIAL_TRACKS;
+      renderTracks();
+      trackCountBadge.textContent = `${state.tracks.length} Tracks`;
+      syncTime.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } else {
+      loadTracks('global');
+    }
   </script>
 </body>
 </html>

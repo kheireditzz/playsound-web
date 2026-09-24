@@ -160,6 +160,51 @@ async function searchSongs(query) {
   }
 }
 
+async function fetchSearchGenre(term, originTag) {
+  try {
+    const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(term)}&entity=song&limit=30`);
+    if (!res.ok) throw new Error(`iTunes search HTTP ${res.status}`);
+    const json = await res.json();
+    const results = json.results || [];
+
+    return results.map((item, idx) => ({
+      id: `gn-${item.trackId || idx}`,
+      rank: idx + 1,
+      title: item.trackName || 'Viral Song',
+      artist: item.artistName || 'Unknown Artist',
+      album: item.collectionName || 'Top Hits',
+      cover: (item.artworkUrl100 || '').replace('100x100bb', '600x600bb'),
+      preview: item.previewUrl || '',
+      duration: Math.round((item.trackTimeMillis || 30000) / 1000),
+      trendVelocity: idx === 0 ? '🔥 #1' : idx < 5 ? `▲ +${5 - idx}` : '★ TRENDING',
+      origin: originTag,
+      youtubeQuery: `${item.artistName} ${item.trackName} official`,
+      externalUrls: {
+        apple: item.trackViewUrl || '',
+        youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(item.artistName + ' ' + item.trackName)}`
+      }
+    }));
+  } catch (err) {
+    console.error(`Genre search error (${term}):`, err.message);
+    return [];
+  }
+}
+
+// Preload Cache
+let preloadedGlobalTracks = [];
+async function preload() {
+  const d = await fetchDeezerGlobal();
+  if (d && d.length > 0) {
+    preloadedGlobalTracks = d;
+    setCache('trends_global', d);
+  } else {
+    const a = await fetchAppleRss('us', 'Billboard');
+    preloadedGlobalTracks = a;
+    setCache('trends_global', a);
+  }
+}
+preload();
+
 // Router
 const server = http.createServer(async (req, res) => {
   const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
@@ -185,7 +230,7 @@ const server = http.createServer(async (req, res) => {
       const cacheKey = `trends_${category}`;
       const cached = getFromCache(cacheKey);
 
-      if (cached) {
+      if (cached && cached.length > 0) {
         res.writeHead(200);
         res.end(JSON.stringify({ category, cached: true, count: cached.length, data: cached }));
         return;
@@ -206,14 +251,18 @@ const server = http.createServer(async (req, res) => {
       } else if (category === 'uk') {
         tracks = await fetchAppleRss('gb', 'UK Official');
       } else if (category === 'kpop') {
-        tracks = await fetchAppleRss('kr', 'K-Pop Radar');
+        tracks = await fetchSearchGenre('kpop viral hits', 'K-Pop');
       } else if (category === 'japan') {
-        tracks = await fetchAppleRss('jp', 'Oricon / J-Pop');
+        tracks = await fetchSearchGenre('jpop viral hits', 'J-Pop');
       } else {
         tracks = await fetchDeezerGlobal();
       }
 
-      setCache(cacheKey, tracks);
+      if (tracks.length > 0) {
+        setCache(cacheKey, tracks);
+        if (category === 'global') preloadedGlobalTracks = tracks;
+      }
+
       res.writeHead(200);
       res.end(JSON.stringify({ category, cached: false, count: tracks.length, data: tracks }));
       return;
@@ -301,6 +350,17 @@ const server = http.createServer(async (req, res) => {
         res.end('Error loading file');
         return;
       }
+
+      if (ext === '.html') {
+        let htmlStr = content.toString('utf-8');
+        const initialData = preloadedGlobalTracks.length > 0 ? preloadedGlobalTracks : (getFromCache('trends_global') || []);
+        const injection = `<script>window.INITIAL_TRACKS = ${JSON.stringify(initialData)};</script>\n</head>`;
+        htmlStr = htmlStr.replace('</head>', injection);
+        res.writeHead(200, { 'Content-Type': contentType, 'Cache-Control': 'no-cache, no-store, must-revalidate' });
+        res.end(htmlStr);
+        return;
+      }
+
       res.writeHead(200, { 'Content-Type': contentType });
       res.end(content);
     });
