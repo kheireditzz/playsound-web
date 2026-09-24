@@ -232,6 +232,36 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (pathname === '/api/download') {
+      const audioUrl = parsedUrl.searchParams.get('url');
+      const filename = parsedUrl.searchParams.get('name') || 'viral_track';
+      if (!audioUrl) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'url parameter is required' }));
+        return;
+      }
+
+      try {
+        const audioRes = await fetch(audioUrl);
+        if (!audioRes.ok) throw new Error(`Audio fetch status: ${audioRes.status}`);
+
+        const cleanName = filename.replace(/[^a-zA-Z0-9_\-\.\s]/g, '').trim() || 'track';
+        res.writeHead(200, {
+          'Content-Type': 'audio/mpeg',
+          'Content-Disposition': `attachment; filename="${cleanName}.mp3"`,
+          'Cache-Control': 'public, max-age=86400'
+        });
+
+        const arrayBuffer = await audioRes.arrayBuffer();
+        res.end(Buffer.from(arrayBuffer));
+      } catch (err) {
+        console.error('Download error:', err.message);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Failed to download audio file' }));
+      }
+      return;
+    }
+
     res.writeHead(404);
     res.end(JSON.stringify({ error: 'Endpoint not found' }));
     return;
