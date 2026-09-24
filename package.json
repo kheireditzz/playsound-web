@@ -1,7 +1,7 @@
 {
-  "name": "viral-music-radar",
+  "name": "playsound",
   "version": "1.0.0",
-  "description": "Global Viral Music Radar Web Platform",
+  "description": "PlaySound - Global Viral Music Platform",
   "type": "module",
   "main": "server.js",
   "scripts": {
