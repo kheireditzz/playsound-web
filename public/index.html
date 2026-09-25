@@ -204,11 +204,11 @@
     }
 
     /* Category Filter Tabs */
-    .filter-tabs {
+     .filter-tabs {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       overflow-x: auto;
-      padding: 6px 2px 14px 2px;
+      padding: 4px 2px 12px 2px;
       scrollbar-width: none;
     }
 
@@ -227,22 +227,35 @@
       font-family: 'Space Mono', monospace;
       font-size: 0.8rem;
       font-weight: 700;
-      color: var(--color-text);
+      color: var(--color-text-muted);
       cursor: pointer;
       box-shadow: var(--neu-extruded-sm);
       white-space: nowrap;
-      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+                  color 0.15s ease,
+                  transform 0.12s ease;
     }
 
     .neu-tab-btn:hover {
       color: var(--color-primary);
     }
 
-    .neu-tab-btn.active {
+    .neu-tab-btn:active {
       box-shadow: var(--neu-inset);
-      color: var(--color-primary);
-      background: var(--bg-surface);
+      transform: translateY(1px);
     }
+
+    /* Active: hanya beda warna teks — shadow & bentuk identik */
+    .neu-tab-btn.active {
+      color: var(--color-primary);
+    }
+
+    .neu-tab-btn.active:active {
+      box-shadow: var(--neu-inset);
+      transform: translateY(1px);
+    }
+
+
 
     /* Section Header */
     .section-meta {
@@ -790,7 +803,366 @@
       .tracks-grid {
         grid-template-columns: 1fr;
       }
+      .lyrics-panel {
+        bottom: 110px;
+        max-height: 62vh;
+      }
+      .lyrics-panel.open {
+        height: 62vh;
+      }
     }
+
+    /* ── Lyrics Slide-Up Panel ── */
+    .lyrics-panel {
+      position: fixed;
+      bottom: 94px;
+      left: 0;
+      width: 100%;
+      height: 0;
+      max-height: 56vh;
+      background: var(--bg-surface);
+      box-shadow: 0 -3px 22px var(--shadow-dark);
+      border-radius: 20px 20px 0 0;
+      z-index: 98;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .lyrics-panel.open {
+      height: 56vh;
+    }
+
+    .lyrics-panel-grip {
+      width: 38px;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--shadow-dark);
+      margin: 10px auto 0;
+      flex-shrink: 0;
+    }
+
+    .lyrics-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px 8px;
+      flex-shrink: 0;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .lyrics-meta {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .lyrics-meta-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--color-text);
+    }
+
+    .lyrics-meta-artist {
+      font-size: 0.75rem;
+      color: var(--color-primary);
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .lyrics-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--color-text-muted);
+      background: var(--bg-surface);
+      box-shadow: var(--neu-inset);
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      margin-right: 10px;
+    }
+
+    .lyrics-close-btn {
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .lyrics-scroll {
+      flex: 1;
+      overflow-y: auto;
+      margin: 10px 16px 16px;
+      padding: 16px 20px;
+      border-radius: 14px;
+      box-shadow: var(--neu-inset);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.9rem;
+      line-height: 1.85;
+      color: var(--color-text);
+      white-space: pre-wrap;
+      word-break: break-word;
+      scrollbar-width: thin;
+      scrollbar-color: var(--shadow-dark) transparent;
+    }
+
+    .lyrics-scroll::-webkit-scrollbar { width: 4px; }
+    .lyrics-scroll::-webkit-scrollbar-thumb {
+      background: var(--shadow-dark);
+      border-radius: 2px;
+    }
+
+    .lyrics-status {
+      text-align: center;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--color-text-muted);
+      padding: 24px 16px;
+    }
+
+    .lyrics-status.loading {
+      animation: pulseSkeleton 1.5s infinite;
+    }
+
+    /* Lyrics toggle button in dock */
+    .btn-lyrics {
+      font-size: 0.72rem;
+      padding: 7px 12px;
+      gap: 5px;
+      color: var(--color-text-muted);
+      border-radius: 10px;
+    }
+
+    .btn-lyrics.active {
+      color: var(--color-primary);
+      box-shadow: var(--neu-inset);
+    }
+
+     /* ── Trending Banner Slider ── */
+    .trending-banner {
+      position: relative;
+      width: 100%;
+      height: 180px;
+      border-radius: 20px;
+      box-shadow: var(--neu-extruded-card);
+      overflow: hidden;
+      margin-bottom: 24px;
+      background: var(--bg-surface);
+    }
+
+    .banner-strip {
+      display: flex;
+      height: 100%;
+      transition: transform 0.52s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: transform;
+    }
+
+    /* Each slide: same card DNA as song-card */
+    .banner-slide {
+      min-width: 100%;
+      height: 100%;
+      background: var(--bg-surface);
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      padding: 18px 56px 18px 24px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .banner-cover-wrap {
+      width: 130px;
+      height: 130px;
+      flex-shrink: 0;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: var(--neu-extruded);
+      background: #dcdad9;
+    }
+
+    .banner-cover-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .banner-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .banner-top-badges {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 2px;
+    }
+
+    /* Same as velocity-badge: inset pill */
+    .banner-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--color-primary);
+      background: var(--bg-surface);
+      box-shadow: var(--neu-inset);
+      padding: 3px 9px;
+      border-radius: 6px;
+    }
+
+    /* Same as origin-badge: extruded chip */
+    .banner-rank {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--color-text-muted);
+      background: var(--bg-surface);
+      box-shadow: var(--neu-extruded-sm);
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .banner-song-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--color-text);
+      line-height: 1.25;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .banner-artist {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 6px;
+    }
+
+    /* Same as play-btn-primary */
+    .banner-play-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 16px;
+      background: var(--color-primary);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 4px 4px 10px rgba(0,102,102,0.35), -4px -4px 10px #ffffff;
+      transition: all 0.15s ease;
+      width: fit-content;
+    }
+
+    .banner-play-btn:active {
+      box-shadow: inset 2px 2px 5px rgba(0,0,0,0.4);
+      transform: translateY(1px);
+    }
+
+    /* Nav arrows — neumorphic circle */
+    .banner-nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: var(--bg-surface);
+      box-shadow: var(--neu-extruded-sm);
+      color: var(--color-text);
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      transition: all 0.15s ease;
+    }
+
+    .banner-nav-btn:hover { color: var(--color-primary); }
+    .banner-nav-btn:active { box-shadow: var(--neu-inset); transform: translateY(-50%) scale(0.95); }
+    .banner-nav-prev { left: 12px; }
+    .banner-nav-next { right: 12px; }
+
+    /* Dots — teal when active, muted shadow when not */
+    .banner-dots {
+      position: absolute;
+      bottom: 12px;
+      right: 16px;
+      display: flex;
+      gap: 6px;
+      z-index: 10;
+    }
+
+    .banner-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--shadow-dark);
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: var(--neu-extruded-sm);
+    }
+
+    .banner-dot.active {
+      background: var(--color-primary);
+      width: 18px;
+      border-radius: 3px;
+    }
+
+    /* Skeleton */
+    .banner-skeleton {
+      width: 100%;
+      height: 100%;
+      background: var(--bg-surface);
+      animation: pulseSkeleton 1.5s infinite;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-muted);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      gap: 8px;
+    }
+
+    @media (max-width: 768px) {
+      .trending-banner { height: 155px; }
+      .banner-cover-wrap { width: 106px; height: 106px; }
+      .banner-song-title { font-size: 0.88rem; }
+      .banner-slide { padding: 14px 44px 14px 16px; gap: 14px; }
+      .banner-nav-btn { width: 26px; height: 26px; font-size: 0.95rem; }
+    }
+
+
   </style>
 </head>
 <body>
@@ -814,9 +1186,20 @@
 
   <!-- Main Content -->
   <main class="container">
-    
+
+    <!-- Trending Banner Slider -->
+    <div class="trending-banner" id="trendingBanner">
+      <div class="banner-strip" id="bannerStrip">
+        <div class="banner-skeleton">🌐 Memuat trending global...</div>
+      </div>
+      <button class="banner-nav-btn banner-nav-prev" id="bannerPrev" aria-label="Sebelumnya">‹</button>
+      <button class="banner-nav-btn banner-nav-next" id="bannerNext" aria-label="Selanjutnya">›</button>
+      <div class="banner-dots" id="bannerDots"></div>
+    </div>
+
     <!-- Controls: Search & Categories -->
     <div class="controls-wrapper">
+
       <div class="search-container">
         <input 
           type="text" 
@@ -907,6 +1290,13 @@
 
     <!-- Right Actions -->
     <div class="dock-right">
+      <button id="lyricsToggleBtn" class="tactile-btn btn-lyrics" title="Tampilkan / Sembunyikan Lirik">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+        </svg>
+        LIRIK
+      </button>
+
       <a id="dockDownloadBtn" href="#" download class="btn-full-yt" style="color: var(--color-primary); display: none;" title="Download Audio MP3">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -930,7 +1320,26 @@
         </svg>
       </button>
     </div>
+
   </footer>
+
+  <!-- Lyrics Slide-Up Panel -->
+  <div class="lyrics-panel" id="lyricsPanel">
+    <div class="lyrics-panel-grip"></div>
+    <div class="lyrics-panel-header">
+      <div class="lyrics-meta">
+        <div class="lyrics-meta-title" id="lyricsSongTitle">—</div>
+        <div class="lyrics-meta-artist" id="lyricsSongArtist"></div>
+      </div>
+      <span class="lyrics-label">LIRIK</span>
+      <button class="tactile-btn lyrics-close-btn" id="lyricsCloseBtn">✕</button>
+    </div>
+    <div class="lyrics-scroll" id="lyricsScroll">
+      <div class="lyrics-status">Pilih lagu untuk melihat lirik.</div>
+    </div>
+  </div>
+
+
 
   <!-- Modal for Full Video / Stream Player -->
   <div class="neu-modal-backdrop" id="videoModal">
@@ -993,6 +1402,65 @@
     const modalSongTitle = document.getElementById('modalSongTitle');
     const videoFrameContainer = document.getElementById('videoFrameContainer');
 
+    // ── Lyrics Panel ──
+    const lyricsPanel      = document.getElementById('lyricsPanel');
+    const lyricsToggleBtn  = document.getElementById('lyricsToggleBtn');
+    const lyricsCloseBtn   = document.getElementById('lyricsCloseBtn');
+    const lyricsScroll     = document.getElementById('lyricsScroll');
+    const lyricsSongTitle  = document.getElementById('lyricsSongTitle');
+    const lyricsSongArtist = document.getElementById('lyricsSongArtist');
+
+    let lyricsOpen = false;
+    const lyricsCache = {}; // keyed by track.id
+
+    function setLyricsOpen(open) {
+      lyricsOpen = open;
+      lyricsPanel.classList.toggle('open', open);
+      lyricsToggleBtn.classList.toggle('active', open);
+    }
+
+    async function fetchAndShowLyrics(track) {
+      lyricsSongTitle.textContent  = track.title;
+      lyricsSongArtist.textContent = track.artist;
+
+      if (lyricsCache[track.id] !== undefined) {
+        renderLyrics(lyricsCache[track.id]);
+        return;
+      }
+
+      lyricsScroll.innerHTML = '<div class="lyrics-status loading">🎵 Mengambil lirik...</div>';
+
+      try {
+        const res  = await fetch(`/api/lyrics?artist=${encodeURIComponent(track.artist)}&title=${encodeURIComponent(track.title)}`);
+        const data = await res.json();
+        lyricsCache[track.id] = data;
+        renderLyrics(data);
+      } catch {
+        lyricsCache[track.id] = { found: false };
+        renderLyrics({ found: false });
+      }
+    }
+
+    function renderLyrics(data) {
+      if (!data.found || !data.lyrics || data.lyrics.trim().length < 10) {
+        lyricsScroll.innerHTML = '<div class="lyrics-status">🎼 Lirik tidak ditemukan untuk lagu ini.</div>';
+        return;
+      }
+      const clean = data.lyrics.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+      lyricsScroll.textContent = clean;
+      lyricsScroll.scrollTop = 0;
+    }
+
+    lyricsToggleBtn.addEventListener('click', () => {
+      const nowOpen = !lyricsOpen;
+      setLyricsOpen(nowOpen);
+      if (nowOpen && state.currentTrack) fetchAndShowLyrics(state.currentTrack);
+    });
+
+    lyricsCloseBtn.addEventListener('click', () => setLyricsOpen(false));
+
+
+
     // Format Seconds to M:SS
     function formatTime(seconds) {
       if (isNaN(seconds)) return '0:00';
@@ -1018,8 +1486,10 @@
         const data = await res.json();
         state.tracks = data.data || [];
         renderTracks();
+        initBanner(state.tracks);
         if (trackCountBadge) trackCountBadge.textContent = `${state.tracks.length} Tracks`;
         if (syncTime) syncTime.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
       } catch (err) {
         console.error(err);
         tracksGrid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--color-danger); font-family: 'Space Mono';">Gagal mengambil chart musik. Pastikan koneksi internet aktif.</div>`;
@@ -1154,9 +1624,13 @@
       state.currentIndex = idx;
       state.currentTrack = track;
 
+      // Auto-refresh lyrics if panel is open
+      if (lyricsOpen) fetchAndShowLyrics(track);
+
       dockTitle.textContent = track.title;
       dockArtist.textContent = track.artist;
       dockCover.src = track.cover || '';
+
 
       const dockDownloadBtn = document.getElementById('dockDownloadBtn');
       if (dockDownloadBtn) {
@@ -1307,21 +1781,82 @@
       window.openYouTubeModal(track.artist + ' ' + track.title, track.title);
     };
 
-    window.openYouTubeModal = function(query, title) {
-      modalSongTitle.textContent = title;
-      
-      // Use YouTube embed search or embed player
+    // ── YouTube video ID lookup (client-side Invidious → server fallback) ──
+    const ytIdCache = {};
+    const INVIDIOUS_INSTANCES = [
+      'https://inv.nadeko.net',
+      'https://invidious.privacyredirect.com',
+      'https://yewtu.be',
+      'https://iv.datura.network',
+      'https://invidious.fdn.fr',
+      'https://yt.artemislena.eu'
+    ];
+
+    async function getYtVideoId(query) {
+      if (ytIdCache[query]) return ytIdCache[query];
+
+      // Layer 1: browser hits Invidious directly (different network than server)
+      for (const inst of INVIDIOUS_INSTANCES) {
+        try {
+          const r = await fetch(
+            `${inst}/api/v1/search?q=${encodeURIComponent(query)}&type=video&fields=videoId,title&page=1`,
+            { signal: AbortSignal.timeout(4000) }
+          );
+          if (!r.ok) continue;
+          const data = await r.json();
+          if (Array.isArray(data) && data[0]?.videoId) {
+            ytIdCache[query] = data[0].videoId;
+            return data[0].videoId;
+          }
+        } catch { continue; }
+      }
+
+      // Layer 2: server-side fallback (/api/yt-search)
+      try {
+        const r = await fetch(`/api/yt-search?q=${encodeURIComponent(query)}`);
+        const d = await r.json();
+        if (d.videoId) { ytIdCache[query] = d.videoId; return d.videoId; }
+      } catch { }
+
+      return null;
+    }
+
+
+    window.openYouTubeModal = async function(query, title) {
+      const rawQuery = decodeURIComponent(String(query));
+      const rawTitle = decodeURIComponent(String(title));
+
+      modalSongTitle.textContent = rawTitle;
       videoFrameContainer.innerHTML = `
-        <iframe 
-          src="https://www.youtube-nocookie.com/embed?listType=search&list=${encodeURIComponent(query)}&autoplay=1" 
-          title="YouTube Music Player" 
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-          allowfullscreen>
-        </iframe>
-      `;
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+          height:100%;gap:14px;color:var(--color-text-muted);
+          font-family:'Space Mono',monospace;font-size:0.78rem;text-align:center;padding:20px;">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)"
+            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+            style="animation:pulseSkeleton 1.2s infinite;">
+            <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+          </svg>
+          Mencari video...<br><span style="color:var(--color-text);font-weight:700;">${rawTitle}</span>
+        </div>`;
       videoModal.classList.add('open');
       audioEngine.pause();
+
+      const searchQ  = `${rawQuery} official audio`;
+      const videoId  = await getYtVideoId(searchQ) || await getYtVideoId(rawQuery);
+
+      const embedSrc = videoId
+        ? `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0`
+        : `https://www.youtube-nocookie.com/embed?listType=search&list=${encodeURIComponent(searchQ)}&autoplay=1`;
+
+      videoFrameContainer.innerHTML = `
+        <iframe
+          src="${embedSrc}"
+          title="YouTube Music Player"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen>
+        </iframe>`;
     };
+
 
     modalCloseBtn.addEventListener('click', () => {
       videoModal.classList.remove('open');
@@ -1335,10 +1870,110 @@
       }
     });
 
+    // ── Trending Banner ──
+    const bannerStrip = document.getElementById('bannerStrip');
+    const bannerDots  = document.getElementById('bannerDots');
+    const bannerPrev  = document.getElementById('bannerPrev');
+    const bannerNext  = document.getElementById('bannerNext');
+
+    let bannerSlides    = [];
+    let bannerCurrent   = 0;
+    let bannerTimer     = null;
+    const BANNER_COUNT  = 8;
+    const BANNER_DELAY  = 5000;
+
+    const BADGE_MAP = {
+      'TikTok':    '🔥 TikTok Viral',
+      'Spotify':   '📈 Spotify Top',
+      'Billboard': '🇺🇸 Billboard',
+      'UK Official': '🇬🇧 UK Charts',
+      'K-Pop':     '🇰🇷 K-Pop Radar',
+      'J-Pop':     '🇯🇵 Oricon',
+      'Global':    '🌐 Global Viral',
+    };
+
+     function initBanner(tracks) {
+      clearInterval(bannerTimer);
+      bannerSlides = tracks.slice(0, BANNER_COUNT);
+      if (!bannerSlides.length) return;
+      bannerCurrent = 0;
+
+      bannerStrip.innerHTML = bannerSlides.map((t, i) => {
+        const badge = BADGE_MAP[t.origin] || `🌐 ${t.origin}`;
+        const cover = t.cover || '';
+        const trackIdx = state.tracks.findIndex(x => x.id === t.id);
+        return `
+          <div class="banner-slide" data-idx="${i}">
+            <div class="banner-cover-wrap">
+              <img src="${cover}" alt="${escapeHtml(t.title)}" class="banner-cover-img" loading="lazy">
+            </div>
+            <div class="banner-info">
+              <div class="banner-top-badges">
+                <span class="banner-rank">#${t.rank} TRENDING</span>
+                <span class="banner-badge">${badge}</span>
+              </div>
+              <div class="banner-song-title">${escapeHtml(t.title)}</div>
+              <div class="banner-artist">${escapeHtml(t.artist)}</div>
+              <button class="banner-play-btn" onclick="playTrackByIndex(${trackIdx})">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                PUTAR
+              </button>
+            </div>
+          </div>`;
+      }).join('');
+
+      // Build dots
+      bannerDots.innerHTML = bannerSlides.map((_, i) =>
+        `<button class="banner-dot${i === 0 ? ' active' : ''}" data-i="${i}" aria-label="Slide ${i+1}"></button>`
+      ).join('');
+
+      bannerDots.querySelectorAll('.banner-dot').forEach(d => {
+        d.addEventListener('click', () => goToSlide(+d.dataset.i, true));
+      });
+
+      goToSlide(0, false);
+      startBannerAutoplay();
+    }
+
+
+    function goToSlide(idx, resetTimer) {
+      bannerCurrent = (idx + bannerSlides.length) % bannerSlides.length;
+      bannerStrip.style.transform = `translateX(-${bannerCurrent * 100}%)`;
+      bannerDots.querySelectorAll('.banner-dot').forEach((d, i) => {
+        d.classList.toggle('active', i === bannerCurrent);
+      });
+      if (resetTimer) {
+        clearInterval(bannerTimer);
+        startBannerAutoplay();
+      }
+    }
+
+    function startBannerAutoplay() {
+      bannerTimer = setInterval(() => goToSlide(bannerCurrent + 1, false), BANNER_DELAY);
+    }
+
+    // Pause on hover
+    document.getElementById('trendingBanner').addEventListener('mouseenter', () => clearInterval(bannerTimer));
+    document.getElementById('trendingBanner').addEventListener('mouseleave', startBannerAutoplay);
+
+    bannerPrev.addEventListener('click', () => goToSlide(bannerCurrent - 1, true));
+    bannerNext.addEventListener('click', () => goToSlide(bannerCurrent + 1, true));
+
+    // Touch/swipe support
+    let touchStartX = 0;
+    document.getElementById('trendingBanner').addEventListener('touchstart', e => {
+      touchStartX = e.touches[0].clientX;
+    }, { passive: true });
+    document.getElementById('trendingBanner').addEventListener('touchend', e => {
+      const diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 40) goToSlide(bannerCurrent + (diff > 0 ? 1 : -1), true);
+    }, { passive: true });
+
     // Init: tampilkan langsung dari data server atau fetch fallback
     if (window.INITIAL_TRACKS && Array.isArray(window.INITIAL_TRACKS) && window.INITIAL_TRACKS.length > 0) {
       state.tracks = window.INITIAL_TRACKS;
       renderTracks();
+      initBanner(window.INITIAL_TRACKS);
       if (trackCountBadge) trackCountBadge.textContent = `${state.tracks.length} Tracks`;
       if (syncTime) syncTime.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     } else {
@@ -1347,3 +1982,4 @@
   </script>
 </body>
 </html>
+

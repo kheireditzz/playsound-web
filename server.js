@@ -311,9 +311,104 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+
+    if (pathname === '/api/lyrics') {
+      const artist = parsedUrl.searchParams.get('artist') || '';
+      const title  = parsedUrl.searchParams.get('title')  || '';
+      if (!artist || !title) {
+        res.writeHead(400);
+        res.end(JSON.stringify({ error: 'artist and title are required' }));
+        return;
+      }
+      const lKey = `lyr_${artist}_${title}`.toLowerCase().replace(/\s+/g, '_').slice(0, 120);
+      const cachedLyr = getFromCache(lKey);
+      if (cachedLyr) {
+        res.writeHead(200);
+        res.end(JSON.stringify(cachedLyr));
+        return;
+      }
+      try {
+        const lyrRes = await fetch(
+          `https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`
+        );
+        if (!lyrRes.ok) throw new Error(`lyrics.ovh HTTP ${lyrRes.status}`);
+        const lyrJson = await lyrRes.json();
+        const result = {
+          artist, title,
+          lyrics: lyrJson.lyrics || '',
+          found: !!(lyrJson.lyrics && lyrJson.lyrics.trim().length > 10)
+        };
+        // Override TTL to 60 min for lyrics (they never change)
+        cache.data[lKey] = result;
+        cache.timestamps[lKey] = Date.now() - cache.TTL_MS + 60 * 60 * 1000;
+        res.writeHead(200);
+        res.end(JSON.stringify(result));
+      } catch (err) {
+        console.error('Lyrics fetch error:', err.message);
+        res.writeHead(200);
+        res.end(JSON.stringify({ artist, title, lyrics: '', found: false }));
+      }
+      return;
+    }
+
+
+    // ── YouTube Video ID Search via Invidious ──
+    if (pathname === '/api/yt-search') {
+      const q = parsedUrl.searchParams.get('q') || '';
+      if (!q.trim()) {
+        res.writeHead(400);
+        res.end(JSON.stringify({ error: 'q required' }));
+        return;
+      }
+      const ytKey = `yt_${q}`.toLowerCase().replace(/[^a-z0-9]/g, '_').slice(0, 110);
+      const ytCached = getFromCache(ytKey);
+      if (ytCached) {
+        res.writeHead(200);
+        res.end(JSON.stringify(ytCached));
+        return;
+      }
+
+      const INVIDIOUS = [
+        'https://inv.nadeko.net',
+        'https://invidious.privacyredirect.com',
+        'https://yewtu.be',
+        'https://iv.datura.network'
+      ];
+
+      let videoId = null;
+      let videoTitle = '';
+      for (const instance of INVIDIOUS) {
+        try {
+          const r = await fetch(
+            `${instance}/api/v1/search?q=${encodeURIComponent(q)}&type=video&fields=videoId,title&page=1`,
+            { signal: AbortSignal.timeout(5000) }
+          );
+          if (!r.ok) continue;
+          const hits = await r.json();
+          if (Array.isArray(hits) && hits[0]?.videoId) {
+            videoId   = hits[0].videoId;
+            videoTitle = hits[0].title || '';
+            break;
+          }
+        } catch { continue; }
+      }
+
+      const ytResult = { videoId, title: videoTitle, found: !!videoId };
+      if (videoId) {
+        // Cache 30 min (reuse existing TTL slot by adjusting timestamp)
+        cache.data[ytKey] = ytResult;
+        cache.timestamps[ytKey] = Date.now() - cache.TTL_MS + 30 * 60 * 1000;
+      }
+      res.writeHead(200);
+      res.end(JSON.stringify(ytResult));
+      return;
+    }
+
     res.writeHead(404);
     res.end(JSON.stringify({ error: 'Endpoint not found' }));
     return;
+
+
   }
 
   // Static File Serving
