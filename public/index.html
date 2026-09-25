@@ -323,6 +323,11 @@
       flex-direction: column;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
       position: relative;
+      overflow: visible;
+    }
+
+    .song-card.has-dropdown-open {
+      z-index: 90;
     }
 
     .song-card:hover {
@@ -511,14 +516,15 @@
     .neu-dropdown-menu {
       display: none;
       position: absolute;
-      bottom: calc(100% + 8px);
+      top: calc(100% + 6px);
+      bottom: auto;
       right: 0;
       background: var(--bg-surface);
       border-radius: 14px;
       border: 1px solid rgba(255, 255, 255, 0.9);
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.16), var(--neu-extruded-sm);
-      min-width: 175px;
-      z-index: 120;
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.2), var(--neu-extruded-sm);
+      min-width: 180px;
+      z-index: 1000;
       padding: 6px;
       flex-direction: column;
       gap: 4px;
@@ -703,75 +709,104 @@
     .neu-range-wrap {
       flex: 1;
       position: relative;
-      height: 8px;
-      border-radius: 4px;
+      height: 10px;
+      border-radius: 5px;
       background: var(--bg-surface);
       box-shadow: var(--neu-inset);
-      overflow: hidden;
       cursor: pointer;
+      touch-action: none;
+      user-select: none;
+      display: flex;
+      align-items: center;
     }
 
     .neu-progress-fill {
       height: 100%;
-      background: var(--color-primary);
+      background: linear-gradient(90deg, var(--color-primary), #00A63D);
       width: 0%;
-      border-radius: 4px;
-      transition: width 0.1s linear;
+      border-radius: 5px;
+      pointer-events: none;
+      transition: width 0.05s linear;
     }
 
-    /* Right Dock Actions (Full song & volume) */
+    .neu-progress-thumb {
+      position: absolute;
+      top: 50%;
+      left: 0%;
+      transform: translate(-50%, -50%);
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 2px 2px 5px var(--shadow-dark), -2px -2px 5px var(--shadow-light);
+      border: 2.5px solid var(--color-primary);
+      cursor: grab;
+      transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+      pointer-events: none;
+    }
+
+    .neu-range-wrap:hover .neu-progress-thumb,
+    .neu-range-wrap.is-dragging .neu-progress-thumb {
+      transform: translate(-50%, -50%) scale(1.3);
+      border-color: #00A63D;
+      box-shadow: 0 0 10px rgba(0, 166, 61, 0.6);
+      cursor: grabbing;
+    }
+
+    /* Right Dock Actions */
     .dock-right {
       display: flex;
       align-items: center;
-      gap: 14px;
-      width: 240px;
+      gap: 12px;
       justify-content: flex-end;
     }
 
-    .btn-full-yt {
-      background: var(--bg-surface);
-      border: none;
-      padding: 8px 14px;
-      border-radius: 10px;
-      font-family: 'Space Mono', monospace;
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--color-danger);
-      box-shadow: var(--neu-extruded-sm);
-      display: flex;
+    .btn-download-icon {
+      color: var(--color-primary) !important;
+      display: inline-flex !important;
       align-items: center;
-      gap: 6px;
-      cursor: pointer;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      flex-shrink: 0;
       text-decoration: none;
     }
 
-    .btn-full-yt:active {
-      box-shadow: var(--neu-inset);
+    .btn-download-icon:hover {
+      color: #00A63D !important;
     }
 
-    /* Wave visualizer */
+    /* Rhythm Equalizer Visualizer (Rime-Rime Lagu Spotify-Style) */
     .sound-wave {
-      display: flex;
-      align-items: center;
+      display: inline-flex;
+      align-items: flex-end;
       gap: 3px;
-      height: 16px;
+      height: 22px;
+      padding: 3px 6px;
+      background: var(--bg-surface);
+      border-radius: 8px;
+      box-shadow: var(--neu-inset);
+      flex-shrink: 0;
     }
 
     .wave-bar {
-      width: 3px;
+      width: 3.5px;
       height: 4px;
       background: var(--color-primary);
       border-radius: 2px;
+      transition: height 0.15s ease;
     }
 
-    .is-playing .wave-bar:nth-child(1) { animation: wave 0.8s infinite ease-in-out; }
-    .is-playing .wave-bar:nth-child(2) { animation: wave 0.6s infinite ease-in-out 0.2s; }
-    .is-playing .wave-bar:nth-child(3) { animation: wave 1.0s infinite ease-in-out 0.4s; }
-    .is-playing .wave-bar:nth-child(4) { animation: wave 0.7s infinite ease-in-out 0.1s; }
+    .is-playing .wave-bar:nth-child(1) { animation: rhythmBounce 0.85s infinite ease-in-out 0.1s; }
+    .is-playing .wave-bar:nth-child(2) { animation: rhythmBounce 0.65s infinite ease-in-out 0.3s; }
+    .is-playing .wave-bar:nth-child(3) { animation: rhythmBounce 1.05s infinite ease-in-out 0.0s; }
+    .is-playing .wave-bar:nth-child(4) { animation: rhythmBounce 0.75s infinite ease-in-out 0.4s; }
+    .is-playing .wave-bar:nth-child(5) { animation: rhythmBounce 0.95s infinite ease-in-out 0.2s; }
 
-    @keyframes wave {
-      0%, 100% { height: 4px; }
-      50% { height: 16px; }
+    @keyframes rhythmBounce {
+      0%, 100% { height: 4px; opacity: 0.5; }
+      50% { height: 18px; opacity: 1; background: #00A63D; }
     }
 
     /* Modal for YouTube Player */
@@ -947,11 +982,14 @@
         z-index: 10;
       }
       .dock-right #dockDownloadBtn {
-        display: flex !important;
-        padding: 6px 12px;
-        font-size: 0.72rem;
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        width: 32px;
         height: 32px;
         border-radius: 10px;
+        flex-shrink: 0;
       }
       .dock-right #closeDockBtn {
         width: 32px;
@@ -968,7 +1006,7 @@
         width: 100%;
         max-width: 100%;
         box-sizing: border-box;
-        overflow: hidden;
+        overflow: visible;
       }
       .card-actions {
         width: 100%;
@@ -1286,7 +1324,8 @@
         <div id="dockTitle" class="dock-title"></div>
         <div id="dockArtist" class="dock-artist"></div>
       </div>
-      <div class="sound-wave" id="soundWave">
+      <div class="sound-wave" id="soundWave" title="Rhythm Equalizer">
+        <div class="wave-bar"></div>
         <div class="wave-bar"></div>
         <div class="wave-bar"></div>
         <div class="wave-bar"></div>
@@ -1324,8 +1363,9 @@
 
       <div class="progress-bar-container">
         <span class="time-stamp" id="currentTimeText">0:00</span>
-        <div class="neu-range-wrap" id="progressBar">
+        <div class="neu-range-wrap" id="progressBar" title="Geser untuk atur durasi">
           <div class="neu-progress-fill" id="progressFill"></div>
+          <div class="neu-progress-thumb" id="progressThumb"></div>
         </div>
         <span class="time-stamp" id="totalDurationText">0:30</span>
       </div>
@@ -1333,13 +1373,12 @@
 
     <!-- Right Actions -->
     <div class="dock-right">
-      <a id="dockDownloadBtn" href="#" download class="btn-full-yt" style="color: var(--color-primary); display: none;" title="Download Audio MP3 (320kbps)">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <a id="dockDownloadBtn" href="#" download class="dock-ctrl-btn btn-step btn-download-icon" title="Download Audio MP3 (Gratis 320kbps)" style="display: none;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
           <polyline points="7 10 12 15 17 10"></polyline>
           <line x1="12" y1="15" x2="12" y2="3"></line>
         </svg>
-        <span>DOWNLOAD</span>
       </a>
 
       <button id="closeDockBtn" class="dock-ctrl-btn btn-step" title="Tutup Pemutar" style="width: 32px; height: 32px;">
@@ -1404,6 +1443,7 @@
     const dockArtist = document.getElementById('dockArtist');
     const progressBar = document.getElementById('progressBar');
     const progressFill = document.getElementById('progressFill');
+    const progressThumb = document.getElementById('progressThumb');
     const currentTimeText = document.getElementById('currentTimeText');
     const totalDurationText = document.getElementById('totalDurationText');
     const soundWave = document.getElementById('soundWave');
@@ -1552,9 +1592,9 @@
 
                 <!-- Dropdown Platform: YouTube, TikTok, Spotify -->
                 <div class="neu-dropdown-container">
-                  <button class="tactile-btn neu-dropdown-trigger" onclick="togglePlatformDropdown(event, '${track.id}')" title="Pilihan Platform Streaming">
-                    <span>⚡ PILIH</span>
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <button class="tactile-btn neu-dropdown-trigger" onclick="togglePlatformDropdown(event, '${track.id}')" title="Pilihan Platform">
+                    <span>PILIH</span>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
                       <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
                   </button>
@@ -1590,15 +1630,18 @@
     window.togglePlatformDropdown = function(e, id) {
       e.stopPropagation();
       const menu = document.getElementById('dropdown-' + id);
+      const card = document.getElementById('card-' + id);
       const isShown = menu && menu.classList.contains('show');
       closeAllDropdowns();
       if (menu && !isShown) {
         menu.classList.add('show');
+        if (card) card.classList.add('has-dropdown-open');
       }
     };
 
     window.closeAllDropdowns = function() {
       document.querySelectorAll('.neu-dropdown-menu.show').forEach(m => m.classList.remove('show'));
+      document.querySelectorAll('.song-card.has-dropdown-open').forEach(c => c.classList.remove('has-dropdown-open'));
     };
 
     document.addEventListener('click', () => {
@@ -1708,10 +1751,56 @@
       renderTracks();
     });
 
-    audioEngine.addEventListener('timeupdate', () => {
+    // Realtime Scrubber (Geser / Drag Durasi Realtime)
+    let isScrubbing = false;
+
+    function handleScrub(e) {
+      if (!audioEngine.duration) return 0;
+      const rect = progressBar.getBoundingClientRect();
+      const clientX = e.clientX ?? (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+      const pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+      const targetSec = pct * audioEngine.duration;
+      
+      progressFill.style.width = `${pct * 100}%`;
+      if (progressThumb) progressThumb.style.left = `${pct * 100}%`;
+      currentTimeText.textContent = formatTime(targetSec);
+      return pct;
+    }
+
+    progressBar.addEventListener('pointerdown', (e) => {
       if (!audioEngine.duration) return;
+      isScrubbing = true;
+      progressBar.classList.add('is-dragging');
+      try { progressBar.setPointerCapture(e.pointerId); } catch(err) {}
+      handleScrub(e);
+    });
+
+    progressBar.addEventListener('pointermove', (e) => {
+      if (!isScrubbing) return;
+      handleScrub(e);
+    });
+
+    progressBar.addEventListener('pointerup', (e) => {
+      if (!isScrubbing) return;
+      const pct = handleScrub(e);
+      if (typeof pct === 'number' && !isNaN(pct) && audioEngine.duration) {
+        audioEngine.currentTime = pct * audioEngine.duration;
+      }
+      isScrubbing = false;
+      progressBar.classList.remove('is-dragging');
+      try { progressBar.releasePointerCapture(e.pointerId); } catch(err) {}
+    });
+
+    progressBar.addEventListener('pointercancel', () => {
+      isScrubbing = false;
+      progressBar.classList.remove('is-dragging');
+    });
+
+    audioEngine.addEventListener('timeupdate', () => {
+      if (!audioEngine.duration || isScrubbing) return;
       const progress = (audioEngine.currentTime / audioEngine.duration) * 100;
       progressFill.style.width = `${progress}%`;
+      if (progressThumb) progressThumb.style.left = `${progress}%`;
       currentTimeText.textContent = formatTime(audioEngine.currentTime);
       totalDurationText.textContent = formatTime(audioEngine.duration);
     });
@@ -1724,15 +1813,6 @@
         updatePlayerUI();
         renderTracks();
       }
-    });
-
-    // Seek Click
-    progressBar.addEventListener('click', (e) => {
-      if (!audioEngine.duration) return;
-      const rect = progressBar.getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      const pct = clickX / rect.width;
-      audioEngine.currentTime = pct * audioEngine.duration;
     });
 
     // Controls
