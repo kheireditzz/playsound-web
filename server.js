@@ -29,16 +29,16 @@ function setCache(key, val) {
   cache.timestamps[key] = Date.now();
 }
 
-// Data Fetchers
-async function fetchDeezerGlobal() {
+// Data Fetchers with Dynamic Daily Rotation & Fresh Releases
+async function fetchDeezerGlobal(isRotating = true) {
   try {
-    const res = await fetch('https://api.deezer.com/chart/0/tracks?limit=30');
+    const res = await fetch('https://api.deezer.com/chart/0/tracks?limit=100');
     if (!res.ok) throw new Error(`Deezer HTTP ${res.status}`);
     const json = await res.json();
     if (!json.tracks?.data && !json.data) return [];
     const list = json.tracks?.data || json.data;
 
-    return list.map((item, idx) => {
+    const mapped = list.map((item, idx) => {
       const title = item.title_short || item.title;
       const artist = item.artist?.name || 'Unknown Artist';
       return {
@@ -50,7 +50,7 @@ async function fetchDeezerGlobal() {
         cover: item.album?.cover_medium || item.album?.cover_big || item.album?.cover || '',
         preview: item.preview || '',
         duration: item.duration || 30,
-        trendVelocity: idx === 0 ? '🔥 #1 VIRAL' : idx < 5 ? `▲ +${5 - idx}` : idx % 4 === 0 ? '★ NEW' : '▲ HOT',
+        trendVelocity: idx === 0 ? '🔥 #1 GLOBAL' : idx < 5 ? `▲ +${5 - idx}` : idx % 4 === 0 ? '★ NEW' : '▲ HOT',
         origin: idx % 2 === 0 ? 'Spotify' : 'TikTok',
         youtubeQuery: `${artist} ${title} official audio`,
         externalUrls: {
@@ -61,15 +61,29 @@ async function fetchDeezerGlobal() {
         }
       };
     });
+
+    if (!isRotating || mapped.length <= 15) return mapped.slice(0, 35);
+
+    // Rotasi Harian & 4-Jam Dinamis:
+    // Peringkat 1-5 dipertahankan sebagai Core Viral Hits tak terbantahkan.
+    // Peringkat 6-100 dirotasikan secara cerdas berdasarkan jam/hari agar lagu variatif & tidak monoton!
+    const coreTop = mapped.slice(0, 5);
+    const pool = mapped.slice(5);
+    const now = new Date();
+    const timeSeed = now.getUTCDate() * 24 + Math.floor(now.getUTCHours() / 4);
+    const offset = (timeSeed * 7) % Math.max(1, pool.length - 30);
+    const rotatedRest = [...pool.slice(offset), ...pool.slice(0, offset)].slice(0, 30);
+
+    return [...coreTop, ...rotatedRest];
   } catch (err) {
     console.error('Deezer fetch error:', err.message);
     return [];
   }
 }
 
-async function fetchAppleRss(country = 'us', originTag = 'Billboard') {
+async function fetchAppleRss(country = 'us', originTag = 'Billboard', limit = 40) {
   try {
-    const res = await fetch(`https://itunes.apple.com/${country}/rss/topsongs/limit=30/json`);
+    const res = await fetch(`https://itunes.apple.com/${country}/rss/topsongs/limit=${limit}/json`);
     if (!res.ok) throw new Error(`Apple RSS HTTP ${res.status}`);
     const json = await res.json();
     const entries = json.feed?.entry || [];
@@ -110,8 +124,21 @@ async function fetchAppleRss(country = 'us', originTag = 'Billboard') {
 }
 
 async function fetchTikTokViralHits() {
+  const TIKTOK_QUERIES = [
+    'tiktok viral hits 2026',
+    'viral songs trending fyp',
+    'tiktok sound trend viral',
+    'popular dance hits tiktok',
+    'trending speed up songs tiktok',
+    'global viral tiktok sound',
+    'tiktok hits nightcore viral'
+  ];
+  const now = new Date();
+  const queryIdx = (now.getUTCDay() + Math.floor(now.getUTCHours() / 6)) % TIKTOK_QUERIES.length;
+  const currentQuery = TIKTOK_QUERIES[queryIdx];
+
   try {
-    const res = await fetch('https://itunes.apple.com/search?term=tiktok+viral+hits&entity=song&limit=30');
+    const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(currentQuery)}&entity=song&limit=35`);
     if (!res.ok) throw new Error(`iTunes search HTTP ${res.status}`);
     const json = await res.json();
     const results = json.results || [];
@@ -128,7 +155,7 @@ async function fetchTikTokViralHits() {
         cover: (item.artworkUrl100 || '').replace('100x100bb', '600x600bb'),
         preview: item.previewUrl || '',
         duration: Math.round((item.trackTimeMillis || 30000) / 1000),
-        trendVelocity: idx === 0 ? '🔥 SOUND OF THE WEEK' : idx < 5 ? '⚡ 5M+ VIDEOS' : '★ TRENDING',
+        trendVelocity: idx === 0 ? '🔥 SOUND OF THE WEEK' : idx < 5 ? '⚡ FYP VIRAL' : '★ TRENDING',
         origin: 'TikTok',
         youtubeQuery: `${artist} ${title} official sound`,
         externalUrls: {
@@ -143,6 +170,44 @@ async function fetchTikTokViralHits() {
     console.error('TikTok search error:', err.message);
     return [];
   }
+}
+
+async function fetchFreshReleases() {
+  try {
+    const res = await fetch('https://itunes.apple.com/search?term=new+music+releases+2026&entity=song&limit=35');
+    if (res.ok) {
+      const json = await res.json();
+      const results = json.results || [];
+      if (results.length > 0) {
+        return results.map((item, idx) => {
+          const title = item.trackName || 'Fresh Track';
+          const artist = item.artistName || 'Unknown Artist';
+          return {
+            id: `fr-${item.trackId || idx}`,
+            rank: idx + 1,
+            title,
+            artist,
+            album: item.collectionName || 'New Single',
+            cover: (item.artworkUrl100 || '').replace('100x100bb', '600x600bb'),
+            preview: item.previewUrl || '',
+            duration: Math.round((item.trackTimeMillis || 30000) / 1000),
+            trendVelocity: idx === 0 ? '✨ JUST DROPPED' : idx < 5 ? '🔥 NEW RELEASE' : '★ FRESH HIT',
+            origin: 'Fresh Hits',
+            youtubeQuery: `${artist} ${title} official audio`,
+            externalUrls: {
+              apple: item.trackViewUrl || '',
+              youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(artist + ' ' + title)}`,
+              tiktok: `https://www.tiktok.com/search?q=${encodeURIComponent(artist + ' ' + title)}`,
+              spotify: `https://open.spotify.com/search/${encodeURIComponent(artist + ' ' + title)}`
+            }
+          };
+        });
+      }
+    }
+  } catch (e) {
+    console.error('Fresh releases error:', e.message);
+  }
+  return fetchAppleRss('us', 'Fresh Hits', 35);
 }
 
 async function searchSongs(query) {
@@ -344,43 +409,67 @@ async function scrapeFullAudio(query) {
 }
 
 async function scrapeViralIndo() {
+  const seen = new Set();
+  const list = [];
+
+  // 1. Ambil chart resmi Apple Music Indonesia (lagu-lagu hits Indonesia riil yang sedang trending)
+  try {
+    const appleIndo = await fetchAppleRss('id', 'Indo Hits', 30);
+    for (const t of appleIndo) {
+      const key = `${t.title.toLowerCase()}_${t.artist.toLowerCase()}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        list.push(t);
+      }
+    }
+  } catch (err) {
+    console.error('Apple Indo error:', err.message);
+  }
+
+  // 2. Gabungkan JioSaavn Indonesia Trending (dengan full 320kbps audio jika tersedia)
   try {
     const url = 'https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&_marker=0&api_version=4&ctx=web6dot0&q=indonesia+viral+tiktok+hits&n=30&p=1';
     const res = await fetch(url, {
       headers: { 'User-Agent': 'Mozilla/5.0' },
       signal: AbortSignal.timeout(7000)
     });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return (data.results || []).map((item, idx) => {
-      const streamUrl = decryptSaavnMedia(item.more_info?.encrypted_media_url);
-      const title = (item.title || 'Lagu Viral').replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&');
-      const artist = (item.subtitle || 'Top Artist').replace(/&amp;/g, '&');
-      return {
-        id: `sv-${item.id || idx}`,
-        rank: idx + 1,
-        title,
-        artist,
-        album: item.more_info?.album || 'Viral Hits',
-        cover: item.image ? item.image.replace('150x150', '500x500') : '',
-        preview: streamUrl || '',
-        fullStreamUrl: streamUrl || '',
-        duration: Number(item.more_info?.duration) || 180,
-        trendVelocity: idx === 0 ? '🔥 #1 INDO' : idx < 5 ? `▲ +${5 - idx}` : '★ TOP HITS',
-        origin: 'Indo Hits',
-        youtubeQuery: `${artist} ${title} official audio`,
-        externalUrls: {
-          saavn: item.perma_url || '',
-          youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(artist + ' ' + title)}`,
-          tiktok: `https://www.tiktok.com/search?q=${encodeURIComponent(artist + ' ' + title)}`,
-          spotify: `https://open.spotify.com/search/${encodeURIComponent(artist + ' ' + title)}`
+    if (res.ok) {
+      const data = await res.json();
+      (data.results || []).forEach((item, idx) => {
+        const streamUrl = decryptSaavnMedia(item.more_info?.encrypted_media_url);
+        const title = (item.title || 'Lagu Viral').replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&');
+        const artist = (item.subtitle || 'Top Artist').replace(/&amp;/g, '&');
+        const key = `${title.toLowerCase()}_${artist.toLowerCase()}`;
+        if (!seen.has(key) && streamUrl) {
+          seen.add(key);
+          list.push({
+            id: `sv-${item.id || idx}`,
+            rank: list.length + 1,
+            title,
+            artist,
+            album: item.more_info?.album || 'Viral Hits',
+            cover: item.image ? item.image.replace('150x150', '500x500') : '',
+            preview: streamUrl || '',
+            fullStreamUrl: streamUrl || '',
+            duration: Number(item.more_info?.duration) || 180,
+            trendVelocity: idx < 3 ? '🔥 #1 INDO' : '★ TOP HITS',
+            origin: 'Indo Hits',
+            youtubeQuery: `${artist} ${title} official audio`,
+            externalUrls: {
+              saavn: item.perma_url || '',
+              youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(artist + ' ' + title)}`,
+              tiktok: `https://www.tiktok.com/search?q=${encodeURIComponent(artist + ' ' + title)}`,
+              spotify: `https://open.spotify.com/search/${encodeURIComponent(artist + ' ' + title)}`
+            }
+          });
         }
-      };
-    }).filter(t => t.preview);
+      });
+    }
   } catch (err) {
     console.error('Viral Indo scrape error:', err.message);
-    return [];
   }
+
+  return list.slice(0, 35);
 }
 
 // Router
@@ -428,26 +517,40 @@ export async function handleRequest(req, res) {
 
       let tracks = [];
       if (category === 'global') {
-        const deezer = await fetchDeezerGlobal();
+        const deezer = await fetchDeezerGlobal(true);
         if (deezer.length > 0) {
           tracks = deezer;
         } else {
-          tracks = await fetchAppleRss('us', 'Billboard');
+          tracks = await fetchAppleRss('us', 'Billboard', 35);
         }
+      } else if (category === 'fresh') {
+        tracks = await fetchFreshReleases();
       } else if (category === 'tiktok') {
         tracks = await fetchTikTokViralHits();
       } else if (category === 'us') {
-        tracks = await fetchAppleRss('us', 'Billboard');
+        tracks = await fetchAppleRss('us', 'Billboard', 35);
       } else if (category === 'uk') {
-        tracks = await fetchAppleRss('gb', 'UK Official');
+        tracks = await fetchAppleRss('gb', 'UK Official', 35);
       } else if (category === 'kpop') {
-        tracks = await fetchSearchGenre('kpop viral hits', 'K-Pop');
+        const KPOP_QUERIES = [
+          'kpop viral hits 2026',
+          'kpop top trending songs',
+          'kpop girl group viral',
+          'kpop boy group viral'
+        ];
+        const qIdx = (new Date().getUTCDay() + Math.floor(new Date().getUTCHours() / 6)) % KPOP_QUERIES.length;
+        tracks = await fetchSearchGenre(KPOP_QUERIES[qIdx], 'K-Pop');
       } else if (category === 'japan') {
-        tracks = await fetchSearchGenre('jpop viral hits', 'J-Pop');
+        const jpRss = await fetchAppleRss('jp', 'J-Pop', 35);
+        if (jpRss.length > 0) {
+          tracks = jpRss;
+        } else {
+          tracks = await fetchSearchGenre('jpop viral hits', 'J-Pop');
+        }
       } else if (category === 'indo') {
         tracks = await scrapeViralIndo();
       } else {
-        tracks = await fetchDeezerGlobal();
+        tracks = await fetchDeezerGlobal(true);
       }
 
       if (tracks.length > 0) {
