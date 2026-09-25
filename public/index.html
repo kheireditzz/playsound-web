@@ -38,7 +38,7 @@
 
     html {
       width: 100%;
-      max-width: 100vw;
+      max-width: 100%;
       overflow-x: hidden;
       position: relative;
     }
@@ -49,7 +49,7 @@
       font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
       min-height: 100vh;
       width: 100%;
-      max-width: 100vw;
+      max-width: 100%;
       display: flex;
       flex-direction: column;
       padding-top: 86px;
@@ -437,10 +437,20 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      width: 100%;
+      max-width: 100%;
+      gap: 8px;
       margin-top: auto;
       padding-top: 10px;
       border-top: 1px solid rgba(0, 0, 0, 0.04);
+      box-sizing: border-box;
+    }
+
+    .card-actions-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      position: relative;
     }
 
     .tactile-btn {
@@ -459,6 +469,8 @@
       justify-content: center;
       gap: 6px;
       transition: all 0.15s ease;
+      text-decoration: none;
+      white-space: nowrap;
     }
 
     .tactile-btn:active {
@@ -476,11 +488,77 @@
       box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.4);
     }
 
-    .external-btn {
-      width: 36px;
-      height: 36px;
-      padding: 0;
-      border-radius: 10px;
+    .btn-dl-card {
+      color: var(--color-primary);
+      padding: 8px 12px;
+      font-size: 0.75rem;
+    }
+
+    /* ── Platform Dropdown Menu (YouTube, TikTok, Spotify) ── */
+    .neu-dropdown-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    .neu-dropdown-trigger {
+      padding: 8px 12px;
+      font-size: 0.75rem;
+      gap: 5px;
+      color: var(--color-text);
+      cursor: pointer;
+    }
+
+    .neu-dropdown-menu {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 8px);
+      right: 0;
+      background: var(--bg-surface);
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.16), var(--neu-extruded-sm);
+      min-width: 175px;
+      z-index: 120;
+      padding: 6px;
+      flex-direction: column;
+      gap: 4px;
+      animation: dropPop 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      box-sizing: border-box;
+    }
+
+    @keyframes dropPop {
+      from { opacity: 0; transform: translateY(6px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .neu-dropdown-menu.show {
+      display: flex;
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 9px;
+      text-decoration: none;
+      color: var(--color-text);
+      font-size: 0.8rem;
+      font-weight: 700;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      width: 100%;
+      text-align: left;
+      box-sizing: border-box;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .dropdown-item:active, .dropdown-item:hover {
+      background: var(--bg-surface);
+      box-shadow: var(--neu-inset);
+      color: var(--color-primary);
     }
 
     /* Bottom Tactile Floating Dock Player */
@@ -796,6 +874,9 @@
       body {
         padding-top: 76px;
         padding-bottom: 24px;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
       }
       body.has-player {
         padding-bottom: 150px;
@@ -803,6 +884,16 @@
       header.neu-header {
         padding: 0 16px;
         height: 68px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+      .container {
+        padding: 0 12px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
       }
       .logo-title {
         font-size: 1rem;
@@ -812,17 +903,17 @@
       }
       .neu-player-dock {
         position: fixed;
-        bottom: 14px;
-        left: 12px;
-        right: 12px;
-        margin: 0 auto;
-        width: auto;
-        max-width: 100%;
+        bottom: 12px;
+        left: 10px;
+        right: 10px;
+        margin: 0;
+        width: calc(100% - 20px);
+        max-width: calc(100% - 20px);
         display: none;
         height: auto;
-        min-height: 108px;
+        min-height: 104px;
         border-radius: 18px;
-        padding: 12px 14px 12px;
+        padding: 12px 14px;
         flex-direction: column;
         gap: 8px;
         box-shadow: 0 12px 28px rgba(0, 0, 0, 0.16), 0 3px 8px rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.9);
@@ -834,13 +925,15 @@
       }
       .dock-track-info {
         width: 100%;
-        padding-right: 90px;
+        padding-right: 110px;
         order: 1;
+        box-sizing: border-box;
       }
       .dock-center {
         width: 100%;
         order: 2;
         max-width: 100%;
+        box-sizing: border-box;
       }
       .dock-right {
         display: flex !important;
@@ -867,6 +960,20 @@
       }
       .tracks-grid {
         grid-template-columns: 1fr;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+      .song-card {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
+      }
+      .card-actions {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
       }
       .trending-banner {
         height: 160px;
@@ -1235,20 +1342,6 @@
         <span>DOWNLOAD</span>
       </a>
 
-      <button id="openFullYtBtn" class="btn-full-yt" title="Putar Lagu Utuh (YouTube)">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-        </svg>
-        <span>YOUTUBE</span>
-      </button>
-
-      <a id="dockTiktokBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn-full-yt" style="color: var(--color-text); display: none;" title="Buka di TikTok">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 3 15.68 6.34 6.34 0 0 0 9.35 22a6.33 6.33 0 0 0 6.33-6.32V8.4a8.3 8.3 0 0 0 3.91 1.09V6.69z"/>
-        </svg>
-        <span>TIKTOK</span>
-      </a>
-
       <button id="closeDockBtn" class="dock-ctrl-btn btn-step" title="Tutup Pemutar" style="width: 32px; height: 32px;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -1314,7 +1407,6 @@
     const currentTimeText = document.getElementById('currentTimeText');
     const totalDurationText = document.getElementById('totalDurationText');
     const soundWave = document.getElementById('soundWave');
-    const openFullYtBtn = document.getElementById('openFullYtBtn');
 
     // Modal DOM
     const videoModal = document.getElementById('videoModal');
@@ -1322,8 +1414,7 @@
     const modalSongTitle = document.getElementById('modalSongTitle');
     const videoFrameContainer = document.getElementById('videoFrameContainer');
 
-    // Dock Additional Action Links
-    const dockTiktokBtn = document.getElementById('dockTiktokBtn');
+    // Dock Action Links
     const dockDownloadBtn = document.getElementById('dockDownloadBtn');
 
 
@@ -1449,38 +1540,70 @@
                 ${isPlayingThis ? '❚❚ JEDA' : '▶ PUTAR'}
               </button>
               
-              <div style="display: flex; gap: 6px; align-items: center;">
-                <a href="${dlUrl}" download class="tactile-btn external-btn btn-action-dl" title="Download Audio MP3 (Gratis & Cepat)">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <div class="card-actions-right">
+                <a href="${dlUrl}" download class="tactile-btn btn-dl-card" title="Download Audio MP3 (Gratis & Cepat)">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                     <polyline points="7 10 12 15 17 10"></polyline>
                     <line x1="12" y1="15" x2="12" y2="3"></line>
                   </svg>
+                  <span>MP3</span>
                 </a>
 
-                <button class="tactile-btn external-btn btn-action-yt" onclick="openYouTubeModalByIndex(${idx})" title="Putar Video YouTube">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="#FF2157">
-                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                  </svg>
-                </button>
-
-                <a href="${ttUrl}" target="_blank" rel="noopener noreferrer" class="tactile-btn external-btn btn-action-tt" title="Cari di TikTok">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 3 15.68 6.34 6.34 0 0 0 9.35 22a6.33 6.33 0 0 0 6.33-6.32V8.4a8.3 8.3 0 0 0 3.91 1.09V6.69z"/>
-                  </svg>
-                </a>
-
-                <a href="${spUrl}" target="_blank" rel="noopener noreferrer" class="tactile-btn external-btn btn-action-sp" title="Buka di Spotify">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="#1DB954">
-                    <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
-                  </svg>
-                </a>
+                <!-- Dropdown Platform: YouTube, TikTok, Spotify -->
+                <div class="neu-dropdown-container">
+                  <button class="tactile-btn neu-dropdown-trigger" onclick="togglePlatformDropdown(event, '${track.id}')" title="Pilihan Platform Streaming">
+                    <span>⚡ PILIH</span>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </button>
+                  <div class="neu-dropdown-menu" id="dropdown-${track.id}">
+                    <button class="dropdown-item" onclick="openYouTubeModalByIndex(${idx}); closeAllDropdowns();">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="#FF2157">
+                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                      </svg>
+                      <span>YouTube Video</span>
+                    </button>
+                    <a href="${ttUrl}" target="_blank" rel="noopener noreferrer" class="dropdown-item" onclick="closeAllDropdowns();">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 3 15.68 6.34 6.34 0 0 0 9.35 22a6.33 6.33 0 0 0 6.33-6.32V8.4a8.3 8.3 0 0 0 3.91 1.09V6.69z"/>
+                      </svg>
+                      <span>TikTok Sound</span>
+                    </a>
+                    <a href="${spUrl}" target="_blank" rel="noopener noreferrer" class="dropdown-item" onclick="closeAllDropdowns();">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="#1DB954">
+                        <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+                      </svg>
+                      <span>Buka di Spotify</span>
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         `;
       }).join('');
     }
+
+    // Dropdown handlers
+    window.togglePlatformDropdown = function(e, id) {
+      e.stopPropagation();
+      const menu = document.getElementById('dropdown-' + id);
+      const isShown = menu && menu.classList.contains('show');
+      closeAllDropdowns();
+      if (menu && !isShown) {
+        menu.classList.add('show');
+      }
+    };
+
+    window.closeAllDropdowns = function() {
+      document.querySelectorAll('.neu-dropdown-menu.show').forEach(m => m.classList.remove('show'));
+    };
+
+    document.addEventListener('click', () => {
+      closeAllDropdowns();
+    });
 
     // Play Track By Index
     window.playTrackByIndex = function(idx) {
@@ -1520,18 +1643,8 @@
         dockDownloadBtn.title = 'Download Audio MP3 (Gratis 320kbps)';
       }
 
-      function setTiktokLink() {
-        if (!dockTiktokBtn) return;
-        const ttUrl = track.externalUrls?.tiktok || `https://www.tiktok.com/search?q=${encodeURIComponent(track.artist + ' ' + track.title)}`;
-        dockTiktokBtn.href = ttUrl;
-        dockTiktokBtn.style.display = 'inline-flex';
-      }
-
       const initialAudio = track.fullStreamUrl || track.preview;
       setDownloadLink(initialAudio);
-      setTiktokLink();
-      
-      openFullYtBtn.onclick = () => openYouTubeModal(encodeURIComponent(track.artist + ' ' + track.title), encodeURIComponent(track.title));
 
       if (initialAudio) {
         audioEngine.src = initialAudio;
