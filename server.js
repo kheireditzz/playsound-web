@@ -329,96 +329,233 @@ async function fetchFreshReleases() {
 }
 
 async function searchSongs(query) {
-  const cleanQ = (query || '').replace(/[^\w\s]/gi, ' ').trim();
-  if (!cleanQ) return [];
+  const rawQ = (query || '').trim();
+  if (!rawQ) return [];
 
-  const results = [];
+  const cleanQ = rawQ.replace(/[^\w\s]/gi, ' ').replace(/\s+/g, ' ').trim();
+  const queryTokens = cleanQ.toLowerCase().split(' ').filter(t => t.length > 0);
+
   const seen = new Set();
+  const candidates = [];
 
-  // 1. Search JioSaavn for 320kbps full tracks
-  try {
-    const sUrl = `https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&_marker=0&api_version=4&ctx=web6dot0&q=${encodeURIComponent(cleanQ)}&n=20&p=1`;
-    const sRes = await fetch(sUrl, {
-      headers: { 'User-Agent': 'Mozilla/5.0' },
-      signal: AbortSignal.timeout(4500)
-    });
-    if (sRes.ok) {
-      const data = await sRes.json();
-      const list = data.results || [];
-      for (const item of list) {
+  // 1. Search Deezer Global (90M+ katalog musik global & Indonesia dengan cover HD & MP3 preview instan)
+  const deezerPromise = (async () => {
+    try {
+      const res = await fetch(`https://api.deezer.com/search?q=${encodeURIComponent(rawQ)}&limit=30`, {
+        headers: { 'User-Agent': 'Mozilla/5.0' },
+        signal: AbortSignal.timeout(4500)
+      });
+      if (!res.ok) return [];
+      const json = await res.json();
+      return (json.data || []).map(t => ({
+        id: `dz-sr-${t.id}`,
+        title: t.title_short || t.title,
+        artist: t.artist?.name || 'Artist',
+        album: t.album?.title || 'Single',
+        cover: t.album?.cover_medium || t.album?.cover_big || t.album?.cover || '',
+        preview: t.preview || '',
+        fullStreamUrl: '',
+        duration: t.duration || 30,
+        origin: 'Deezer'
+      }));
+    } catch {
+      return [];
+    }
+  })();
+
+  // 2. Search Spotify via Pathfinder Desktop Search (katalog resmi Spotify internasional)
+  const spotifyPromise = (async () => {
+    try {
+      const token = await getSpotifyToken();
+      if (!token) return [];
+      const vars = JSON.stringify({
+        searchTerm: rawQ,
+        offset: 0,
+        limit: 20,
+        numberOfTopResults: 5,
+        includeAudiobooks: false,
+        includePreReleases: true,
+        includeAlbumPreReleases: false,
+        includeAuthors: false,
+        includeEpisodeContentRatingsV2: false
+      });
+      const extensions = JSON.stringify({
+        persistedQuery: {
+          version: 1,
+          sha256Hash: "eff59fa0a3d026b88b56fddbcf4bdfa16a186b8175a5c1a358c072e053c2e5b0"
+        }
+      });
+      const qUrl = `https://api-partner.spotify.com/pathfinder/v1/query?operationName=searchDesktop&variables=${encodeURIComponent(vars)}&extensions=${encodeURIComponent(extensions)}`;
+      const res = await fetch(qUrl, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Accept": "application/json",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+        },
+        signal: AbortSignal.timeout(4500)
+      });
+      if (!res.ok) return [];
+      const json = await res.json();
+      const items = json.data?.searchV2?.tracksV2?.items || [];
+      return items.map(it => {
+        const d = it.item?.data;
+        if (!d) return null;
+        const covers = d.albumOfTrack?.coverArt?.sources || [];
+        const bestCover = covers.find(c => c.width >= 300) || covers[0];
+        const artist = d.artists?.items?.map(a => a.profile?.name).filter(Boolean).join(', ') || 'Artist';
+        const durSec = Math.round((d.duration?.totalMilliseconds || 30000) / 1000);
+        return {
+          id: `sp-sr-${d.id || Math.random()}`,
+          title: d.name || 'Track',
+          artist,
+          album: d.albumOfTrack?.name || 'Single',
+          cover: bestCover?.url || '',
+          preview: '',
+          fullStreamUrl: '',
+          duration: durSec,
+          origin: 'Spotify'
+        };
+      }).filter(Boolean);
+    } catch {
+      return [];
+    }
+  })();
+
+  // 3. Search JioSaavn (untuk 320kbps full stream langsung jika ada)
+  const saavnPromise = (async () => {
+    try {
+      const sUrl = `https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&_marker=0&api_version=4&ctx=web6dot0&q=${encodeURIComponent(cleanQ)}&n=20&p=1`;
+      const res = await fetch(sUrl, {
+        headers: { 'User-Agent': 'Mozilla/5.0' },
+        signal: AbortSignal.timeout(4500)
+      });
+      if (!res.ok) return [];
+      const json = await res.json();
+      return (json.results || []).map(item => {
         const streamUrl = decryptSaavnMedia(item.more_info?.encrypted_media_url);
         const title = (item.title || 'Track').replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&');
         const artist = (item.subtitle || item.more_info?.music || 'Artist').replace(/&amp;/g, '&');
-        const key = `${title.toLowerCase()}_${artist.toLowerCase()}`;
-        if (!seen.has(key) && streamUrl) {
-          seen.add(key);
-          results.push({
-            id: `sr-${item.id || results.length}`,
-            rank: results.length + 1,
-            title,
-            artist,
-            album: item.more_info?.album || 'Single',
-            cover: item.image ? item.image.replace('150x150', '250x250') : '',
-            preview: streamUrl,
-            fullStreamUrl: streamUrl,
-            duration: Number(item.more_info?.duration) || 180,
-            trendVelocity: '320kbps HD',
-            origin: 'Free MP3',
-            youtubeQuery: `${artist} ${title} official audio`,
-            externalUrls: {
-              saavn: item.perma_url || '',
-              youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(artist + ' ' + title)}`,
-              tiktok: `https://www.tiktok.com/search?q=${encodeURIComponent(artist + ' ' + title)}`,
-              spotify: `https://open.spotify.com/search/${encodeURIComponent(artist + ' ' + title)}`
-            }
-          });
-        }
-      }
+        return {
+          id: `saavn-sr-${item.id}`,
+          title,
+          artist,
+          album: item.more_info?.album || 'Single',
+          cover: item.image ? item.image.replace('150x150', '250x250') : '',
+          preview: streamUrl || '',
+          fullStreamUrl: streamUrl || '',
+          duration: Number(item.more_info?.duration) || 180,
+          origin: '320kbps HD'
+        };
+      });
+    } catch {
+      return [];
     }
-  } catch (err) {
-    console.error('Saavn search error:', err.message);
-  }
+  })();
 
-  // 2. Search iTunes for catalog completeness (international, K-Pop, viral hits)
-  try {
-    const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=25`);
-    if (res.ok) {
+  // 4. Search iTunes (Katalog Apple Music global)
+  const itunesPromise = (async () => {
+    try {
+      const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(rawQ)}&entity=song&limit=20`, {
+        signal: AbortSignal.timeout(4000)
+      });
+      if (!res.ok) return [];
       const json = await res.json();
-      const list = json.results || [];
-      for (const item of list) {
-        const title = item.trackName;
-        const artist = item.artistName;
-        const key = `${title.toLowerCase()}_${artist.toLowerCase()}`;
-        if (!seen.has(key)) {
-          seen.add(key);
-          results.push({
-            id: `sr-it-${item.trackId || results.length}`,
-            rank: results.length + 1,
-            title,
-            artist,
-            album: item.collectionName || 'Single',
-            cover: (item.artworkUrl100 || '').replace('100x100bb', '250x250bb'),
-            preview: item.previewUrl || '',
-            fullStreamUrl: '',
-            duration: Math.round((item.trackTimeMillis || 30000) / 1000),
-            trendVelocity: 'VIRAL',
-            origin: 'iTunes',
-            youtubeQuery: `${artist} ${title} official audio`,
-            externalUrls: {
-              apple: item.trackViewUrl || '',
-              youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(artist + ' ' + title)}`,
-              tiktok: `https://www.tiktok.com/search?q=${encodeURIComponent(artist + ' ' + title)}`,
-              spotify: `https://open.spotify.com/search/${encodeURIComponent(artist + ' ' + title)}`
-            }
-          });
-        }
-      }
+      return (json.results || []).map(item => ({
+        id: `it-sr-${item.trackId}`,
+        title: item.trackName,
+        artist: item.artistName,
+        album: item.collectionName || 'Single',
+        cover: (item.artworkUrl100 || '').replace('100x100bb', '300x300bb'),
+        preview: item.previewUrl || '',
+        fullStreamUrl: '',
+        duration: Math.round((item.trackTimeMillis || 30000) / 1000),
+        origin: 'Apple'
+      }));
+    } catch {
+      return [];
     }
-  } catch (err) {
-    console.error('iTunes search error:', err.message);
+  })();
+
+  // Eksekusi paralel semua provider secara serentak
+  const [deezerRes, spotifyRes, saavnRes, itunesRes] = await Promise.allSettled([
+    deezerPromise, spotifyPromise, saavnPromise, itunesPromise
+  ]);
+
+  const rawList = [
+    ...(deezerRes.status === 'fulfilled' ? deezerRes.value : []),
+    ...(spotifyRes.status === 'fulfilled' ? spotifyRes.value : []),
+    ...(saavnRes.status === 'fulfilled' ? saavnRes.value : []),
+    ...(itunesRes.status === 'fulfilled' ? itunesRes.value : [])
+  ];
+
+  // Algoritma Word Relevance Matching
+  const lowerQ = rawQ.toLowerCase().trim();
+  for (const item of rawList) {
+    if (!item.title || !item.artist) continue;
+    const lowerTitle = item.title.toLowerCase();
+    const lowerArtist = item.artist.toLowerCase();
+    const fullText = `${lowerTitle} ${lowerArtist}`;
+    const dedupeKey = `${lowerTitle.replace(/[^a-z0-9]/g, '')}_${lowerArtist.replace(/[^a-z0-9]/g, '')}`;
+
+    if (seen.has(dedupeKey)) {
+      // Jika sudah ada tapi yang ini punya preview atau cover lebih baik, update kandidat yang ada
+      const existing = candidates.find(c => c.dedupeKey === dedupeKey);
+      if (existing) {
+        if (!existing.preview && item.preview) existing.preview = item.preview;
+        if (!existing.fullStreamUrl && item.fullStreamUrl) existing.fullStreamUrl = item.fullStreamUrl;
+        if (!existing.cover && item.cover) existing.cover = item.cover;
+      }
+      continue;
+    }
+    seen.add(dedupeKey);
+
+    let score = 0;
+
+    // 1. Exact phrase match
+    if (lowerTitle === lowerQ) score += 200;
+    else if (lowerTitle.startsWith(lowerQ)) score += 120;
+    else if (lowerTitle.includes(lowerQ)) score += 90;
+    else if (fullText.includes(lowerQ)) score += 70;
+
+    // 2. Token / word matching
+    for (const tok of queryTokens) {
+      if (tok.length <= 1) continue;
+      if (lowerTitle.includes(tok)) score += 30;
+      if (lowerArtist.includes(tok)) score += 20;
+    }
+
+    // 3. Media playback availability
+    if (item.fullStreamUrl) score += 35;
+    else if (item.preview) score += 25;
+    if (item.cover && item.cover.startsWith('http')) score += 10;
+
+    item.relevanceScore = score;
+    item.dedupeKey = dedupeKey;
+    candidates.push(item);
   }
 
-  return results;
+  // Urutkan berdasarkan skor kecocokan kata tertinggi
+  candidates.sort((a, b) => b.relevanceScore - a.relevanceScore);
+
+  return candidates.slice(0, 45).map((t, idx) => ({
+    id: t.id || `sr-${idx}`,
+    rank: idx + 1,
+    title: t.title,
+    artist: t.artist,
+    album: t.album || 'Single',
+    cover: t.cover || '',
+    preview: t.preview || '',
+    fullStreamUrl: t.fullStreamUrl || '',
+    duration: t.duration || 30,
+    trendVelocity: idx === 0 ? 'TOP RELEVAN' : idx < 5 ? 'TOP' : 'COCOK',
+    origin: t.origin,
+    youtubeQuery: `${t.artist} ${t.title} official audio`,
+    externalUrls: {
+      spotify: `https://open.spotify.com/search/${encodeURIComponent(t.artist + ' ' + t.title)}`,
+      youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(t.artist + ' ' + t.title)}`,
+      tiktok: `https://www.tiktok.com/search?q=${encodeURIComponent(t.artist + ' ' + t.title)}`
+    }
+  }));
 }
 
 async function fetchSearchGenre(term, originTag) {

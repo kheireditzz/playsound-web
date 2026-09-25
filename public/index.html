@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="referrer" content="no-referrer">
   <title>PlaySound // Viral Music Platform</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1981,7 +1982,7 @@
   <!-- Bottom Tactile Audio Player Dock -->
   <footer class="neu-player-dock" id="playerDock">
     <div class="dock-track-info">
-      <img id="dockCover" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' fill='%23ccc'%3E%3Crect width='50' height='50'/%3E%3C/svg%3E" alt="Cover" class="dock-cover" loading="eager" decoding="async">
+      <img id="dockCover" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='50' height='50'%3E%3Crect width='100' height='100' fill='%23DCDAD7' rx='14'/%3E%3Cpath d='M38 68a8 8 0 1 1-8-8 8 8 0 0 1 8 8zm30-7a8 8 0 1 1-8-8 8 8 0 0 1 8 8z' fill='%23006666'/%3E%3Cpath d='M38 68V34l30-7v34' fill='none' stroke='%23006666' stroke-width='4.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" alt="Cover" class="dock-cover" loading="eager" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\' width=\'50\' height=\'50\'%3E%3Crect width=\'100\' height=\'100\' fill=\'%23DCDAD7\' rx=\'14\'/%3E%3Cpath d=\'M38 68a8 8 0 1 1-8-8 8 8 0 0 1 8 8zm30-7a8 8 0 1 1-8-8 8 8 0 0 1 8 8z\' fill=\'%23006666\'/%3E%3Cpath d=\'M38 68V34l30-7v34\' fill=\'none\' stroke=\'%23006666\' stroke-width=\'4.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E';">
       <div class="dock-text">
         <div id="dockTitle" class="dock-title"></div>
         <div id="dockArtist" class="dock-artist"></div>
@@ -2075,6 +2076,9 @@
   <audio id="audioEngine" preload="auto"></audio>
 
   <script>
+    // Neumorphic Fallback Cover (Pure SVG, Zero Network Dependency)
+    const DEFAULT_NEU_COVER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='100' height='100'%3E%3Crect width='100' height='100' fill='%23DCDAD7' rx='14'/%3E%3Cpath d='M38 68a8 8 0 1 1-8-8 8 8 0 0 1 8 8zm30-7a8 8 0 1 1-8-8 8 8 0 0 1 8 8z' fill='%23006666'/%3E%3Cpath d='M38 68V34l30-7v34' fill='none' stroke='%23006666' stroke-width='4.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E";
+
     // State
     const state = {
       currentCategory: 'global',
@@ -2185,12 +2189,12 @@
         const isPlaying = state.currentTrack && (state.currentTrack.id === t.id || (state.currentTrack.title === t.title && state.currentTrack.artist === t.artist)) && state.isPlaying;
         const safeTitle = escapeHtml(t.title);
         const safeArtist = escapeHtml(t.artist);
-        const coverUrl = t.cover || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="76" height="76" fill="%23ccc"%3E%3Crect width="76" height="76"/%3E%3C/svg%3E';
+        const coverUrl = t.cover || DEFAULT_NEU_COVER;
 
         return `
           <div class="history-card ${isPlaying ? 'is-playing' : ''}" onclick="playHistoryTrack(${idx})" title="${safeTitle} - ${safeArtist}">
             <div class="history-cover-wrap">
-              <img src="${coverUrl}" alt="${safeTitle}" class="history-cover" loading="eager" decoding="async">
+              <img src="${coverUrl}" alt="${safeTitle}" class="history-cover" loading="eager" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src=DEFAULT_NEU_COVER;">
               <div class="history-wave-mini">
                 <div class="history-mini-bar"></div>
                 <div class="history-mini-bar"></div>
@@ -2263,7 +2267,8 @@
 
       dockTitle.textContent = track.title;
       dockArtist.textContent = track.artist;
-      dockCover.src = track.cover || '';
+      dockCover.src = track.cover || DEFAULT_NEU_COVER;
+      dockCover.onerror = () => { dockCover.src = DEFAULT_NEU_COVER; };
 
       // 3. Update status UI seketika
       updatePlayerUI();
@@ -2606,14 +2611,17 @@
       }
     }
 
-    // Search Query
+    // Search Query (Pencarian Global Realtime)
     async function runSearch(query) {
       if (!query.trim()) return;
       if (window.scrollX !== 0 || window.pageXOffset !== 0) window.scrollTo(0, window.scrollY);
       document.documentElement.scrollLeft = 0;
       document.body.scrollLeft = 0;
 
-      if (categoryHeading) categoryHeading.textContent = `HASIL PENCARIAN: "${query.toUpperCase()}"`;
+      // Reset active tabs karena pencarian ini mencakup semua katalog global (bukan kategori khusus)
+      document.querySelectorAll('.neu-tab-btn').forEach(b => b.classList.remove('active'));
+
+      if (categoryHeading) categoryHeading.textContent = `PENCARIAN GLOBAL: "${query.toUpperCase()}"`;
       tracksGrid.innerHTML = `
         <div class="skeleton-grid" style="grid-column: 1 / -1; width: 100%; max-width: 100%;">
           <div class="skeleton-card"></div>
@@ -2626,10 +2634,10 @@
         const data = await res.json();
         state.tracks = data.data || [];
         renderTracks();
-        if (trackCountBadge) trackCountBadge.textContent = `${state.tracks.length} Results`;
+        if (trackCountBadge) trackCountBadge.textContent = `${state.tracks.length} Hasil`;
       } catch (err) {
         console.error(err);
-        tracksGrid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--color-danger); font-family: 'Space Mono'; width: 100%; max-width: 100%; box-sizing: border-box; word-break: break-word;">Pencarian gagal.</div>`;
+        tracksGrid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--color-danger); font-family: 'Space Mono'; width: 100%; max-width: 100%; box-sizing: border-box; word-break: break-word;">Pencarian gagal. Periksa koneksi internet.</div>`;
       }
     }
 
@@ -2689,7 +2697,7 @@
         const safeTitle = escapeHtml(track.title);
         const safeArtist = escapeHtml(track.artist);
         const safeId = String(track.id || idx).replace(/[^a-zA-Z0-9_-]/g, '_');
-        const coverUrl = track.cover || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="76" height="76" fill="%23ccc"%3E%3Crect width="76" height="76"/%3E%3C/svg%3E';
+        const coverUrl = track.cover || DEFAULT_NEU_COVER;
 
         const dlAudio = track.fullStreamUrl || track.preview;
         const dlUrl = dlAudio 
@@ -2704,7 +2712,7 @@
           <div class="song-card ${isPlayingThis ? 'is-playing' : ''}" id="card-${safeId}">
             <div class="card-top">
               <div class="cover-wrapper">
-                <img src="${coverUrl}" alt="${safeTitle}" class="cover-img" loading="eager" decoding="async">
+                <img src="${coverUrl}" alt="${safeTitle}" class="cover-img" loading="eager" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src=DEFAULT_NEU_COVER;">
               </div>
               <div class="card-info">
                 <div class="song-title" title="${safeTitle}">${safeTitle}</div>
@@ -2840,7 +2848,8 @@
 
       dockTitle.textContent = track.title;
       dockArtist.textContent = track.artist;
-      dockCover.src = track.cover || '';
+      dockCover.src = track.cover || DEFAULT_NEU_COVER;
+      dockCover.onerror = () => { dockCover.src = DEFAULT_NEU_COVER; };
 
       // 3. Update status UI seketika
       updatePlayerUI();
@@ -3261,12 +3270,12 @@
 
       bannerStrip.innerHTML = bannerSlides.map((t, i) => {
         const badge = BADGE_MAP[t.origin] || t.origin;
-        const cover = t.cover || '';
+        const cover = t.cover || DEFAULT_NEU_COVER;
         const trackIdx = state.tracks.findIndex(x => x.id === t.id);
         return `
           <div class="banner-slide" data-idx="${i}">
             <div class="banner-cover-wrap">
-              <img src="${cover}" alt="${escapeHtml(t.title)}" class="banner-cover-img" loading="eager" decoding="async" fetchpriority="high">
+              <img src="${cover}" alt="${escapeHtml(t.title)}" class="banner-cover-img" loading="eager" decoding="async" fetchpriority="high" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src=DEFAULT_NEU_COVER;">
             </div>
             <div class="banner-info">
               <div class="banner-top-badges">
