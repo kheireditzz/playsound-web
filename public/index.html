@@ -2936,6 +2936,16 @@
     async function loadAlbums(forceRefresh = false) {
       state.currentCategory = 'albums';
       if (categoryHeading) categoryHeading.textContent = 'KOLEKSI ALBUM TERBARU & POPULER';
+
+      // Pastikan banner, riwayat, controls, dan section meta terlihat saat di tab Top Album
+      const trendingBanner = document.getElementById('trendingBanner');
+      if (trendingBanner) trendingBanner.style.display = 'block';
+      if (historySection) renderHistory();
+      const controlsWrapper = document.querySelector('.controls-wrapper');
+      if (controlsWrapper) controlsWrapper.style.display = 'flex';
+      const sectionMeta = document.querySelector('.section-meta');
+      if (sectionMeta) sectionMeta.style.display = 'flex';
+
       if (window.scrollX !== 0 || window.pageXOffset !== 0) window.scrollTo(0, window.scrollY);
       document.documentElement.scrollLeft = 0;
       document.body.scrollLeft = 0;
@@ -3008,7 +3018,24 @@
     async function openAlbumDetail(albumId) {
       if (!albumId) return;
       state.currentCategory = 'album-detail';
-      if (categoryHeading) categoryHeading.textContent = 'DETAIL ALBUM & TRACKLIST';
+
+      // 1. Sembunyikan Trending Banner saat melihat track album
+      const trendingBanner = document.getElementById('trendingBanner');
+      if (trendingBanner) trendingBanner.style.display = 'none';
+
+      // 2. Sembunyikan Riwayat Musik saat melihat track album
+      if (historySection) historySection.style.display = 'none';
+
+      // 3. Sembunyikan Kotak Pencarian dan Kategori Tabs
+      const controlsWrapper = document.querySelector('.controls-wrapper');
+      if (controlsWrapper) controlsWrapper.style.display = 'none';
+
+      // 4. Sembunyikan Section Title default
+      const sectionMeta = document.querySelector('.section-meta');
+      if (sectionMeta) sectionMeta.style.display = 'none';
+
+      // 5. Scroll ke paling atas halaman secara mulus
+      window.scrollTo({ top: 0, behavior: 'smooth' });
 
       tracksGrid.innerHTML = `
         <div class="album-view-container">
@@ -3026,11 +3053,6 @@
           </div>
         </div>
       `;
-
-      try {
-        const gridTop = tracksGrid.getBoundingClientRect().top + window.pageYOffset - 90;
-        window.scrollTo({ top: Math.max(0, gridTop), behavior: 'smooth' });
-      } catch (e) {}
 
       try {
         const res = await fetch(`/api/album-detail?id=${encodeURIComponent(albumId)}`);
@@ -3179,6 +3201,27 @@
     }
 
     function exitAlbumView() {
+      // 1. Tampilkan kembali Trending Banner
+      const trendingBanner = document.getElementById('trendingBanner');
+      if (trendingBanner) trendingBanner.style.display = 'block';
+
+      // 2. Tampilkan kembali Riwayat Musik jika ada
+      renderHistory();
+
+      // 3. Tampilkan kembali Kotak Pencarian dan Kategori Tabs
+      const controlsWrapper = document.querySelector('.controls-wrapper');
+      if (controlsWrapper) controlsWrapper.style.display = 'flex';
+
+      // 4. Tampilkan kembali Section Title default
+      const sectionMeta = document.querySelector('.section-meta');
+      if (sectionMeta) sectionMeta.style.display = 'flex';
+
+      // 5. Kembalikan tab active ke 'albums'
+      document.querySelectorAll('.neu-tab-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.cat === 'albums');
+      });
+
+      // 6. Kembalikan status dan render list album
       state.currentCategory = 'albums';
       if (categoryHeading) categoryHeading.textContent = 'KOLEKSI ALBUM TERBARU & POPULER';
       if (albumsCache && albumsCache.length > 0) {
@@ -3187,10 +3230,9 @@
       } else {
         loadAlbums(false);
       }
-      try {
-        const gridTop = tracksGrid.getBoundingClientRect().top + window.pageYOffset - 90;
-        window.scrollTo({ top: Math.max(0, gridTop), behavior: 'smooth' });
-      } catch (e) {}
+
+      // 7. Scroll ke paling atas secara mulus
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     // Expose album functions to global window for seamless onclick handlers
@@ -3206,6 +3248,14 @@
 
     // Load Category Tracks (Realtime with fresh cache-busting)
     async function loadTracks(cat, forceRefresh = false) {
+      // Pastikan banner, controls, dan section meta kembali tampil saat berganti kategori
+      const trendingBanner = document.getElementById('trendingBanner');
+      if (trendingBanner) trendingBanner.style.display = 'block';
+      const controlsWrapper = document.querySelector('.controls-wrapper');
+      if (controlsWrapper) controlsWrapper.style.display = 'flex';
+      const sectionMeta = document.querySelector('.section-meta');
+      if (sectionMeta) sectionMeta.style.display = 'flex';
+
       if (cat === 'loved') {
         openLovedView();
         return;
