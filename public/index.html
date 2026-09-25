@@ -1968,21 +1968,34 @@
     }
 
     /* ── Modal Detail Album Full ── */
+    @keyframes neuModalPop {
+      0% {
+        opacity: 0;
+        transform: scale(0.96) translateY(12px);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
     .album-modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(30, 41, 56, 0.65);
+      background: rgba(30, 41, 56, 0.72);
       backdrop-filter: blur(8px);
-      z-index: 1000;
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 99999;
       display: none;
       align-items: center;
       justify-content: center;
       padding: 16px;
       box-sizing: border-box;
+      touch-action: auto;
     }
 
     .album-modal-backdrop.is-open {
-      display: flex;
+      display: flex !important;
     }
 
     .album-modal-card {
@@ -1996,7 +2009,9 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      animation: neuModalPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: neuModalPop 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      z-index: 100000;
     }
 
     .album-modal-header {
@@ -2406,7 +2421,7 @@
     </div>
   <!-- Modal Detail Full Album -->
   <div class="album-modal-backdrop" id="albumModalBackdrop" onclick="handleAlbumBackdropClick(event)">
-    <div class="album-modal-card" id="albumModalCard">
+    <div class="album-modal-card" id="albumModalCard" onclick="event.stopPropagation()">
       <div class="album-modal-header">
         <img id="albumModalCover" src="" alt="Album Cover" class="album-modal-cover" referrerpolicy="no-referrer">
         <div class="album-modal-info">
@@ -2985,30 +3000,31 @@
       tracksGrid.innerHTML = `
         <div class="albums-grid" style="grid-column: 1 / -1; width: 100%;">
           ${albums.map((alb, idx) => {
-            const safeTitle = escapeHtml(alb.title);
-            const safeArtist = escapeHtml(alb.artist);
+            const safeTitle = escapeHtml(alb.title || 'Album');
+            const safeArtist = escapeHtml(alb.artist || 'Artist');
+            const safeId = escapeHtml(String(alb.id || ''));
             const coverUrl = alb.cover || DEFAULT_NEU_COVER;
             const releaseYear = alb.releaseDate ? String(alb.releaseDate).slice(0, 4) : '2026';
 
             return `
-              <div class="album-card" onclick="openAlbumDetail('${alb.id}')" title="Klik untuk lihat isi album ${safeTitle}">
+              <div class="album-card" onclick="window.openAlbumDetail('${safeId}')" title="Klik untuk lihat isi album ${safeTitle}">
                 <div class="album-cover-box">
                   <img src="${coverUrl}" alt="${safeTitle}" class="album-cover-img" loading="eager" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src=DEFAULT_NEU_COVER;">
-                  <span class="album-badge-overlay">${alb.trackCount} LAGU</span>
+                  <span class="album-badge-overlay">${alb.trackCount || 10} LAGU</span>
                 </div>
                 <div class="album-details">
                   <div class="album-title-text" title="${safeTitle}">${safeTitle}</div>
                   <div class="album-artist-text" title="${safeArtist}">${safeArtist}</div>
                   <div class="album-meta-row">
-                    <span>${alb.genre || 'Music'}</span>
+                    <span>${escapeHtml(alb.genre || 'Music')}</span>
                     <span>${releaseYear}</span>
                   </div>
                 </div>
                 <div class="album-card-btns" onclick="event.stopPropagation()">
-                  <button type="button" class="tactile-btn album-action-btn" onclick="openAlbumDetail('${alb.id}')">
+                  <button type="button" class="tactile-btn album-action-btn" onclick="window.openAlbumDetail('${safeId}')">
                     LIHAT TRACKS
                   </button>
-                  <button type="button" class="tactile-btn play-btn-primary album-action-btn" onclick="quickPlayAlbum('${alb.id}')">
+                  <button type="button" class="tactile-btn play-btn-primary album-action-btn" onclick="window.quickPlayAlbum('${safeId}')">
                     PUTAR
                   </button>
                 </div>
@@ -3020,6 +3036,7 @@
     }
 
     async function openAlbumDetail(albumId) {
+      if (!albumId) return;
       const backdrop = document.getElementById('albumModalBackdrop');
       const trackListContainer = document.getElementById('albumModalTrackList');
       const modalCover = document.getElementById('albumModalCover');
@@ -3029,8 +3046,13 @@
       const modalYear = document.getElementById('albumModalYear');
       const modalCount = document.getElementById('albumModalCount');
 
-      backdrop.classList.add('is-open');
-      trackListContainer.innerHTML = `<div style="text-align: center; padding: 30px; font-family: 'Space Mono'; color: var(--color-primary);">Memuat tracklist album...</div>`;
+      if (backdrop) {
+        backdrop.classList.add('is-open');
+        document.body.style.overflow = 'hidden';
+      }
+      if (trackListContainer) {
+        trackListContainer.innerHTML = `<div style="text-align: center; padding: 30px; font-family: 'Space Mono'; color: var(--color-primary);">Memuat tracklist album...</div>`;
+      }
 
       try {
         const res = await fetch(`/api/album-detail?id=${encodeURIComponent(albumId)}`);
@@ -3038,23 +3060,28 @@
         const album = await res.json();
         currentAlbumData = album;
 
-        modalCover.src = album.cover || DEFAULT_NEU_COVER;
-        modalCover.onerror = () => { modalCover.src = DEFAULT_NEU_COVER; };
-        modalTitle.textContent = album.title;
-        modalArtist.textContent = album.artist;
-        modalGenre.textContent = album.genre || 'Album';
-        modalYear.textContent = album.releaseDate || '2026';
-        modalCount.textContent = `${album.tracks.length} Lagu Lengkap`;
+        if (modalCover) {
+          modalCover.src = album.cover || DEFAULT_NEU_COVER;
+          modalCover.onerror = () => { modalCover.src = DEFAULT_NEU_COVER; };
+        }
+        if (modalTitle) modalTitle.textContent = album.title || 'Album';
+        if (modalArtist) modalArtist.textContent = album.artist || 'Artist';
+        if (modalGenre) modalGenre.textContent = album.genre || 'Album';
+        if (modalYear) modalYear.textContent = album.releaseDate || '2026';
+        if (modalCount) modalCount.textContent = `${album.tracks ? album.tracks.length : 0} Lagu Lengkap`;
 
-        renderAlbumTrackList(album.tracks);
+        renderAlbumTrackList(album.tracks || []);
       } catch (err) {
         console.error('Album detail load error:', err);
-        trackListContainer.innerHTML = `<div style="text-align: center; padding: 30px; font-family: 'Space Mono'; color: var(--color-danger);">Gagal memuat tracklist album.</div>`;
+        if (trackListContainer) {
+          trackListContainer.innerHTML = `<div style="text-align: center; padding: 30px; font-family: 'Space Mono'; color: var(--color-danger);">Gagal memuat tracklist album.</div>`;
+        }
       }
     }
 
     function renderAlbumTrackList(tracks) {
       const trackListContainer = document.getElementById('albumModalTrackList');
+      if (!trackListContainer) return;
       if (!tracks || tracks.length === 0) {
         trackListContainer.innerHTML = `<div style="text-align: center; padding: 20px; font-family: 'Space Mono';">Tidak ada lagu dalam album ini.</div>`;
         return;
@@ -3080,7 +3107,7 @@
 
             <div style="display: flex; align-items: center; gap: 8px;">
               <span class="album-track-dur">${formatTime(t.duration || 30)}</span>
-              <button type="button" class="tactile-btn ${isPlayingThis ? 'tactile-btn' : 'play-btn-primary'}" onclick="playAlbumTrackByIndex(${idx})" style="padding: 6px 12px; font-size: 0.72rem; font-family: 'Space Mono';">
+              <button type="button" class="tactile-btn ${isPlayingThis ? 'tactile-btn' : 'play-btn-primary'}" onclick="window.playAlbumTrackByIndex(${idx})" style="padding: 6px 12px; font-size: 0.72rem; font-family: 'Space Mono';">
                 ${isPlayingThis ? 'JEDA' : 'PUTAR'}
               </button>
               <a href="${dlUrl}" download class="tactile-btn" title="Download MP3" style="padding: 6px 9px;">
@@ -3093,18 +3120,26 @@
     }
 
     function playAlbumTrackByIndex(trackIndex) {
-      if (!currentAlbumData || !currentAlbumData.tracks[trackIndex]) return;
+      if (!currentAlbumData || !currentAlbumData.tracks || !currentAlbumData.tracks[trackIndex]) return;
+      if (state.currentTrack && state.currentTrack.id === currentAlbumData.tracks[trackIndex].id && state.tracks === currentAlbumData.tracks) {
+        if (state.isPlaying) {
+          audioEngine.pause();
+        } else {
+          audioEngine.play().catch(e => console.log('Autoplay policy:', e));
+        }
+        renderAlbumTrackList(currentAlbumData.tracks);
+        return;
+      }
       state.tracks = currentAlbumData.tracks;
-      playTrackByIndex(trackIndex);
+      window.playTrackByIndex(trackIndex);
       renderAlbumTrackList(currentAlbumData.tracks);
     }
 
     function playAllAlbumTracks() {
       if (!currentAlbumData || !currentAlbumData.tracks || currentAlbumData.tracks.length === 0) return;
       state.tracks = currentAlbumData.tracks;
-      playTrackByIndex(0);
+      window.playTrackByIndex(0);
       renderAlbumTrackList(currentAlbumData.tracks);
-      showToast(`Memutar album: ${currentAlbumData.title}`);
     }
 
     async function quickPlayAlbum(albumId) {
@@ -3115,6 +3150,7 @@
     function closeAlbumModal() {
       const backdrop = document.getElementById('albumModalBackdrop');
       if (backdrop) backdrop.classList.remove('is-open');
+      document.body.style.overflow = '';
     }
 
     function handleAlbumBackdropClick(e) {
@@ -3122,6 +3158,16 @@
         closeAlbumModal();
       }
     }
+
+    // Expose album functions to global window for seamless onclick handlers
+    window.renderAlbums = renderAlbums;
+    window.openAlbumDetail = openAlbumDetail;
+    window.renderAlbumTrackList = renderAlbumTrackList;
+    window.playAlbumTrackByIndex = playAlbumTrackByIndex;
+    window.playAllAlbumTracks = playAllAlbumTracks;
+    window.quickPlayAlbum = quickPlayAlbum;
+    window.closeAlbumModal = closeAlbumModal;
+    window.handleAlbumBackdropClick = handleAlbumBackdropClick;
 
     // Load Category Tracks (Realtime with fresh cache-busting)
     async function loadTracks(cat, forceRefresh = false) {
