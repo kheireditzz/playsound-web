@@ -9,11 +9,11 @@ const __dirname = path.dirname(__filename);
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
-// In-memory Cache
+// In-memory Cache (Fast 3-min TTL for real-time fresh charts)
 const cache = {
   data: {},
   timestamps: {},
-  TTL_MS: 15 * 60 * 1000 // 15 minutes
+  TTL_MS: 3 * 60 * 1000 // 3 minutes for fresh real-time updates
 };
 
 function getFromCache(key) {
@@ -411,12 +411,18 @@ export async function handleRequest(req, res) {
 
     if (pathname === '/api/trends') {
       const category = parsedUrl.searchParams.get('category') || 'global';
+      const isFresh = parsedUrl.searchParams.get('fresh') === '1';
       const cacheKey = `trends_${category}`;
-      const cached = getFromCache(cacheKey);
+      const cached = isFresh ? null : getFromCache(cacheKey);
+
+      res.setHeader('Content-Type', 'application/json; charset=utf-8');
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
 
       if (cached && cached.length > 0) {
         res.writeHead(200);
-        res.end(JSON.stringify({ category, cached: true, count: cached.length, data: cached }));
+        res.end(JSON.stringify({ category, cached: true, timestamp: Date.now(), count: cached.length, data: cached }));
         return;
       }
 
@@ -450,7 +456,7 @@ export async function handleRequest(req, res) {
       }
 
       res.writeHead(200);
-      res.end(JSON.stringify({ category, cached: false, count: tracks.length, data: tracks }));
+      res.end(JSON.stringify({ category, cached: false, timestamp: Date.now(), count: tracks.length, data: tracks }));
       return;
     }
 

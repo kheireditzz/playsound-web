@@ -122,6 +122,79 @@
       letter-spacing: 0.05em;
     }
 
+    /* Header Actions & Riwayat Love Button */
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-loved-btn {
+      background: var(--bg-surface);
+      border: none;
+      border-radius: 12px;
+      padding: 8px 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: var(--neu-extruded-sm);
+      cursor: pointer;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--color-text);
+      transition: all 0.15s ease;
+      user-select: none;
+      -webkit-user-select: none;
+      text-decoration: none;
+    }
+
+    .header-loved-btn:hover {
+      color: var(--color-danger);
+    }
+
+    .header-loved-btn:active {
+      box-shadow: var(--neu-inset);
+      transform: translateY(1px);
+    }
+
+    .header-loved-icon-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-danger);
+    }
+
+    .header-loved-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: var(--bg-surface);
+      box-shadow: var(--neu-inset);
+      color: var(--color-danger);
+      min-width: 18px;
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      .header-loved-btn {
+        padding: 7px 11px;
+        gap: 6px;
+        font-size: 0.74rem;
+      }
+    }
+
+    @media (max-width: 440px) {
+      .header-loved-text {
+        display: none;
+      }
+      .header-loved-btn {
+        padding: 7px 10px;
+      }
+    }
+
     /* Status Pill */
     .live-status {
       display: flex;
@@ -526,6 +599,39 @@
       color: var(--color-primary);
       padding: 8px 12px;
       font-size: 0.75rem;
+    }
+
+    /* ── Tactile Love / Save Track Button on Music Cards ── */
+    .btn-love-card {
+      color: var(--color-text-muted);
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border-radius: 11px;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.16s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-love-card:hover {
+      color: var(--color-danger);
+    }
+
+    .btn-love-card.is-loved {
+      color: var(--color-danger);
+      box-shadow: var(--neu-inset);
+    }
+
+    .btn-love-card.is-loved svg {
+      animation: heartPop 0.32s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes heartPop {
+      0% { transform: scale(0.75); }
+      50% { transform: scale(1.3); }
+      100% { transform: scale(1); }
     }
 
     /* ── Platform Dropdown Menu (YouTube, TikTok, Spotify) ── */
@@ -1119,6 +1225,13 @@
         font-size: 0.74rem;
         border-radius: 10px;
       }
+      .btn-love-card {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        border-radius: 9px;
+        flex-shrink: 0;
+      }
       .btn-dl-card {
         padding: 7px 10px;
         font-size: 0.72rem;
@@ -1612,7 +1725,7 @@
 
   <!-- Top Fixed Header -->
   <header class="neu-header">
-    <a href="#" class="header-logo">
+    <a href="#" class="header-logo" onclick="event.preventDefault(); loadTracks('global');">
       <div class="logo-badge" title="PlaySound">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M9 18V5l12-2v13"></path>
@@ -1625,6 +1738,19 @@
         <div class="logo-subtitle">Viral Music Platform</div>
       </div>
     </a>
+
+    <!-- Header Actions: Riwayat Love / Disukai -->
+    <div class="header-actions">
+      <button type="button" class="header-loved-btn" id="headerLovedBtn" onclick="openLovedView()" title="Buka Riwayat Lagu Disukai">
+        <div class="header-loved-icon-wrap">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="#FF2157" stroke="#FF2157" stroke-width="1.5">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+        </div>
+        <span class="header-loved-text">Riwayat Love</span>
+        <span class="header-loved-badge" id="headerLovedBadge">0</span>
+      </button>
+    </div>
   </header>
 
   <!-- Main Content -->
@@ -1692,6 +1818,7 @@
         <button type="button" class="neu-tab-btn" data-cat="uk">🇬🇧 UK Official 40</button>
         <button type="button" class="neu-tab-btn" data-cat="kpop">🇰🇷 K-Pop Radar</button>
         <button type="button" class="neu-tab-btn" data-cat="japan">🇯🇵 Japan Trends</button>
+        <button type="button" class="neu-tab-btn neu-tab-loved" data-cat="loved">❤️ Riwayat Love</button>
       </div>
     </div>
 
@@ -2031,7 +2158,148 @@
       });
     }
 
+    // Loved Tracks DOM Elements (Riwayat Love)
+    const headerLovedBtn = document.getElementById('headerLovedBtn');
+    const headerLovedBadge = document.getElementById('headerLovedBadge');
 
+    // ── Loved / Saved Tracks System (Realtime & LocalStorage) ──
+    const LOVED_KEY = 'playsound_loved_tracks_v1';
+    let lovedTracks = [];
+
+    function loadLovedTracks() {
+      try {
+        const raw = localStorage.getItem(LOVED_KEY);
+        if (raw) {
+          lovedTracks = JSON.parse(raw);
+          if (!Array.isArray(lovedTracks)) lovedTracks = [];
+        }
+      } catch (err) {
+        lovedTracks = [];
+      }
+      updateLovedBadge();
+    }
+
+    function saveLovedTracks() {
+      try {
+        localStorage.setItem(LOVED_KEY, JSON.stringify(lovedTracks));
+      } catch (e) {
+        console.warn('LocalStorage save error:', e);
+      }
+      updateLovedBadge();
+    }
+
+    function updateLovedBadge() {
+      if (headerLovedBadge) {
+        headerLovedBadge.textContent = lovedTracks.length;
+      }
+    }
+
+    function isTrackLoved(track) {
+      if (!track) return false;
+      return lovedTracks.some(t => {
+        if (t.id && track.id && t.id === track.id) return true;
+        if (t.title && track.title && t.artist && track.artist && 
+            t.title.toLowerCase() === track.title.toLowerCase() && 
+            t.artist.toLowerCase() === track.artist.toLowerCase()) {
+          return true;
+        }
+        return false;
+      });
+    }
+
+    window.toggleLoveTrack = function(e, idx) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      if (idx < 0 || idx >= state.tracks.length) return;
+      const track = state.tracks[idx];
+      const safeId = String(track.id || idx).replace(/[^a-zA-Z0-9_-]/g, '_');
+
+      const existingIdx = lovedTracks.findIndex(t => {
+        if (t.id && track.id && t.id === track.id) return true;
+        if (t.title && track.title && t.artist && track.artist && 
+            t.title.toLowerCase() === track.title.toLowerCase() && 
+            t.artist.toLowerCase() === track.artist.toLowerCase()) {
+          return true;
+        }
+        return false;
+      });
+
+      const isNowLoved = existingIdx === -1;
+
+      if (isNowLoved) {
+        // Tambahkan ke riwayat love (terbaru di paling atas)
+        const entry = {
+          id: track.id || `loved-${Date.now()}`,
+          title: track.title,
+          artist: track.artist,
+          album: track.album || '',
+          cover: track.cover || '',
+          preview: track.preview || '',
+          fullStreamUrl: track.fullStreamUrl || '',
+          duration: track.duration || 30,
+          trendVelocity: track.trendVelocity || '❤️ SAVED',
+          origin: track.origin || 'Spotify',
+          rank: track.rank || (lovedTracks.length + 1),
+          externalUrls: track.externalUrls || {}
+        };
+        lovedTracks.unshift(entry);
+      } else {
+        // Hapus dari riwayat love
+        lovedTracks.splice(existingIdx, 1);
+      }
+
+      saveLovedTracks();
+
+      // Realtime update: jika sedang melihat view 'loved', langsung render ulang
+      if (state.currentCategory === 'loved') {
+        state.tracks = [...lovedTracks];
+        renderTracks();
+        if (trackCountBadge) trackCountBadge.textContent = `${lovedTracks.length} Saved`;
+        if (categoryHeading) categoryHeading.textContent = `❤️ RIWAYAT LAGU DISUKAI (${lovedTracks.length})`;
+        return;
+      }
+
+      // Realtime update tombol love pada kartu yang bersangkutan
+      const card = document.getElementById(`card-${safeId}`);
+      if (card) {
+        const btn = card.querySelector('.btn-love-card');
+        if (btn) {
+          btn.classList.toggle('is-loved', isNowLoved);
+          btn.title = isNowLoved ? 'Hapus dari Riwayat Love' : 'Simpan ke Riwayat Love';
+          const svg = btn.querySelector('svg');
+          if (svg) {
+            svg.setAttribute('fill', isNowLoved ? '#FF2157' : 'none');
+            svg.setAttribute('stroke', isNowLoved ? '#FF2157' : 'currentColor');
+          }
+        }
+      }
+    };
+
+    window.openLovedView = function() {
+      state.currentCategory = 'loved';
+
+      // Update tabs active state
+      document.querySelectorAll('.neu-tab-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.cat === 'loved');
+      });
+
+      // Update heading & count
+      if (categoryHeading) categoryHeading.textContent = `❤️ RIWAYAT LAGU DISUKAI (${lovedTracks.length})`;
+      if (trackCountBadge) trackCountBadge.textContent = `${lovedTracks.length} Saved`;
+
+      state.tracks = [...lovedTracks];
+      renderTracks();
+
+      // Scroll halus ke list musik
+      try {
+        const controlsEl = document.querySelector('.controls-wrapper');
+        if (controlsEl) {
+          controlsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      } catch (err) {}
+    };
 
     // Format Seconds to M:SS
     function formatTime(seconds) {
@@ -2041,8 +2309,13 @@
       return `${m}:${s < 10 ? '0' : ''}${s}`;
     }
 
-    // Load Category Tracks
-    async function loadTracks(cat) {
+    // Load Category Tracks (Realtime with fresh cache-busting)
+    async function loadTracks(cat, forceRefresh = false) {
+      if (cat === 'loved') {
+        openLovedView();
+        return;
+      }
+
       state.currentCategory = cat;
       if (window.scrollX !== 0 || window.pageXOffset !== 0) window.scrollTo(0, window.scrollY);
       document.documentElement.scrollLeft = 0;
@@ -2058,7 +2331,7 @@
       `;
 
       try {
-        const res = await fetch(`/api/trends?category=${cat}`);
+        const res = await fetch(`/api/trends?category=${cat}&_t=${Date.now()}${forceRefresh ? '&fresh=1' : ''}`);
         const data = await res.json();
         state.tracks = data.data || [];
         renderTracks();
@@ -2113,6 +2386,22 @@
     // Render Track Cards
     function renderTracks() {
       if (state.tracks.length === 0) {
+        if (state.currentCategory === 'loved') {
+          tracksGrid.innerHTML = `
+            <div style="grid-column: 1/-1; text-align: center; padding: 48px 16px; color: var(--color-text-muted); font-family: 'Space Mono', monospace; width: 100%; box-sizing: border-box;">
+              <div style="font-size: 2.5rem; margin-bottom: 12px;">💔</div>
+              <div style="font-size: 1rem; font-weight: 700; color: var(--color-text); margin-bottom: 8px;">Belum Ada Riwayat Love</div>
+              <div style="font-size: 0.8rem; max-width: 320px; margin: 0 auto 20px auto; line-height: 1.5;">
+                Klik ikon hati ❤️ pada lagu mana saja untuk menyimpannya ke koleksi favorit Anda secara realtime!
+              </div>
+              <button class="tactile-btn play-btn-primary" onclick="loadTracks('global')">
+                Jelajahi Musik Viral
+              </button>
+            </div>
+          `;
+          return;
+        }
+
         tracksGrid.innerHTML = `
           <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--color-text-muted); font-family: 'Space Mono';">
             Tidak ada musik ditemukan.
@@ -2127,6 +2416,7 @@
       tracksGrid.innerHTML = state.tracks.map((track, idx) => {
         const isCurrent = state.currentTrack && state.currentTrack.id === track.id;
         const isPlayingThis = isCurrent && state.isPlaying;
+        const isLoved = isTrackLoved(track);
         const safeTitle = escapeHtml(track.title);
         const safeArtist = escapeHtml(track.artist);
         const safeId = String(track.id || idx).replace(/[^a-zA-Z0-9_-]/g, '_');
@@ -2164,6 +2454,13 @@
               </button>
               
               <div class="card-actions-right">
+                <!-- Tombol Love / Simpan Lagu -->
+                <button type="button" class="tactile-btn btn-love-card ${isLoved ? 'is-loved' : ''}" onclick="toggleLoveTrack(event, ${idx})" title="${isLoved ? 'Hapus dari Riwayat Love' : 'Simpan ke Riwayat Love'}" aria-label="Love Lagu">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="${isLoved ? '#FF2157' : 'none'}" stroke="${isLoved ? '#FF2157' : 'currentColor'}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                  </svg>
+                </button>
+
                 <a href="${dlUrl}" download class="tactile-btn btn-dl-card" title="Download Audio MP3 (Gratis & Cepat)">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -2480,8 +2777,12 @@
       btn.blur(); // Remove focus to prevent mobile browser auto-centering viewport horizontally
 
       const cat = btn.dataset.cat;
-      if (categoryHeading) categoryHeading.textContent = btn.textContent.trim().toUpperCase();
-      loadTracks(cat);
+      if (cat === 'loved') {
+        openLovedView();
+      } else {
+        if (categoryHeading) categoryHeading.textContent = btn.textContent.trim().toUpperCase();
+        loadTracks(cat);
+      }
 
       // Smooth scroll ONLY the filterTabs container horizontally, NEVER the window!
       try {
@@ -2748,7 +3049,8 @@
       if (Math.abs(diff) > 40) goToSlide(bannerCurrent + (diff > 0 ? 1 : -1), true);
     }, { passive: true });
 
-    // Init: muat history dan tampilkan langsung dari data server atau fetch fallback
+    // Init: muat history, loved tracks, dan tampilkan langsung dari data server atau fetch fallback
+    loadLovedTracks();
     loadHistory();
 
     if (window.INITIAL_TRACKS && Array.isArray(window.INITIAL_TRACKS) && window.INITIAL_TRACKS.length > 0) {
