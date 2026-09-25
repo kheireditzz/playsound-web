@@ -78,7 +78,7 @@
       height: 76px;
       background-color: var(--bg-surface);
       box-shadow: 0 4px 14px var(--shadow-dark);
-      z-index: 50;
+      z-index: 2000;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -806,7 +806,7 @@
       border: 1px solid rgba(255, 255, 255, 0.9);
       box-shadow: 0 14px 34px rgba(0, 0, 0, 0.2), var(--neu-extruded-sm);
       min-width: 180px;
-      z-index: 1000;
+      z-index: 150;
       padding: 6px;
       flex-direction: column;
       gap: 4px;
@@ -863,7 +863,7 @@
       border-radius: 20px;
       border: 1px solid rgba(255, 255, 255, 0.75);
       box-shadow: 0 16px 36px rgba(0, 0, 0, 0.14), 0 4px 12px rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.95);
-      z-index: 100;
+      z-index: 1500;
       display: none;
       align-items: center;
       padding: 0 24px;
@@ -2419,6 +2419,8 @@
         Stream resmi playback YouTube dengan resolusi audio penuh tanpa batasan preview.
       </div>
     </div>
+  </div>
+
   <!-- Modal Detail Full Album -->
   <div class="album-modal-backdrop" id="albumModalBackdrop" onclick="handleAlbumBackdropClick(event)">
     <div class="album-modal-card" id="albumModalCard" onclick="event.stopPropagation()">
@@ -3728,8 +3730,9 @@
       }
     });
 
-    // Global Mobile Viewport Guard: Never allow horizontal page displacement
+    // Global Mobile Viewport Guard: Never allow horizontal page displacement & auto-close dropdown on scroll
     window.addEventListener('scroll', () => {
+      if (window.closeAllDropdowns) window.closeAllDropdowns();
       if (window.scrollX !== 0 || window.pageXOffset !== 0) {
         window.scrollTo(0, window.scrollY);
       }
