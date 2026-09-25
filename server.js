@@ -206,9 +206,15 @@ async function preload() {
 preload();
 
 // Router
-const server = http.createServer(async (req, res) => {
-  const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
-  const pathname = parsedUrl.pathname;
+export async function handleRequest(req, res) {
+  const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+  let pathname = parsedUrl.pathname;
+  if ((pathname === '/api' || pathname === '/api/' || pathname === '/api/index.js') && req.headers['x-matched-path']) {
+    try {
+      const matched = new URL(req.headers['x-matched-path'], `http://${req.headers.host || 'localhost'}`);
+      pathname = matched.pathname;
+    } catch {}
+  }
 
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -460,8 +466,19 @@ const server = http.createServer(async (req, res) => {
       res.end(content);
     });
   });
-});
+}
 
-server.listen(PORT, '0.0.0.0', () => {
-  console.log(`[RADAR-MUSIC] Server aktif di http://localhost:${PORT}`);
-});
+const server = http.createServer(handleRequest);
+
+const isMain = process.argv[1] && (
+  process.argv[1].endsWith('server.js') ||
+  fileURLToPath(import.meta.url) === process.argv[1]
+);
+
+if (isMain) {
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`[RADAR-MUSIC] Server aktif di http://localhost:${PORT}`);
+  });
+}
+
+export default handleRequest;
