@@ -195,6 +195,110 @@
       }
     }
 
+    /* ── In-Web Realtime Refresh Button ── */
+    .header-refresh-btn {
+      background: var(--bg-surface);
+      border: none;
+      border-radius: 12px;
+      padding: 8px 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      box-shadow: var(--neu-extruded-sm);
+      cursor: pointer;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--color-primary);
+      transition: all 0.15s ease;
+      user-select: none;
+      -webkit-user-select: none;
+      text-decoration: none;
+    }
+
+    .header-refresh-btn:hover {
+      color: var(--color-text);
+      box-shadow: var(--neu-extruded);
+    }
+
+    .header-refresh-btn:active {
+      box-shadow: var(--neu-inset);
+      transform: translateY(1px);
+    }
+
+    .refresh-icon {
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .refresh-icon.is-spinning {
+      animation: spinRefresh 0.75s linear infinite;
+    }
+
+    @keyframes spinRefresh {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 600px) {
+      .header-refresh-btn {
+        padding: 7px 11px;
+        gap: 5px;
+        font-size: 0.74rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .refresh-text {
+        display: none;
+      }
+      .header-refresh-btn {
+        padding: 7px;
+        width: 36px;
+        height: 36px;
+        justify-content: center;
+      }
+    }
+
+    /* ── Neumorphic In-Web Toast Notification ── */
+    .neu-toast {
+      position: fixed;
+      top: 86px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: var(--bg-surface);
+      border-radius: 14px;
+      padding: 10px 18px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18), var(--neu-extruded-card);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--color-text);
+      z-index: 10000;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .neu-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: auto;
+    }
+
+    .neu-toast-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--color-success);
+      box-shadow: 0 0 8px var(--color-success);
+    }
+
     /* ── Loved Tracks Exclusive View Page Bar ── */
     .loved-page-bar {
       margin-top: 18px;
@@ -1839,8 +1943,18 @@
       </div>
     </a>
 
-    <!-- Header Actions: Riwayat Love / Disukai -->
+    <!-- Header Actions: Refresh In-Web & Riwayat Love -->
     <div class="header-actions">
+      <!-- Tombol Refresh In-Web Realtime (Tanpa Reload Browser) -->
+      <button type="button" class="header-refresh-btn tactile-btn" id="webRefreshBtn" onclick="refreshAppRealtime()" title="Refresh Musik Realtime (Tanpa Reload Browser)">
+        <svg class="refresh-icon" id="webRefreshIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <polyline points="1 20 1 14 7 14"></polyline>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+        </svg>
+        <span class="refresh-text">Refresh</span>
+      </button>
+
       <button type="button" class="header-loved-btn" id="headerLovedBtn" onclick="openLovedView()" title="Buka Riwayat Lagu Disukai">
         <div class="header-loved-icon-wrap">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="#FF2157" stroke="#FF2157" stroke-width="1.5">
@@ -1852,6 +1966,12 @@
       </button>
     </div>
   </header>
+
+  <!-- Neumorphic In-Web Realtime Toast Notification -->
+  <div class="neu-toast" id="neuToast" role="alert" aria-live="polite">
+    <div class="neu-toast-dot"></div>
+    <span id="toastMsg">Musik berhasil diperbarui secara realtime!</span>
+  </div>
 
   <!-- Main Content -->
   <main class="container">
@@ -2463,6 +2583,60 @@
 
       // Scroll ke paling atas
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    // ── In-Web Realtime Refresh (Tanpa Reload Browser) ──
+    let isRefreshingApp = false;
+    let toastTimer = null;
+
+    function showToast(msg) {
+      const toast = document.getElementById('neuToast');
+      const toastMsg = document.getElementById('toastMsg');
+      if (!toast || !toastMsg) return;
+
+      toastMsg.textContent = msg;
+      toast.classList.add('show');
+
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2500);
+    }
+
+    window.refreshAppRealtime = async function() {
+      if (isRefreshingApp) return;
+      isRefreshingApp = true;
+
+      const refreshIcon = document.getElementById('webRefreshIcon');
+      if (refreshIcon) refreshIcon.classList.add('is-spinning');
+
+      try {
+        if (state.currentCategory === 'loved') {
+          // Jika sedang di Riwayat Love, refresh lagu-lagu tersimpan
+          loadLovedTracks();
+          state.tracks = [...lovedTracks];
+          renderTracks();
+          const lovedBarCountBadge = document.getElementById('lovedBarCountBadge');
+          if (lovedBarCountBadge) lovedBarCountBadge.textContent = `${lovedTracks.length} Lagu Disimpan`;
+        } else {
+          // Ambil chart lagu terbaru secara realtime dari server (bypass cache)
+          await loadTracks(state.currentCategory, true);
+        }
+
+        // Sinkronisasi riwayat musik & status loved
+        loadHistory();
+        loadLovedTracks();
+
+        showToast('✓ Musik berhasil diperbarui secara realtime!');
+      } catch (err) {
+        console.error('Refresh realtime error:', err);
+        showToast('Gagal memperbarui musik. Periksa koneksi internet.');
+      } finally {
+        setTimeout(() => {
+          if (refreshIcon) refreshIcon.classList.remove('is-spinning');
+          isRefreshingApp = false;
+        }, 700);
+      }
     };
 
     // Format Seconds to M:SS
