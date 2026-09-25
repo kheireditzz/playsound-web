@@ -1839,6 +1839,339 @@
       .history-artist-text {
         font-size: 0.68rem;
       }
+    /* ── Neumorphic Album Grid & Card Styling ── */
+    .albums-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 20px;
+      width: 100%;
+    }
+
+    .album-card {
+      background: var(--bg-surface);
+      border-radius: 18px;
+      box-shadow: var(--neu-extruded);
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+
+    .album-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 10px 10px 24px var(--shadow-dark), -10px -10px 24px var(--shadow-light);
+    }
+
+    .album-cover-box {
+      width: 100%;
+      aspect-ratio: 1/1;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: var(--neu-inset);
+      position: relative;
+      background: #DCDAD7;
+    }
+
+    .album-cover-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+
+    .album-card:hover .album-cover-img {
+      transform: scale(1.04);
+    }
+
+    .album-badge-overlay {
+      position: absolute;
+      top: 9px;
+      right: 9px;
+      background: rgba(0, 102, 102, 0.92);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 8px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .album-details {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .album-title-text {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: var(--color-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.3;
+    }
+
+    .album-artist-text {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 600;
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .album-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 4px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--color-text-muted);
+    }
+
+    .album-card-btns {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .album-action-btn {
+      flex: 1;
+      padding: 8px 10px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      border-radius: 10px;
+      text-align: center;
+      border: none;
+      cursor: pointer;
+      font-family: 'Space Mono', monospace;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    /* ── Modal Detail Album Full ── */
+    .album-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(30, 41, 56, 0.65);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+
+    .album-modal-backdrop.is-open {
+      display: flex;
+    }
+
+    .album-modal-card {
+      background: var(--bg-surface);
+      border-radius: 24px;
+      box-shadow: 14px 14px 35px rgba(0,0,0,0.25), -14px -14px 35px rgba(255,255,255,0.7);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      width: 100%;
+      max-width: 680px;
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: neuModalPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .album-modal-header {
+      padding: 20px 24px;
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      position: relative;
+      background: var(--bg-surface);
+    }
+
+    .album-modal-cover {
+      width: 90px;
+      height: 90px;
+      border-radius: 16px;
+      box-shadow: var(--neu-extruded-sm);
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .album-modal-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .album-modal-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
+      font-size: 1.15rem;
+      color: var(--color-text);
+      line-height: 1.3;
+    }
+
+    .album-modal-artist {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 600;
+      font-size: 0.88rem;
+      color: var(--color-primary);
+    }
+
+    .album-modal-meta {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--color-text-muted);
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .album-modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: none;
+      background: var(--bg-surface);
+      box-shadow: var(--neu-extruded-sm);
+      color: var(--color-text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .album-modal-close:active {
+      box-shadow: var(--neu-inset);
+    }
+
+    .album-modal-body {
+      padding: 16px 24px;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .album-track-item {
+      background: var(--bg-surface);
+      border-radius: 12px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: var(--neu-extruded-sm);
+      transition: all 0.15s ease;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .album-track-item:hover {
+      transform: translateX(2px);
+    }
+
+    .album-track-item.is-playing {
+      box-shadow: var(--neu-inset);
+      background: rgba(0, 102, 102, 0.06);
+    }
+
+    .album-track-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .album-track-num {
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: 0.78rem;
+      color: var(--color-primary);
+      width: 24px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .album-track-name {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--color-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .album-track-dur {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--color-text-muted);
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 768px) {
+      .albums-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 14px;
+      }
+      .album-card {
+        padding: 10px;
+        border-radius: 14px;
+        gap: 8px;
+      }
+      .album-title-text {
+        font-size: 0.82rem;
+      }
+      .album-artist-text {
+        font-size: 0.72rem;
+      }
+      .album-modal-card {
+        max-height: 94vh;
+      }
+      .album-modal-header {
+        padding: 14px 16px;
+        gap: 12px;
+      }
+      .album-modal-cover {
+        width: 65px;
+        height: 65px;
+      }
+      .album-modal-title {
+        font-size: 0.95rem;
+      }
+      .album-modal-body {
+        padding: 12px 16px;
+      }
     }
 
   </style>
@@ -1938,6 +2271,7 @@
       <!-- Categories Tabs -->
       <div class="filter-tabs" id="filterTabs">
         <button type="button" class="neu-tab-btn active" data-cat="global">Global Viral</button>
+        <button type="button" class="neu-tab-btn" data-cat="albums">Top Album</button>
         <button type="button" class="neu-tab-btn" data-cat="fresh">Rilis Terbaru</button>
         <button type="button" class="neu-tab-btn" data-cat="indo">Indo Viral</button>
         <button type="button" class="neu-tab-btn" data-cat="tiktok">TikTok Sounds</button>
@@ -2068,6 +2402,41 @@
       </div>
       <div style="font-size: 0.8rem; color: var(--color-text-muted); font-family: 'JetBrains Mono', monospace; text-align: center;">
         Stream resmi playback YouTube dengan resolusi audio penuh tanpa batasan preview.
+      </div>
+    </div>
+  <!-- Modal Detail Full Album -->
+  <div class="album-modal-backdrop" id="albumModalBackdrop" onclick="handleAlbumBackdropClick(event)">
+    <div class="album-modal-card" id="albumModalCard">
+      <div class="album-modal-header">
+        <img id="albumModalCover" src="" alt="Album Cover" class="album-modal-cover" referrerpolicy="no-referrer">
+        <div class="album-modal-info">
+          <div id="albumModalTitle" class="album-modal-title"></div>
+          <div id="albumModalArtist" class="album-modal-artist"></div>
+          <div class="album-modal-meta">
+            <span id="albumModalGenre"></span>
+            <span id="albumModalYear"></span>
+            <span id="albumModalCount"></span>
+          </div>
+        </div>
+        <button type="button" class="album-modal-close" onclick="closeAlbumModal()" title="Tutup Album">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div style="padding: 12px 24px; display: flex; gap: 10px; border-bottom: 1px solid rgba(0,0,0,0.06); background: var(--bg-surface);">
+        <button type="button" class="tactile-btn play-btn-primary" id="albumPlayAllBtn" onclick="playAllAlbumTracks()" style="padding: 8px 16px; font-size: 0.8rem; font-family: 'Space Mono'; display: inline-flex; align-items: center; gap: 8px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          <span>PUTAR SEMUA LAGU</span>
+        </button>
+      </div>
+
+      <div class="album-modal-body" id="albumModalTrackList">
+        <!-- Dynamic populated tracks -->
       </div>
     </div>
   </div>
@@ -2575,10 +2944,194 @@
       return `${m}:${s < 10 ? '0' : ''}${s}`;
     }
 
+    // ── Albums Feature (Full Album, Realtime & Terbaru) ──
+    let currentAlbumData = null;
+    let albumsCache = [];
+
+    async function loadAlbums(forceRefresh = false) {
+      state.currentCategory = 'albums';
+      if (categoryHeading) categoryHeading.textContent = 'KOLEKSI ALBUM TERBARU & POPULER';
+      if (window.scrollX !== 0 || window.pageXOffset !== 0) window.scrollTo(0, window.scrollY);
+      document.documentElement.scrollLeft = 0;
+      document.body.scrollLeft = 0;
+
+      tracksGrid.innerHTML = `
+        <div class="skeleton-grid" style="grid-column: 1 / -1; width: 100%; max-width: 100%;">
+          <div class="skeleton-card" style="height: 260px;"></div>
+          <div class="skeleton-card" style="height: 260px;"></div>
+          <div class="skeleton-card" style="height: 260px;"></div>
+        </div>
+      `;
+
+      try {
+        const res = await fetch(`/api/albums${forceRefresh ? '?fresh=1' : ''}`);
+        const data = await res.json();
+        albumsCache = data.data || [];
+        renderAlbums(albumsCache);
+        if (trackCountBadge) trackCountBadge.textContent = `${albumsCache.length} Album`;
+        if (syncTime) syncTime.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      } catch (err) {
+        console.error('Load albums error:', err);
+        tracksGrid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--color-danger); font-family: 'Space Mono';">Gagal memuat album terbaru.</div>`;
+      }
+    }
+
+    function renderAlbums(albums) {
+      if (!albums || albums.length === 0) {
+        tracksGrid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--color-text-muted); font-family: 'Space Mono';">Tidak ada album ditemukan.</div>`;
+        return;
+      }
+
+      tracksGrid.innerHTML = `
+        <div class="albums-grid" style="grid-column: 1 / -1; width: 100%;">
+          ${albums.map((alb, idx) => {
+            const safeTitle = escapeHtml(alb.title);
+            const safeArtist = escapeHtml(alb.artist);
+            const coverUrl = alb.cover || DEFAULT_NEU_COVER;
+            const releaseYear = alb.releaseDate ? String(alb.releaseDate).slice(0, 4) : '2026';
+
+            return `
+              <div class="album-card" onclick="openAlbumDetail('${alb.id}')" title="Klik untuk lihat isi album ${safeTitle}">
+                <div class="album-cover-box">
+                  <img src="${coverUrl}" alt="${safeTitle}" class="album-cover-img" loading="eager" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src=DEFAULT_NEU_COVER;">
+                  <span class="album-badge-overlay">${alb.trackCount} LAGU</span>
+                </div>
+                <div class="album-details">
+                  <div class="album-title-text" title="${safeTitle}">${safeTitle}</div>
+                  <div class="album-artist-text" title="${safeArtist}">${safeArtist}</div>
+                  <div class="album-meta-row">
+                    <span>${alb.genre || 'Music'}</span>
+                    <span>${releaseYear}</span>
+                  </div>
+                </div>
+                <div class="album-card-btns" onclick="event.stopPropagation()">
+                  <button type="button" class="tactile-btn album-action-btn" onclick="openAlbumDetail('${alb.id}')">
+                    LIHAT TRACKS
+                  </button>
+                  <button type="button" class="tactile-btn play-btn-primary album-action-btn" onclick="quickPlayAlbum('${alb.id}')">
+                    PUTAR
+                  </button>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    async function openAlbumDetail(albumId) {
+      const backdrop = document.getElementById('albumModalBackdrop');
+      const trackListContainer = document.getElementById('albumModalTrackList');
+      const modalCover = document.getElementById('albumModalCover');
+      const modalTitle = document.getElementById('albumModalTitle');
+      const modalArtist = document.getElementById('albumModalArtist');
+      const modalGenre = document.getElementById('albumModalGenre');
+      const modalYear = document.getElementById('albumModalYear');
+      const modalCount = document.getElementById('albumModalCount');
+
+      backdrop.classList.add('is-open');
+      trackListContainer.innerHTML = `<div style="text-align: center; padding: 30px; font-family: 'Space Mono'; color: var(--color-primary);">Memuat tracklist album...</div>`;
+
+      try {
+        const res = await fetch(`/api/album-detail?id=${encodeURIComponent(albumId)}`);
+        if (!res.ok) throw new Error('Album lookup failed');
+        const album = await res.json();
+        currentAlbumData = album;
+
+        modalCover.src = album.cover || DEFAULT_NEU_COVER;
+        modalCover.onerror = () => { modalCover.src = DEFAULT_NEU_COVER; };
+        modalTitle.textContent = album.title;
+        modalArtist.textContent = album.artist;
+        modalGenre.textContent = album.genre || 'Album';
+        modalYear.textContent = album.releaseDate || '2026';
+        modalCount.textContent = `${album.tracks.length} Lagu Lengkap`;
+
+        renderAlbumTrackList(album.tracks);
+      } catch (err) {
+        console.error('Album detail load error:', err);
+        trackListContainer.innerHTML = `<div style="text-align: center; padding: 30px; font-family: 'Space Mono'; color: var(--color-danger);">Gagal memuat tracklist album.</div>`;
+      }
+    }
+
+    function renderAlbumTrackList(tracks) {
+      const trackListContainer = document.getElementById('albumModalTrackList');
+      if (!tracks || tracks.length === 0) {
+        trackListContainer.innerHTML = `<div style="text-align: center; padding: 20px; font-family: 'Space Mono';">Tidak ada lagu dalam album ini.</div>`;
+        return;
+      }
+
+      trackListContainer.innerHTML = tracks.map((t, idx) => {
+        const isCurrent = state.currentTrack && (state.currentTrack.id === t.id || (state.currentTrack.title === t.title && state.currentTrack.artist === t.artist));
+        const isPlayingThis = isCurrent && state.isPlaying;
+        const dlAudio = t.fullStreamUrl || t.preview;
+        const dlUrl = dlAudio 
+          ? `/api/download?url=${encodeURIComponent(dlAudio)}&name=${encodeURIComponent(t.artist + ' - ' + t.title)}`
+          : `/api/download?artist=${encodeURIComponent(t.artist)}&title=${encodeURIComponent(t.title)}&name=${encodeURIComponent(t.artist + ' - ' + t.title)}`;
+
+        return `
+          <div class="album-track-item ${isPlayingThis ? 'is-playing' : ''}" id="alb-item-${idx}">
+            <div class="album-track-left">
+              <span class="album-track-num">${String(t.trackNumber || (idx + 1)).padStart(2, '0')}</span>
+              <div style="min-width: 0;">
+                <div class="album-track-name" title="${escapeHtml(t.title)}">${escapeHtml(t.title)}</div>
+                <div style="font-size: 0.72rem; color: var(--color-text-muted);">${escapeHtml(t.artist)}</div>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="album-track-dur">${formatTime(t.duration || 30)}</span>
+              <button type="button" class="tactile-btn ${isPlayingThis ? 'tactile-btn' : 'play-btn-primary'}" onclick="playAlbumTrackByIndex(${idx})" style="padding: 6px 12px; font-size: 0.72rem; font-family: 'Space Mono';">
+                ${isPlayingThis ? 'JEDA' : 'PUTAR'}
+              </button>
+              <a href="${dlUrl}" download class="tactile-btn" title="Download MP3" style="padding: 6px 9px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              </a>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function playAlbumTrackByIndex(trackIndex) {
+      if (!currentAlbumData || !currentAlbumData.tracks[trackIndex]) return;
+      state.tracks = currentAlbumData.tracks;
+      playTrackByIndex(trackIndex);
+      renderAlbumTrackList(currentAlbumData.tracks);
+    }
+
+    function playAllAlbumTracks() {
+      if (!currentAlbumData || !currentAlbumData.tracks || currentAlbumData.tracks.length === 0) return;
+      state.tracks = currentAlbumData.tracks;
+      playTrackByIndex(0);
+      renderAlbumTrackList(currentAlbumData.tracks);
+      showToast(`Memutar album: ${currentAlbumData.title}`);
+    }
+
+    async function quickPlayAlbum(albumId) {
+      await openAlbumDetail(albumId);
+      playAllAlbumTracks();
+    }
+
+    function closeAlbumModal() {
+      const backdrop = document.getElementById('albumModalBackdrop');
+      if (backdrop) backdrop.classList.remove('is-open');
+    }
+
+    function handleAlbumBackdropClick(e) {
+      if (e.target && e.target.id === 'albumModalBackdrop') {
+        closeAlbumModal();
+      }
+    }
+
     // Load Category Tracks (Realtime with fresh cache-busting)
     async function loadTracks(cat, forceRefresh = false) {
       if (cat === 'loved') {
         openLovedView();
+        return;
+      }
+
+      if (cat === 'albums') {
+        loadAlbums(forceRefresh);
         return;
       }
 
@@ -2926,6 +3479,12 @@
             </svg>`;
         }
       });
+
+      // Update Album Modal track list playing state jika sedang dibuka
+      const albBackdrop = document.getElementById('albumModalBackdrop');
+      if (albBackdrop && albBackdrop.classList.contains('is-open') && currentAlbumData && currentAlbumData.tracks) {
+        renderAlbumTrackList(currentAlbumData.tracks);
+      }
     }
 
     // Audio Engine Listeners
@@ -3336,6 +3895,17 @@
       const diff = touchStartX - e.changedTouches[0].clientX;
       if (Math.abs(diff) > 40) goToSlide(bannerCurrent + (diff > 0 ? 1 : -1), true);
     }, { passive: true });
+
+    // Keydown listener untuk ESC (Tutup modal album & video)
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeAlbumModal();
+        if (videoModal && videoModal.classList.contains('open')) {
+          videoModal.classList.remove('open');
+          videoFrameContainer.innerHTML = '';
+        }
+      }
+    });
 
     // Init: muat history, loved tracks, dan tampilkan langsung dari data server atau fetch fallback
     loadLovedTracks();
