@@ -230,6 +230,7 @@
 
     /* Category Filter Tabs */
     .filter-tabs {
+      position: relative;
       display: flex;
       gap: 10px;
       overflow-x: auto;
@@ -325,6 +326,10 @@
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 22px;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
     }
 
     /* Tactile Song Card */
@@ -338,6 +343,10 @@
       transition: transform 0.2s ease, box-shadow 0.2s ease;
       position: relative;
       overflow: visible;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
     }
 
     .song-card.has-dropdown-open {
@@ -357,6 +366,10 @@
       display: flex;
       gap: 14px;
       margin-bottom: 14px;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
     }
 
     .cover-wrapper {
@@ -458,6 +471,7 @@
       justify-content: space-between;
       width: 100%;
       max-width: 100%;
+      min-width: 0;
       gap: 8px;
       margin-top: auto;
       padding-top: 10px;
@@ -470,6 +484,7 @@
       align-items: center;
       gap: 8px;
       position: relative;
+      flex-shrink: 0;
     }
 
     .tactile-btn {
@@ -1026,21 +1041,93 @@
         box-sizing: border-box;
       }
       .tracks-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
         width: 100%;
         max-width: 100%;
+        min-width: 0;
         box-sizing: border-box;
       }
       .song-card {
         width: 100%;
         max-width: 100%;
+        min-width: 0;
         box-sizing: border-box;
         overflow: visible;
+        padding: 14px;
+      }
+      .card-top {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 12px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+      .card-info {
+        min-width: 0;
+        flex: 1;
+        overflow: hidden;
+      }
+      .song-title {
+        font-size: 0.92rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+      }
+      .song-artist {
+        font-size: 0.78rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+      }
+      .badges-row {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        flex-wrap: wrap;
+        max-width: 100%;
+      }
+      .velocity-badge, .origin-badge {
+        font-size: 0.65rem;
+        padding: 2px 7px;
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
       .card-actions {
         width: 100%;
         max-width: 100%;
+        min-width: 0;
         box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+      }
+      .card-actions-right {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+      }
+      .tactile-btn {
+        padding: 7px 11px;
+        font-size: 0.74rem;
+        border-radius: 10px;
+      }
+      .btn-dl-card {
+        padding: 7px 10px;
+        font-size: 0.72rem;
+        flex-shrink: 0;
+      }
+      .neu-dropdown-trigger {
+        padding: 7px 10px;
+        font-size: 0.72rem;
+        flex-shrink: 0;
       }
       .trending-banner {
         height: 160px;
@@ -1588,6 +1675,7 @@
         const isPlayingThis = isCurrent && state.isPlaying;
         const safeTitle = escapeHtml(track.title);
         const safeArtist = escapeHtml(track.artist);
+        const safeId = String(track.id || idx).replace(/[^a-zA-Z0-9_-]/g, '_');
         const coverUrl = track.cover || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="76" height="76" fill="%23ccc"%3E%3Crect width="76" height="76"/%3E%3C/svg%3E';
 
         const dlAudio = track.fullStreamUrl || track.preview;
@@ -1600,7 +1688,7 @@
         const spUrl = track.externalUrls?.spotify || `https://open.spotify.com/search/${encodeURIComponent(track.artist + ' ' + track.title)}`;
 
         return `
-          <div class="song-card ${isPlayingThis ? 'is-playing' : ''}" id="card-${track.id}">
+          <div class="song-card ${isPlayingThis ? 'is-playing' : ''}" id="card-${safeId}">
             <div class="card-top">
               <div class="cover-wrapper">
                 <img src="${coverUrl}" alt="${safeTitle}" class="cover-img" loading="lazy">
@@ -1633,13 +1721,13 @@
 
                 <!-- Dropdown Platform: YouTube, TikTok, Spotify -->
                 <div class="neu-dropdown-container">
-                  <button class="tactile-btn neu-dropdown-trigger" onclick="togglePlatformDropdown(event, '${track.id}')" title="Pilihan Platform">
+                  <button class="tactile-btn neu-dropdown-trigger" onclick="togglePlatformDropdown(event, '${safeId}')" title="Pilihan Platform">
                     <span>PILIH</span>
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
                       <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
                   </button>
-                  <div class="neu-dropdown-menu" id="dropdown-${track.id}">
+                  <div class="neu-dropdown-menu" id="dropdown-${safeId}">
                     <button class="dropdown-item" onclick="openYouTubeModalByIndex(${idx}); closeAllDropdowns();">
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="#FF2157">
                         <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
@@ -1922,9 +2010,15 @@
       if (categoryHeading) categoryHeading.textContent = btn.textContent.trim().toUpperCase();
       loadTracks(cat);
 
-      // Smooth scroll the tab button within filterTabs only, never shifting the window!
+      // Smooth scroll ONLY the filterTabs container horizontally, NEVER the window!
       try {
-        btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        const tabLeft = btn.offsetLeft;
+        const tabWidth = btn.offsetWidth;
+        const containerWidth = filterTabs.clientWidth;
+        filterTabs.scrollTo({
+          left: Math.max(0, tabLeft - (containerWidth / 2) + (tabWidth / 2)),
+          behavior: 'smooth'
+        });
       } catch (err) {}
 
       // Hard-lock window scrollX to 0
