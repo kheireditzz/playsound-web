@@ -1,6 +1,6 @@
-# Global Viral Music Radar
+# Play Music by Kheireditz
 
-Platform web agregator & audio player untuk musik mancanegara yang sedang viral secara real-time (TikTok Sounds, Spotify Viral 50, Billboard Top 100, UK Official, K-Pop Radar, dan Oricon Japan).
+Platform web pemutar musik dan radar chart musik viral mancanegara & lokal secara real-time (TikTok Sounds, Spotify Viral 50, Billboard Top 100, UK Official, K-Pop Radar, dan Oricon Japan).
 
 ## 🚀 Fitur Unggulan
 - **Agregasi Multi-Platform Real-time:** Menarik otomatis metadata dan preview audio resmi dari chart global (Deezer API & Apple iTunes RSS API).

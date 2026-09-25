@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <!-- Neumorphic Dual Shadow: dark bottom-right, light top-left -->
+    <filter id="neuExtruded" x="-30%" y="-30%" width="170%" height="170%">
+      <feDropShadow dx="3" dy="3.5" stdDeviation="3" flood-color="#a8a5a0" flood-opacity="0.6"/>
+      <feDropShadow dx="-3" dy="-3" stdDeviation="2.5" flood-color="#ffffff" flood-opacity="0.95"/>
+    </filter>
+    <linearGradient id="neuSurface" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EEEC EA"/>
+      <stop offset="100%" stop-color="#DFDDD9"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Neumorphic Rounded Squircle Badge identical to Header -->
+  <rect x="7" y="7" width="50" height="50" rx="14" fill="url(#neuSurface)" filter="url(#neuExtruded)"/>
+  <!-- Tactile Highlight Bevel Border -->
+  <rect x="7.5" y="7.5" width="49" height="49" rx="13.5" fill="none" stroke="#FFFFFF" stroke-width="1.2" stroke-opacity="0.85"/>
+
+  <!-- Exact Music Icon from Header Badge (Deep Teal #006666) -->
+  <g transform="translate(32, 32) scale(1.5) translate(-12, -12)">
+    <path d="M9 18V5l12-2v13" fill="none" stroke="#006666" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="6" cy="18" r="3.2" fill="#006666" stroke="#006666" stroke-width="0.5"/>
+    <circle cx="18" cy="16" r="3.2" fill="#006666" stroke="#006666" stroke-width="0.5"/>
+  </g>
+</svg>

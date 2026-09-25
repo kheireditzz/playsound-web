@@ -1,7 +1,7 @@
 {
-  "name": "playsound",
+  "name": "play-music-by-kheireditz",
   "version": "1.0.0",
-  "description": "PlaySound - Global Viral Music Platform",
+  "description": "Play Music by Kheireditz - Global Viral Music Platform",
   "type": "module",
   "main": "server.js",
   "scripts": {
