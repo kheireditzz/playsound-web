@@ -853,13 +853,10 @@
         justify-content: flex-end;
         z-index: 10;
       }
-      .dock-right .btn-full-yt,
       .dock-right #dockDownloadBtn {
-        display: none !important;
-      }
-      .dock-right .btn-lyrics {
-        padding: 6px 10px;
-        font-size: 0.7rem;
+        display: flex !important;
+        padding: 6px 12px;
+        font-size: 0.72rem;
         height: 32px;
         border-radius: 10px;
       }
@@ -871,235 +868,14 @@
       .tracks-grid {
         grid-template-columns: 1fr;
       }
-      .lyrics-panel {
-        bottom: 130px;
-        left: 12px;
-        right: 12px;
-        margin: 0 auto;
-        width: auto;
-        max-width: 100%;
-        border-radius: 18px;
-        height: 58vh;
-        max-height: 58vh;
-        box-sizing: border-box;
-      }
-      .lyrics-panel.open {
-        display: flex;
-        height: 58vh;
+      .trending-banner {
+        height: 160px;
+        margin-top: 20px;
+        margin-bottom: 22px;
       }
     }
 
-    /* ── Lyrics Slide-Up Panel ── */
-    .lyrics-panel {
-      position: fixed;
-      bottom: 118px;
-      left: 20px;
-      right: 20px;
-      margin: 0 auto;
-      width: auto;
-      max-width: 1200px;
-      height: 56vh;
-      max-height: 56vh;
-      background: var(--bg-surface);
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.16), 0 4px 12px rgba(0, 0, 0, 0.08);
-      border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.85);
-      z-index: 98;
-      display: none;
-      flex-direction: column;
-      overflow: hidden;
-      box-sizing: border-box;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .lyrics-panel.open {
-      display: flex;
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .lyrics-panel-grip {
-      width: 38px;
-      height: 4px;
-      border-radius: 2px;
-      background: var(--shadow-dark);
-      margin: 10px auto 0;
-      flex-shrink: 0;
-    }
-
-    .lyrics-panel-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 20px 8px;
-      flex-shrink: 0;
-      border-bottom: 1px solid rgba(0,0,0,0.05);
-    }
-
-    .lyrics-meta {
-      min-width: 0;
-      flex: 1;
-    }
-
-    .lyrics-meta-title {
-      font-family: 'Space Mono', monospace;
-      font-size: 0.85rem;
-      font-weight: 700;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      color: var(--color-text);
-    }
-
-    .lyrics-meta-artist {
-      font-size: 0.75rem;
-      color: var(--color-primary);
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .lyrics-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      color: var(--color-text-muted);
-      background: var(--bg-surface);
-      box-shadow: var(--neu-inset);
-      padding: 3px 8px;
-      border-radius: 6px;
-      text-transform: uppercase;
-      margin-right: 10px;
-    }
-
-    .lyrics-label.synced {
-      background: rgba(0, 166, 61, 0.12);
-      color: var(--color-success);
-      border: 1px solid rgba(0, 166, 61, 0.3);
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .sync-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--color-success);
-      display: inline-block;
-      animation: pulseSkeleton 1.2s infinite;
-    }
-
-    .lyrics-close-btn {
-      width: 30px;
-      height: 30px;
-      padding: 0;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      line-height: 1;
-      flex-shrink: 0;
-    }
-
-    .lyrics-scroll {
-      flex: 1;
-      overflow-y: auto;
-      margin: 10px 16px 16px;
-      padding: 16px 20px;
-      border-radius: 14px;
-      box-shadow: var(--neu-inset);
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      scrollbar-width: thin;
-      scrollbar-color: var(--shadow-dark) transparent;
-      scroll-behavior: smooth;
-    }
-
-    .lyrics-scroll::-webkit-scrollbar { width: 4px; }
-    .lyrics-scroll::-webkit-scrollbar-thumb {
-      background: var(--shadow-dark);
-      border-radius: 2px;
-    }
-
-    .lyrics-status {
-      text-align: center;
-      font-family: 'Space Mono', monospace;
-      font-size: 0.78rem;
-      color: var(--color-text-muted);
-      padding: 24px 16px;
-    }
-
-    .lyrics-status.loading {
-      animation: pulseSkeleton 1.5s infinite;
-    }
-
-    /* ── Synced Lyrics Karaoke Styling ── */
-    .synced-lyrics-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 30px 10px 60px;
-    }
-
-    .synced-lyric-line {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 1.05rem;
-      font-weight: 500;
-      line-height: 1.5;
-      color: var(--color-text-muted);
-      opacity: 0.6;
-      padding: 10px 16px;
-      border-radius: 14px;
-      cursor: pointer;
-      transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
-      user-select: none;
-      border-left: 3px solid transparent;
-    }
-
-    .synced-lyric-line:hover {
-      opacity: 0.9;
-      background: rgba(0, 102, 102, 0.04);
-    }
-
-    .synced-lyric-line.active {
-      font-size: 1.22rem;
-      font-weight: 800;
-      color: var(--color-primary);
-      opacity: 1;
-      background: var(--bg-surface);
-      box-shadow: var(--neu-inset);
-      border-left: 4px solid var(--color-primary);
-      transform: scale(1.02);
-      transform-origin: left center;
-    }
-
-    .plain-lyrics-view {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 0.95rem;
-      line-height: 1.85;
-      color: var(--color-text);
-      white-space: pre-wrap;
-      word-break: break-word;
-      padding: 10px 4px;
-    }
-
-    /* Lyrics toggle button in dock */
-    .btn-lyrics {
-      font-size: 0.72rem;
-      padding: 7px 12px;
-      gap: 5px;
-      color: var(--color-text-muted);
-      border-radius: 10px;
-    }
-
-    .btn-lyrics.active {
-      color: var(--color-primary);
-      box-shadow: var(--neu-inset);
-    }
-
-     /* ── Trending Banner Slider ── */
+    /* ── Trending Banner Slider ── */
     .trending-banner {
       position: relative;
       width: 100%;
@@ -1108,7 +884,8 @@
       border-radius: 20px;
       box-shadow: var(--neu-extruded-card);
       overflow: hidden;
-      margin-bottom: 24px;
+      margin-top: 26px;
+      margin-bottom: 26px;
       background: var(--bg-surface);
       touch-action: pan-y;
       overscroll-behavior-x: contain;
@@ -1449,14 +1226,7 @@
 
     <!-- Right Actions -->
     <div class="dock-right">
-      <button id="lyricsToggleBtn" class="tactile-btn btn-lyrics" title="Tampilkan / Sembunyikan Lirik">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
-        </svg>
-        LIRIK
-      </button>
-
-      <a id="dockDownloadBtn" href="#" download class="btn-full-yt" style="color: var(--color-primary); display: none;" title="Download Audio MP3">
+      <a id="dockDownloadBtn" href="#" download class="btn-full-yt" style="color: var(--color-primary); display: none;" title="Download Audio MP3 (320kbps)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
           <polyline points="7 10 12 15 17 10"></polyline>
@@ -1469,10 +1239,17 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
           <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
         </svg>
-        <span>FULL SONG</span>
+        <span>YOUTUBE</span>
       </button>
 
-      <button id="closeDockBtn" class="dock-ctrl-btn btn-step" title="Sembunyikan Pemutar" style="width: 32px; height: 32px;">
+      <a id="dockTiktokBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn-full-yt" style="color: var(--color-text); display: none;" title="Buka di TikTok">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 3 15.68 6.34 6.34 0 0 0 9.35 22a6.33 6.33 0 0 0 6.33-6.32V8.4a8.3 8.3 0 0 0 3.91 1.09V6.69z"/>
+        </svg>
+        <span>TIKTOK</span>
+      </a>
+
+      <button id="closeDockBtn" class="dock-ctrl-btn btn-step" title="Tutup Pemutar" style="width: 32px; height: 32px;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -1481,22 +1258,6 @@
     </div>
 
   </footer>
-
-  <!-- Lyrics Slide-Up Panel -->
-  <div class="lyrics-panel" id="lyricsPanel">
-    <div class="lyrics-panel-grip"></div>
-    <div class="lyrics-panel-header">
-      <div class="lyrics-meta">
-        <div class="lyrics-meta-title" id="lyricsSongTitle">—</div>
-        <div class="lyrics-meta-artist" id="lyricsSongArtist"></div>
-      </div>
-      <span class="lyrics-label">LIRIK</span>
-      <button class="tactile-btn lyrics-close-btn" id="lyricsCloseBtn">✕</button>
-    </div>
-    <div class="lyrics-scroll" id="lyricsScroll">
-      <div class="lyrics-status">Pilih lagu untuk melihat lirik.</div>
-    </div>
-  </div>
 
 
 
@@ -1561,174 +1322,9 @@
     const modalSongTitle = document.getElementById('modalSongTitle');
     const videoFrameContainer = document.getElementById('videoFrameContainer');
 
-    // ── Lyrics Panel & Synced Karaoke Logic ──
-    const lyricsPanel      = document.getElementById('lyricsPanel');
-    const lyricsToggleBtn  = document.getElementById('lyricsToggleBtn');
-    const lyricsCloseBtn   = document.getElementById('lyricsCloseBtn');
-    const lyricsScroll     = document.getElementById('lyricsScroll');
-    const lyricsSongTitle  = document.getElementById('lyricsSongTitle');
-    const lyricsSongArtist = document.getElementById('lyricsSongArtist');
-    const lyricsLabelBadge = document.querySelector('.lyrics-label');
-
-    let lyricsOpen = false;
-    const lyricsCache = {}; // keyed by track.id
-    let currentLyricsLines = []; // array of { time, text, el }
-    let activeLyricIdx = -1;
-
-    // Standard LRC Parser
-    function parseLrc(lrcText) {
-      if (!lrcText) return [];
-      const lines = lrcText.split('\n');
-      const result = [];
-      const timeRegex = /\[(\d{2}):(\d{2}(?:\.\d{1,3})?)\]/g;
-
-      for (const rawLine of lines) {
-        const trimmed = rawLine.trim();
-        if (!trimmed) continue;
-
-        timeRegex.lastIndex = 0;
-        const matches = [...trimmed.matchAll(timeRegex)];
-        if (matches.length > 0) {
-          const text = trimmed.replace(timeRegex, '').trim();
-          for (const m of matches) {
-            const min = parseInt(m[1], 10);
-            const sec = parseFloat(m[2]);
-            const time = min * 60 + sec;
-            result.push({ time, text: text || '♪' });
-          }
-        }
-      }
-
-      result.sort((a, b) => a.time - b.time);
-      return result;
-    }
-
-    function setLyricsOpen(open) {
-      lyricsOpen = open;
-      lyricsPanel.classList.toggle('open', open);
-      lyricsToggleBtn.classList.toggle('active', open);
-      if (open && currentLyricsLines.length > 0) {
-        syncLyricHighlight(audioEngine.currentTime || 0, true);
-      }
-    }
-
-    async function fetchAndShowLyrics(track) {
-      lyricsSongTitle.textContent  = track.title;
-      lyricsSongArtist.textContent = track.artist;
-      currentLyricsLines = [];
-      activeLyricIdx = -1;
-
-      if (lyricsCache[track.id] !== undefined) {
-        renderLyrics(lyricsCache[track.id]);
-        return;
-      }
-
-      lyricsScroll.innerHTML = '<div class="lyrics-status loading">🎵 Mengambil lirik & sinkronisasi karaoke...</div>';
-
-      try {
-        const res  = await fetch(`/api/lyrics?artist=${encodeURIComponent(track.artist)}&title=${encodeURIComponent(track.title)}`);
-        const data = await res.json();
-        lyricsCache[track.id] = data;
-        renderLyrics(data);
-      } catch {
-        lyricsCache[track.id] = { found: false };
-        renderLyrics({ found: false });
-      }
-    }
-
-    function renderLyrics(data) {
-      currentLyricsLines = [];
-      activeLyricIdx = -1;
-
-      if (!data.found || (!data.syncedLyrics && (!data.lyrics || data.lyrics.trim().length < 10))) {
-        if (lyricsLabelBadge) {
-          lyricsLabelBadge.className = 'lyrics-label';
-          lyricsLabelBadge.textContent = 'LIRIK';
-        }
-        lyricsScroll.innerHTML = '<div class="lyrics-status">🎼 Lirik belum tersedia untuk lagu ini. Coba putar lagu viral lainnya!</div>';
-        return;
-      }
-
-      // 1. Prioritize Synced Lyrics (Karaoke Experience)
-      if (data.synced && data.syncedLyrics) {
-        const parsed = parseLrc(data.syncedLyrics);
-        if (parsed.length > 0) {
-          if (lyricsLabelBadge) {
-            lyricsLabelBadge.className = 'lyrics-label synced';
-            lyricsLabelBadge.innerHTML = '<span class="sync-dot"></span> KARAOKE SYNC';
-          }
-          const listWrap = document.createElement('div');
-          listWrap.className = 'synced-lyrics-list';
-
-          parsed.forEach((line) => {
-            const lineEl = document.createElement('div');
-            lineEl.className = 'synced-lyric-line';
-            lineEl.textContent = line.text;
-            lineEl.dataset.time = line.time;
-            lineEl.title = `Klik untuk putar dari ${formatTime(line.time)}`;
-            lineEl.addEventListener('click', () => {
-              audioEngine.currentTime = line.time;
-              if (audioEngine.paused) {
-                audioEngine.play().catch(() => {});
-              }
-              syncLyricHighlight(line.time, true);
-            });
-            listWrap.appendChild(lineEl);
-            line.el = lineEl;
-          });
-
-          lyricsScroll.innerHTML = '';
-          lyricsScroll.appendChild(listWrap);
-          currentLyricsLines = parsed;
-          syncLyricHighlight(audioEngine.currentTime || 0, true);
-          return;
-        }
-      }
-
-      // 2. Fallback: Plain lyrics text view
-      if (lyricsLabelBadge) {
-        lyricsLabelBadge.className = 'lyrics-label';
-        lyricsLabelBadge.textContent = 'TEKS LIRIK';
-      }
-      const clean = (data.lyrics || '').replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
-      lyricsScroll.innerHTML = `<div class="plain-lyrics-view">${escapeHtml(clean)}</div>`;
-      lyricsScroll.scrollTop = 0;
-    }
-
-    function syncLyricHighlight(curTime, forceScroll = false) {
-      if (!currentLyricsLines || currentLyricsLines.length === 0) return;
-
-      let targetIdx = -1;
-      for (let i = 0; i < currentLyricsLines.length; i++) {
-        if (curTime >= currentLyricsLines[i].time) {
-          targetIdx = i;
-        } else {
-          break;
-        }
-      }
-
-      if (targetIdx !== activeLyricIdx || forceScroll) {
-        if (activeLyricIdx >= 0 && currentLyricsLines[activeLyricIdx]?.el) {
-          currentLyricsLines[activeLyricIdx].el.classList.remove('active');
-        }
-        activeLyricIdx = targetIdx;
-        if (targetIdx >= 0 && currentLyricsLines[targetIdx]?.el) {
-          const activeEl = currentLyricsLines[targetIdx].el;
-          activeEl.classList.add('active');
-          if (lyricsOpen) {
-            activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        }
-      }
-    }
-
-    lyricsToggleBtn.addEventListener('click', () => {
-      const nowOpen = !lyricsOpen;
-      setLyricsOpen(nowOpen);
-      if (nowOpen && state.currentTrack) fetchAndShowLyrics(state.currentTrack);
-    });
-
-    lyricsCloseBtn.addEventListener('click', () => setLyricsOpen(false));
+    // Dock Additional Action Links
+    const dockTiktokBtn = document.getElementById('dockTiktokBtn');
+    const dockDownloadBtn = document.getElementById('dockDownloadBtn');
 
 
 
@@ -1822,16 +1418,14 @@
         const safeArtist = escapeHtml(track.artist);
         const coverUrl = track.cover || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="76" height="76" fill="%23ccc"%3E%3Crect width="76" height="76"/%3E%3C/svg%3E';
 
-        let downloadBtn = '';
-        if (track.preview) {
-          const dlUrl = '/api/download?url=' + encodeURIComponent(track.preview) + '&name=' + encodeURIComponent(track.artist + ' - ' + track.title);
-          downloadBtn = '<a href="' + dlUrl + '" download class="tactile-btn external-btn" title="Download Audio MP3" style="color: var(--color-primary);">' +
-            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">' +
-            '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>' +
-            '<polyline points="7 10 12 15 17 10"></polyline>' +
-            '<line x1="12" y1="15" x2="12" y2="3"></line>' +
-            '</svg></a>';
-        }
+        const dlAudio = track.fullStreamUrl || track.preview;
+        const dlUrl = dlAudio 
+          ? `/api/download?url=${encodeURIComponent(dlAudio)}&name=${encodeURIComponent(track.artist + ' - ' + track.title)}`
+          : `/api/download?artist=${encodeURIComponent(track.artist)}&title=${encodeURIComponent(track.title)}&name=${encodeURIComponent(track.artist + ' - ' + track.title)}`;
+
+        const ytUrl = track.externalUrls?.youtube || `https://www.youtube.com/results?search_query=${encodeURIComponent(track.artist + ' ' + track.title)}`;
+        const ttUrl = track.externalUrls?.tiktok || `https://www.tiktok.com/search?q=${encodeURIComponent(track.artist + ' ' + track.title)}`;
+        const spUrl = track.externalUrls?.spotify || `https://open.spotify.com/search/${encodeURIComponent(track.artist + ' ' + track.title)}`;
 
         return `
           <div class="song-card ${isPlayingThis ? 'is-playing' : ''}" id="card-${track.id}">
@@ -1855,18 +1449,30 @@
                 ${isPlayingThis ? '❚❚ JEDA' : '▶ PUTAR'}
               </button>
               
-              <div style="display: flex; gap: 8px;">
-                ${downloadBtn}
-                <button class="tactile-btn external-btn" onclick="openYouTubeModalByIndex(${idx})" title="Putar Lagu Utuh (YouTube)">
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <a href="${dlUrl}" download class="tactile-btn external-btn btn-action-dl" title="Download Audio MP3 (Gratis & Cepat)">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                </a>
+
+                <button class="tactile-btn external-btn btn-action-yt" onclick="openYouTubeModalByIndex(${idx})" title="Putar Video YouTube">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="#FF2157">
                     <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
                   </svg>
                 </button>
-                <a href="${track.externalUrls?.youtube || '#'}" target="_blank" rel="noopener noreferrer" class="tactile-btn external-btn" title="Buka di YouTube Link">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                    <polyline points="15 3 21 3 21 9"></polyline>
-                    <line x1="10" y1="14" x2="21" y2="3"></line>
+
+                <a href="${ttUrl}" target="_blank" rel="noopener noreferrer" class="tactile-btn external-btn btn-action-tt" title="Cari di TikTok">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 3 15.68 6.34 6.34 0 0 0 9.35 22a6.33 6.33 0 0 0 6.33-6.32V8.4a8.3 8.3 0 0 0 3.91 1.09V6.69z"/>
+                  </svg>
+                </a>
+
+                <a href="${spUrl}" target="_blank" rel="noopener noreferrer" class="tactile-btn external-btn btn-action-sp" title="Buka di Spotify">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="#1DB954">
+                    <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
                   </svg>
                 </a>
               </div>
@@ -1899,28 +1505,31 @@
       state.currentIndex = idx;
       state.currentTrack = track;
 
-      // Always fetch and prepare lyrics for active track
-      fetchAndShowLyrics(track);
-
       dockTitle.textContent = track.title;
       dockArtist.textContent = track.artist;
       dockCover.src = track.cover || '';
 
-
-      const dockDownloadBtn = document.getElementById('dockDownloadBtn');
       function setDownloadLink(url) {
         if (!dockDownloadBtn) return;
         if (url) {
           dockDownloadBtn.href = '/api/download?url=' + encodeURIComponent(url) + '&name=' + encodeURIComponent(track.artist + ' - ' + track.title);
-          dockDownloadBtn.style.display = 'flex';
-          dockDownloadBtn.title = 'Download Audio MP3 (320kbps HD)';
         } else {
-          dockDownloadBtn.style.display = 'none';
+          dockDownloadBtn.href = '/api/download?artist=' + encodeURIComponent(track.artist) + '&title=' + encodeURIComponent(track.title) + '&name=' + encodeURIComponent(track.artist + ' - ' + track.title);
         }
+        dockDownloadBtn.style.display = 'inline-flex';
+        dockDownloadBtn.title = 'Download Audio MP3 (Gratis 320kbps)';
+      }
+
+      function setTiktokLink() {
+        if (!dockTiktokBtn) return;
+        const ttUrl = track.externalUrls?.tiktok || `https://www.tiktok.com/search?q=${encodeURIComponent(track.artist + ' ' + track.title)}`;
+        dockTiktokBtn.href = ttUrl;
+        dockTiktokBtn.style.display = 'inline-flex';
       }
 
       const initialAudio = track.fullStreamUrl || track.preview;
       setDownloadLink(initialAudio);
+      setTiktokLink();
       
       openFullYtBtn.onclick = () => openYouTubeModal(encodeURIComponent(track.artist + ' ' + track.title), encodeURIComponent(track.title));
 
@@ -1992,7 +1601,6 @@
       progressFill.style.width = `${progress}%`;
       currentTimeText.textContent = formatTime(audioEngine.currentTime);
       totalDurationText.textContent = formatTime(audioEngine.duration);
-      syncLyricHighlight(audioEngine.currentTime);
     });
 
     audioEngine.addEventListener('ended', () => {
@@ -2048,7 +1656,6 @@
         const playerDock = document.getElementById('playerDock');
         playerDock.classList.remove('visible');
         document.body.classList.remove('has-player');
-        setLyricsOpen(false);
         updatePlayerUI();
         renderTracks();
       });
@@ -2065,13 +1672,28 @@
       loadTracks(cat);
     });
 
-    // Search Handlers
+    // Realtime Search Handlers
+    let searchDebounceTimer = null;
+    searchInput.addEventListener('input', (e) => {
+      const val = e.target.value.trim();
+      clearTimeout(searchDebounceTimer);
+      if (val.length >= 2) {
+        searchDebounceTimer = setTimeout(() => {
+          runSearch(val);
+        }, 380);
+      } else if (val.length === 0) {
+        loadTracks(state.currentCategory);
+      }
+    });
+
     searchBtn.addEventListener('click', () => {
+      clearTimeout(searchDebounceTimer);
       runSearch(searchInput.value);
     });
 
     searchInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
+        clearTimeout(searchDebounceTimer);
         runSearch(searchInput.value);
       }
     });

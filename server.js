@@ -38,23 +38,29 @@ async function fetchDeezerGlobal() {
     if (!json.tracks?.data && !json.data) return [];
     const list = json.tracks?.data || json.data;
 
-    return list.map((item, idx) => ({
-      id: `dz-${item.id}`,
-      rank: idx + 1,
-      title: item.title_short || item.title,
-      artist: item.artist?.name || 'Unknown Artist',
-      album: item.album?.title || 'Single',
-      cover: item.album?.cover_medium || item.album?.cover_big || item.album?.cover || '',
-      preview: item.preview || '',
-      duration: item.duration || 30,
-      trendVelocity: idx === 0 ? '🔥 #1 VIRAL' : idx < 5 ? `▲ +${5 - idx}` : idx % 4 === 0 ? '★ NEW' : '▲ HOT',
-      origin: idx % 2 === 0 ? 'Spotify' : 'TikTok',
-      youtubeQuery: `${item.artist?.name} ${item.title_short || item.title} official audio`,
-      externalUrls: {
-        deezer: item.link || '',
-        youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(item.artist?.name + ' ' + (item.title_short || item.title))}`
-      }
-    }));
+    return list.map((item, idx) => {
+      const title = item.title_short || item.title;
+      const artist = item.artist?.name || 'Unknown Artist';
+      return {
+        id: `dz-${item.id}`,
+        rank: idx + 1,
+        title,
+        artist,
+        album: item.album?.title || 'Single',
+        cover: item.album?.cover_medium || item.album?.cover_big || item.album?.cover || '',
+        preview: item.preview || '',
+        duration: item.duration || 30,
+        trendVelocity: idx === 0 ? '🔥 #1 VIRAL' : idx < 5 ? `▲ +${5 - idx}` : idx % 4 === 0 ? '★ NEW' : '▲ HOT',
+        origin: idx % 2 === 0 ? 'Spotify' : 'TikTok',
+        youtubeQuery: `${artist} ${title} official audio`,
+        externalUrls: {
+          deezer: item.link || '',
+          youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(artist + ' ' + title)}`,
+          tiktok: `https://www.tiktok.com/search?q=${encodeURIComponent(artist + ' ' + title)}`,
+          spotify: `https://open.spotify.com/search/${encodeURIComponent(artist + ' ' + title)}`
+        }
+      };
+    });
   } catch (err) {
     console.error('Deezer fetch error:', err.message);
     return [];
@@ -91,7 +97,9 @@ async function fetchAppleRss(country = 'us', originTag = 'Billboard') {
         youtubeQuery: `${artist} ${title} official audio`,
         externalUrls: {
           apple: appleUrl,
-          youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(artist + ' ' + title)}`
+          youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(artist + ' ' + title)}`,
+          tiktok: `https://www.tiktok.com/search?q=${encodeURIComponent(artist + ' ' + title)}`,
+          spotify: `https://open.spotify.com/search/${encodeURIComponent(artist + ' ' + title)}`
         }
       };
     });
@@ -108,23 +116,29 @@ async function fetchTikTokViralHits() {
     const json = await res.json();
     const results = json.results || [];
 
-    return results.map((item, idx) => ({
-      id: `tt-${item.trackId || idx}`,
-      rank: idx + 1,
-      title: item.trackName || 'Viral Sound',
-      artist: item.artistName || 'Unknown Artist',
-      album: item.collectionName || 'TikTok Trends',
-      cover: (item.artworkUrl100 || '').replace('100x100bb', '600x600bb'),
-      preview: item.previewUrl || '',
-      duration: Math.round((item.trackTimeMillis || 30000) / 1000),
-      trendVelocity: idx === 0 ? '🔥 SOUND OF THE WEEK' : idx < 5 ? '⚡ 5M+ VIDEOS' : '★ TRENDING',
-      origin: 'TikTok',
-      youtubeQuery: `${item.artistName} ${item.trackName} official sound`,
-      externalUrls: {
-        apple: item.trackViewUrl || '',
-        youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(item.artistName + ' ' + item.trackName)}`
-      }
-    }));
+    return results.map((item, idx) => {
+      const title = item.trackName || 'Viral Sound';
+      const artist = item.artistName || 'Unknown Artist';
+      return {
+        id: `tt-${item.trackId || idx}`,
+        rank: idx + 1,
+        title,
+        artist,
+        album: item.collectionName || 'TikTok Trends',
+        cover: (item.artworkUrl100 || '').replace('100x100bb', '600x600bb'),
+        preview: item.previewUrl || '',
+        duration: Math.round((item.trackTimeMillis || 30000) / 1000),
+        trendVelocity: idx === 0 ? '🔥 SOUND OF THE WEEK' : idx < 5 ? '⚡ 5M+ VIDEOS' : '★ TRENDING',
+        origin: 'TikTok',
+        youtubeQuery: `${artist} ${title} official sound`,
+        externalUrls: {
+          apple: item.trackViewUrl || '',
+          youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(artist + ' ' + title)}`,
+          tiktok: `https://www.tiktok.com/search?q=${encodeURIComponent(artist + ' ' + title)}`,
+          spotify: `https://open.spotify.com/search/${encodeURIComponent(artist + ' ' + title)}`
+        }
+      };
+    });
   } catch (err) {
     console.error('TikTok search error:', err.message);
     return [];
@@ -132,75 +146,96 @@ async function fetchTikTokViralHits() {
 }
 
 async function searchSongs(query) {
+  const cleanQ = (query || '').replace(/[^\w\s]/gi, ' ').trim();
+  if (!cleanQ) return [];
+
+  const results = [];
+  const seen = new Set();
+
+  // 1. Search JioSaavn for 320kbps full tracks
   try {
-    const cleanQ = query.replace(/[^\w\s]/gi, ' ').trim();
-    const sUrl = `https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&_marker=0&api_version=4&ctx=web6dot0&q=${encodeURIComponent(cleanQ)}&n=25&p=1`;
+    const sUrl = `https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&_marker=0&api_version=4&ctx=web6dot0&q=${encodeURIComponent(cleanQ)}&n=20&p=1`;
     const sRes = await fetch(sUrl, {
       headers: { 'User-Agent': 'Mozilla/5.0' },
-      signal: AbortSignal.timeout(5000)
+      signal: AbortSignal.timeout(4500)
     });
     if (sRes.ok) {
       const data = await sRes.json();
       const list = data.results || [];
-      if (list.length > 0) {
-        return list.map((item, idx) => {
-          const streamUrl = decryptSaavnMedia(item.more_info?.encrypted_media_url);
-          const title = (item.title || 'Track').replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&');
-          const artist = (item.subtitle || item.more_info?.music || 'Artist').replace(/&amp;/g, '&');
-          return {
-            id: `sr-${item.id || idx}`,
-            rank: idx + 1,
+      for (const item of list) {
+        const streamUrl = decryptSaavnMedia(item.more_info?.encrypted_media_url);
+        const title = (item.title || 'Track').replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&');
+        const artist = (item.subtitle || item.more_info?.music || 'Artist').replace(/&amp;/g, '&');
+        const key = `${title.toLowerCase()}_${artist.toLowerCase()}`;
+        if (!seen.has(key) && streamUrl) {
+          seen.add(key);
+          results.push({
+            id: `sr-${item.id || results.length}`,
+            rank: results.length + 1,
             title,
             artist,
             album: item.more_info?.album || 'Single',
             cover: item.image ? item.image.replace('150x150', '500x500') : '',
-            preview: streamUrl || '',
-            fullStreamUrl: streamUrl || '',
+            preview: streamUrl,
+            fullStreamUrl: streamUrl,
             duration: Number(item.more_info?.duration) || 180,
-            trendVelocity: '⚡ 320kbps HD',
-            origin: 'Free Stream',
+            trendVelocity: '⚡ 320kbps FREE',
+            origin: 'Free MP3',
             youtubeQuery: `${artist} ${title} official audio`,
             externalUrls: {
               saavn: item.perma_url || '',
-              youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(artist + ' ' + title)}`
+              youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(artist + ' ' + title)}`,
+              tiktok: `https://www.tiktok.com/search?q=${encodeURIComponent(artist + ' ' + title)}`,
+              spotify: `https://open.spotify.com/search/${encodeURIComponent(artist + ' ' + title)}`
             }
-          };
-        }).filter(t => t.preview);
+          });
+        }
       }
     }
   } catch (err) {
-    console.error('Saavn search error, fallback to iTunes:', err.message);
+    console.error('Saavn search error:', err.message);
   }
 
-  // Fallback to iTunes search
+  // 2. Search iTunes for catalog completeness (international, K-Pop, viral hits)
   try {
     const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=25`);
-    if (!res.ok) throw new Error(`iTunes search HTTP ${res.status}`);
-    const json = await res.json();
-    const results = json.results || [];
-
-    return results.map((item, idx) => ({
-      id: `sr-${item.trackId || idx}`,
-      rank: idx + 1,
-      title: item.trackName,
-      artist: item.artistName,
-      album: item.collectionName,
-      cover: (item.artworkUrl100 || '').replace('100x100bb', '600x600bb'),
-      preview: item.previewUrl || '',
-      fullStreamUrl: '',
-      duration: Math.round((item.trackTimeMillis || 30000) / 1000),
-      trendVelocity: '🔍 PREVIEW',
-      origin: 'iTunes',
-      youtubeQuery: `${item.artistName} ${item.trackName} official audio`,
-      externalUrls: {
-        apple: item.trackViewUrl || '',
-        youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(item.artistName + ' ' + item.trackName)}`
+    if (res.ok) {
+      const json = await res.json();
+      const list = json.results || [];
+      for (const item of list) {
+        const title = item.trackName;
+        const artist = item.artistName;
+        const key = `${title.toLowerCase()}_${artist.toLowerCase()}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          results.push({
+            id: `sr-it-${item.trackId || results.length}`,
+            rank: results.length + 1,
+            title,
+            artist,
+            album: item.collectionName || 'Single',
+            cover: (item.artworkUrl100 || '').replace('100x100bb', '600x600bb'),
+            preview: item.previewUrl || '',
+            fullStreamUrl: '',
+            duration: Math.round((item.trackTimeMillis || 30000) / 1000),
+            trendVelocity: '🔍 VIRAL',
+            origin: 'iTunes',
+            youtubeQuery: `${artist} ${title} official audio`,
+            externalUrls: {
+              apple: item.trackViewUrl || '',
+              youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(artist + ' ' + title)}`,
+              tiktok: `https://www.tiktok.com/search?q=${encodeURIComponent(artist + ' ' + title)}`,
+              spotify: `https://open.spotify.com/search/${encodeURIComponent(artist + ' ' + title)}`
+            }
+          });
+        }
       }
-    }));
+    }
   } catch (err) {
-    console.error('Search error:', err.message);
-    return [];
+    console.error('iTunes search error:', err.message);
   }
+
+  return results;
 }
 
 async function fetchSearchGenre(term, originTag) {
@@ -210,23 +245,29 @@ async function fetchSearchGenre(term, originTag) {
     const json = await res.json();
     const results = json.results || [];
 
-    return results.map((item, idx) => ({
-      id: `gn-${item.trackId || idx}`,
-      rank: idx + 1,
-      title: item.trackName || 'Viral Song',
-      artist: item.artistName || 'Unknown Artist',
-      album: item.collectionName || 'Top Hits',
-      cover: (item.artworkUrl100 || '').replace('100x100bb', '600x600bb'),
-      preview: item.previewUrl || '',
-      duration: Math.round((item.trackTimeMillis || 30000) / 1000),
-      trendVelocity: idx === 0 ? '🔥 #1' : idx < 5 ? `▲ +${5 - idx}` : '★ TRENDING',
-      origin: originTag,
-      youtubeQuery: `${item.artistName} ${item.trackName} official`,
-      externalUrls: {
-        apple: item.trackViewUrl || '',
-        youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(item.artistName + ' ' + item.trackName)}`
-      }
-    }));
+    return results.map((item, idx) => {
+      const title = item.trackName || 'Viral Song';
+      const artist = item.artistName || 'Unknown Artist';
+      return {
+        id: `gn-${item.trackId || idx}`,
+        rank: idx + 1,
+        title,
+        artist,
+        album: item.collectionName || 'Top Hits',
+        cover: (item.artworkUrl100 || '').replace('100x100bb', '600x600bb'),
+        preview: item.previewUrl || '',
+        duration: Math.round((item.trackTimeMillis || 30000) / 1000),
+        trendVelocity: idx === 0 ? '🔥 #1' : idx < 5 ? `▲ +${5 - idx}` : '★ TRENDING',
+        origin: originTag,
+        youtubeQuery: `${artist} ${title} official`,
+        externalUrls: {
+          apple: item.trackViewUrl || '',
+          youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(artist + ' ' + title)}`,
+          tiktok: `https://www.tiktok.com/search?q=${encodeURIComponent(artist + ' ' + title)}`,
+          spotify: `https://open.spotify.com/search/${encodeURIComponent(artist + ' ' + title)}`
+        }
+      };
+    });
   } catch (err) {
     console.error(`Genre search error (${term}):`, err.message);
     return [];
@@ -330,7 +371,9 @@ async function scrapeViralIndo() {
         youtubeQuery: `${artist} ${title} official audio`,
         externalUrls: {
           saavn: item.perma_url || '',
-          youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(artist + ' ' + title)}`
+          youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(artist + ' ' + title)}`,
+          tiktok: `https://www.tiktok.com/search?q=${encodeURIComponent(artist + ' ' + title)}`,
+          spotify: `https://open.spotify.com/search/${encodeURIComponent(artist + ' ' + title)}`
         }
       };
     }).filter(t => t.preview);
@@ -425,31 +468,61 @@ export async function handleRequest(req, res) {
     }
 
     if (pathname === '/api/download') {
-      const audioUrl = parsedUrl.searchParams.get('url');
-      const filename = parsedUrl.searchParams.get('name') || 'viral_track';
+      let audioUrl = parsedUrl.searchParams.get('url');
+      const artist = parsedUrl.searchParams.get('artist') || '';
+      const title = parsedUrl.searchParams.get('title') || '';
+      let filename = parsedUrl.searchParams.get('name') || `${artist} - ${title}`.trim() || 'viral_track';
+
+      // Auto-lookup full 320kbps audio if not yet resolved
+      if (!audioUrl && (artist || title)) {
+        try {
+          const scraped = await scrapeFullAudio(`${artist} ${title}`);
+          if (scraped && scraped.streamUrl) {
+            audioUrl = scraped.streamUrl;
+          }
+        } catch (e) {
+          console.warn('Auto scrape download stream failed:', e.message);
+        }
+      }
+
       if (!audioUrl) {
         res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'url parameter is required' }));
+        res.end(JSON.stringify({ error: 'url or artist/title required for download' }));
         return;
       }
 
-      try {
-        const audioRes = await fetch(audioUrl);
-        if (!audioRes.ok) throw new Error(`Audio fetch status: ${audioRes.status}`);
+      const cleanName = filename.replace(/[/\\?%*:|"<>]/g, '_').trim() || 'track';
 
-        const cleanName = filename.replace(/[^a-zA-Z0-9_\-\.\s]/g, '').trim() || 'track';
-        res.writeHead(200, {
-          'Content-Type': 'audio/mpeg',
-          'Content-Disposition': `attachment; filename="${cleanName}.mp3"`,
-          'Cache-Control': 'public, max-age=86400'
+      try {
+        const audioRes = await fetch(audioUrl, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          }
         });
 
+        if (!audioRes.ok) {
+          // Fallback direct redirection
+          res.writeHead(302, { 'Location': audioUrl });
+          res.end();
+          return;
+        }
+
+        const contentLength = audioRes.headers.get('content-length');
+        const headers = {
+          'Content-Type': 'audio/mpeg',
+          'Content-Disposition': `attachment; filename="${encodeURIComponent(cleanName)}.mp3"`,
+          'Access-Control-Allow-Origin': '*',
+          'Cache-Control': 'public, max-age=86400'
+        };
+        if (contentLength) headers['Content-Length'] = contentLength;
+
+        res.writeHead(200, headers);
         const arrayBuffer = await audioRes.arrayBuffer();
         res.end(Buffer.from(arrayBuffer));
       } catch (err) {
-        console.error('Download error:', err.message);
-        res.writeHead(500, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Failed to download audio file' }));
+        console.error('Download proxy error, redirecting:', err.message);
+        res.writeHead(302, { 'Location': audioUrl });
+        res.end();
       }
       return;
     }
