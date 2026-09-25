@@ -103,6 +103,14 @@
       align-items: center;
       justify-content: space-between;
       padding: 0 24px;
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+    }
+
+    /* Sembunyikan header atas sementara saat pemutar layar penuh aktif */
+    body.full-player-active header.neu-header {
+      transform: translateY(-100%) !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
     }
 
     .header-logo {
@@ -1113,7 +1121,7 @@
     .spotify-full-player {
       position: fixed;
       inset: 0;
-      z-index: 1800;
+      z-index: 2500;
       background: var(--bg-surface);
       transform: translateY(100%);
       opacity: 0;
