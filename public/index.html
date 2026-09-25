@@ -195,72 +195,6 @@
       }
     }
 
-    /* ── In-Web Realtime Refresh Button ── */
-    .header-refresh-btn {
-      background: var(--bg-surface);
-      border: none;
-      border-radius: 12px;
-      padding: 8px 14px;
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      box-shadow: var(--neu-extruded-sm);
-      cursor: pointer;
-      font-family: 'Space Mono', monospace;
-      font-size: 0.78rem;
-      font-weight: 700;
-      color: var(--color-primary);
-      transition: all 0.15s ease;
-      user-select: none;
-      -webkit-user-select: none;
-      text-decoration: none;
-    }
-
-    .header-refresh-btn:hover {
-      color: var(--color-text);
-      box-shadow: var(--neu-extruded);
-    }
-
-    .header-refresh-btn:active {
-      box-shadow: var(--neu-inset);
-      transform: translateY(1px);
-    }
-
-    .refresh-icon {
-      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-      display: inline-block;
-      flex-shrink: 0;
-    }
-
-    .refresh-icon.is-spinning {
-      animation: spinRefresh 0.75s linear infinite;
-    }
-
-    @keyframes spinRefresh {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-
-    @media (max-width: 600px) {
-      .header-refresh-btn {
-        padding: 7px 11px;
-        gap: 5px;
-        font-size: 0.74rem;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .refresh-text {
-        display: none;
-      }
-      .header-refresh-btn {
-        padding: 7px;
-        width: 36px;
-        height: 36px;
-        justify-content: center;
-      }
-    }
-
     /* ── Neumorphic In-Web Toast Notification ── */
     .neu-toast {
       position: fixed;
@@ -1943,18 +1877,8 @@
       </div>
     </a>
 
-    <!-- Header Actions: Refresh In-Web & Riwayat Love -->
+    <!-- Header Actions: Riwayat Love / Disukai -->
     <div class="header-actions">
-      <!-- Tombol Refresh In-Web Realtime (Tanpa Reload Browser) -->
-      <button type="button" class="header-refresh-btn tactile-btn" id="webRefreshBtn" onclick="refreshAppRealtime()" title="Refresh Musik Realtime (Tanpa Reload Browser)">
-        <svg class="refresh-icon" id="webRefreshIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="23 4 23 10 17 10"></polyline>
-          <polyline points="1 20 1 14 7 14"></polyline>
-          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-        </svg>
-        <span class="refresh-text">Refresh</span>
-      </button>
-
       <button type="button" class="header-loved-btn" id="headerLovedBtn" onclick="openLovedView()" title="Buka Riwayat Lagu Disukai">
         <div class="header-loved-icon-wrap">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="#FF2157" stroke="#FF2157" stroke-width="1.5">
