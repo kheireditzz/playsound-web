@@ -56,7 +56,6 @@
       padding-bottom: 28px;
       overflow-x: hidden;
       position: relative;
-      transition: padding-bottom 0.3s ease;
     }
 
     body.has-player {
@@ -571,10 +570,10 @@
     .neu-player-dock {
       position: fixed;
       bottom: 20px;
-      left: 20px;
-      right: 20px;
-      margin: 0 auto;
-      width: auto;
+      left: 50%;
+      transform: translateX(-50%);
+      margin: 0;
+      width: calc(100% - 32px);
       max-width: 1200px;
       height: 88px;
       background: var(--bg-surface);
@@ -586,18 +585,12 @@
       align-items: center;
       padding: 0 24px;
       gap: 20px;
-      opacity: 0;
-      pointer-events: none;
-      transform: translateY(calc(100% + 60px));
-      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
       box-sizing: border-box;
     }
 
     .neu-player-dock.visible {
       display: flex;
-      transform: translateY(0);
-      opacity: 1;
-      pointer-events: auto;
+      transform: translateX(-50%);
     }
 
     .dock-track-info {
@@ -939,8 +932,8 @@
       .neu-player-dock {
         position: fixed;
         bottom: 12px;
-        left: 10px;
-        right: 10px;
+        left: 50%;
+        transform: translateX(-50%);
         margin: 0;
         width: calc(100% - 20px);
         max-width: calc(100% - 20px);
@@ -956,7 +949,7 @@
       }
       .neu-player-dock.visible {
         display: flex;
-        transform: translateY(0);
+        transform: translateX(-50%);
       }
       .dock-track-info {
         width: 100%;
@@ -1656,6 +1649,7 @@
 
       // Tampilkan dock pemutar
       const playerDock = document.getElementById('playerDock');
+      playerDock.style.display = 'flex';
       playerDock.classList.add('visible');
       document.body.classList.add('has-player');
 
@@ -1843,14 +1837,25 @@
     // Close / Dismiss Player Dock
     const closeDockBtn = document.getElementById('closeDockBtn');
     if (closeDockBtn) {
-      closeDockBtn.addEventListener('click', () => {
+      closeDockBtn.addEventListener('click', (e) => {
+        if (e) e.stopPropagation();
         audioEngine.pause();
         state.isPlaying = false;
         const playerDock = document.getElementById('playerDock');
         playerDock.classList.remove('visible');
+        playerDock.style.display = 'none';
         document.body.classList.remove('has-player');
         updatePlayerUI();
-        renderTracks();
+        
+        // Hapus status is-playing langsung tanpa reflow layout massal
+        document.querySelectorAll('.song-card.is-playing').forEach(c => {
+          c.classList.remove('is-playing');
+          const btn = c.querySelector('.card-actions button');
+          if (btn) {
+            btn.textContent = '▶ PUTAR';
+            btn.className = 'tactile-btn play-btn-primary';
+          }
+        });
       });
     }
 
