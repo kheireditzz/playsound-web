@@ -195,6 +195,154 @@
       }
     }
 
+    /* Header Left & Back to Dashboard Button */
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .header-back-btn {
+      background: var(--bg-surface);
+      border: none;
+      border-radius: 12px;
+      padding: 8px 14px;
+      display: none;
+      align-items: center;
+      gap: 7px;
+      box-shadow: var(--neu-extruded-sm);
+      cursor: pointer;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--color-primary);
+      transition: all 0.15s ease;
+      user-select: none;
+      -webkit-user-select: none;
+      text-decoration: none;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .header-back-btn:hover {
+      color: var(--color-text);
+      transform: translateX(-2px);
+    }
+
+    .header-back-btn:active {
+      box-shadow: var(--neu-inset);
+      transform: translateY(1px);
+    }
+
+    @media (max-width: 600px) {
+      .header-back-btn {
+        padding: 7px 11px;
+        gap: 5px;
+        font-size: 0.74rem;
+      }
+    }
+
+    /* ── Loved Tracks Exclusive View Page Bar ── */
+    .loved-page-bar {
+      margin-top: 18px;
+      margin-bottom: 22px;
+      padding: 16px 20px;
+      background: var(--bg-surface);
+      border-radius: 18px;
+      box-shadow: var(--neu-extruded-card);
+      width: 100%;
+      box-sizing: border-box;
+      animation: fadeInPage 0.22s ease-out;
+    }
+
+    @keyframes fadeInPage {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .loved-page-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .loved-bar-back-btn {
+      color: var(--color-primary);
+      padding: 8px 14px;
+      font-size: 0.76rem;
+      gap: 6px;
+    }
+
+    .loved-bar-back-btn:hover {
+      color: var(--color-text);
+      transform: translateX(-2px);
+    }
+
+    .loved-bar-count-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--color-danger);
+      background: var(--bg-surface);
+      box-shadow: var(--neu-inset);
+      padding: 4px 10px;
+      border-radius: 8px;
+    }
+
+    .loved-bar-title-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .loved-bar-heart-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: var(--bg-surface);
+      box-shadow: var(--neu-inset);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--color-danger);
+    }
+
+    .loved-bar-heading {
+      font-family: 'Space Mono', monospace;
+      font-size: 1.05rem;
+      font-weight: 800;
+      margin: 0;
+      color: var(--color-text);
+      letter-spacing: -0.01em;
+    }
+
+    .loved-bar-desc {
+      font-size: 0.78rem;
+      color: var(--color-text-muted);
+      margin: 2px 0 0 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    @media (max-width: 600px) {
+      .loved-page-bar {
+        padding: 13px 14px;
+        margin-top: 14px;
+        margin-bottom: 18px;
+        border-radius: 16px;
+      }
+      .loved-bar-heading {
+        font-size: 0.92rem;
+      }
+      .loved-bar-desc {
+        font-size: 0.72rem;
+      }
+    }
+
     /* Status Pill */
     .live-status {
       display: flex;
@@ -1725,19 +1873,29 @@
 
   <!-- Top Fixed Header -->
   <header class="neu-header">
-    <a href="#" class="header-logo" onclick="event.preventDefault(); loadTracks('global');">
-      <div class="logo-badge" title="PlaySound">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 18V5l12-2v13"></path>
-          <circle cx="6" cy="18" r="3" fill="currentColor"></circle>
-          <circle cx="18" cy="16" r="3" fill="currentColor"></circle>
+    <div class="header-left">
+      <!-- Tombol Back ke Dashboard (hanya muncul saat di Riwayat Love) -->
+      <button type="button" class="header-back-btn tactile-btn" id="headerBackBtn" onclick="exitLovedView()" title="Kembali ke Dashboard">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
         </svg>
-      </div>
-      <div>
-        <div class="logo-title">PlaySound</div>
-        <div class="logo-subtitle">Viral Music Platform</div>
-      </div>
-    </a>
+        <span>DASHBOARD</span>
+      </button>
+
+      <a href="#" class="header-logo" id="headerLogo" onclick="event.preventDefault(); exitLovedView();">
+        <div class="logo-badge" title="PlaySound">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18V5l12-2v13"></path>
+            <circle cx="6" cy="18" r="3" fill="currentColor"></circle>
+            <circle cx="18" cy="16" r="3" fill="currentColor"></circle>
+          </svg>
+        </div>
+        <div>
+          <div class="logo-title">PlaySound</div>
+          <div class="logo-subtitle">Viral Music Platform</div>
+        </div>
+      </a>
+    </div>
 
     <!-- Header Actions: Riwayat Love / Disukai -->
     <div class="header-actions">
@@ -1818,11 +1976,32 @@
         <button type="button" class="neu-tab-btn" data-cat="uk">🇬🇧 UK Official 40</button>
         <button type="button" class="neu-tab-btn" data-cat="kpop">🇰🇷 K-Pop Radar</button>
         <button type="button" class="neu-tab-btn" data-cat="japan">🇯🇵 Japan Trends</button>
-        <button type="button" class="neu-tab-btn neu-tab-loved" data-cat="loved">❤️ Riwayat Love</button>
       </div>
     </div>
 
-
+    <!-- Dedicated Loved View Header (Hanya muncul saat di Riwayat Love) -->
+    <div class="loved-page-bar" id="lovedPageBar" style="display: none;">
+      <div class="loved-page-top">
+        <button type="button" class="tactile-btn loved-bar-back-btn" onclick="exitLovedView()" title="Kembali ke Dashboard Utama">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+          <span>KEMBALI KE DASHBOARD</span>
+        </button>
+        <span class="loved-bar-count-badge" id="lovedBarCountBadge">0 Lagu Disimpan</span>
+      </div>
+      <div class="loved-bar-title-row">
+        <div class="loved-bar-heart-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#FF2157" stroke="#FF2157" stroke-width="1.5">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+        </div>
+        <div>
+          <h2 class="loved-bar-heading">MUSIK YANG DI-LOVE</h2>
+          <p class="loved-bar-desc">Daftar lagu favorit pilihan Anda yang tersimpan secara realtime.</p>
+        </div>
+      </div>
+    </div>
 
     <!-- Tracks Container -->
     <div id="tracksGrid" class="tracks-grid">
@@ -2256,8 +2435,8 @@
       if (state.currentCategory === 'loved') {
         state.tracks = [...lovedTracks];
         renderTracks();
-        if (trackCountBadge) trackCountBadge.textContent = `${lovedTracks.length} Saved`;
-        if (categoryHeading) categoryHeading.textContent = `❤️ RIWAYAT LAGU DISUKAI (${lovedTracks.length})`;
+        const lovedBarCountBadge = document.getElementById('lovedBarCountBadge');
+        if (lovedBarCountBadge) lovedBarCountBadge.textContent = `${lovedTracks.length} Lagu Disimpan`;
         return;
       }
 
@@ -2280,25 +2459,84 @@
     window.openLovedView = function() {
       state.currentCategory = 'loved';
 
-      // Update tabs active state
-      document.querySelectorAll('.neu-tab-btn').forEach(b => {
-        b.classList.toggle('active', b.dataset.cat === 'loved');
-      });
+      // 1. Sembunyikan Trending Banner
+      const trendingBanner = document.getElementById('trendingBanner');
+      if (trendingBanner) trendingBanner.style.display = 'none';
 
-      // Update heading & count
-      if (categoryHeading) categoryHeading.textContent = `❤️ RIWAYAT LAGU DISUKAI (${lovedTracks.length})`;
-      if (trackCountBadge) trackCountBadge.textContent = `${lovedTracks.length} Saved`;
+      // 2. Sembunyikan Riwayat Musik yang didengar
+      if (historySection) historySection.style.display = 'none';
 
+      // 3. Sembunyikan Kotak Pencarian dan Kategori Tabs
+      const controlsWrapper = document.querySelector('.controls-wrapper');
+      if (controlsWrapper) controlsWrapper.style.display = 'none';
+
+      // 4. Sembunyikan Section Title default
+      const sectionMeta = document.querySelector('.section-meta');
+      if (sectionMeta) sectionMeta.style.display = 'none';
+
+      // 5. Tampilkan Tombol Back di Header (atas kiri)
+      const headerBackBtn = document.getElementById('headerBackBtn');
+      if (headerBackBtn) headerBackBtn.style.display = 'inline-flex';
+
+      const headerLogo = document.getElementById('headerLogo');
+      if (headerLogo && window.innerWidth <= 540) {
+        headerLogo.style.display = 'none';
+      }
+
+      // 6. Tampilkan Loved Page Bar
+      const lovedPageBar = document.getElementById('lovedPageBar');
+      if (lovedPageBar) lovedPageBar.style.display = 'block';
+
+      const lovedBarCountBadge = document.getElementById('lovedBarCountBadge');
+      if (lovedBarCountBadge) lovedBarCountBadge.textContent = `${lovedTracks.length} Lagu Disimpan`;
+
+      // 7. Muat HANYA musik yang di-love
       state.tracks = [...lovedTracks];
       renderTracks();
 
-      // Scroll halus ke list musik
-      try {
-        const controlsEl = document.querySelector('.controls-wrapper');
-        if (controlsEl) {
-          controlsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      } catch (err) {}
+      // Scroll ke paling atas
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    window.exitLovedView = function() {
+      state.currentCategory = 'global';
+
+      // 1. Tampilkan kembali Trending Banner
+      const trendingBanner = document.getElementById('trendingBanner');
+      if (trendingBanner) trendingBanner.style.display = 'block';
+
+      // 2. Tampilkan kembali Riwayat Musik jika ada
+      renderHistory();
+
+      // 3. Tampilkan kembali Kotak Pencarian dan Kategori Tabs
+      const controlsWrapper = document.querySelector('.controls-wrapper');
+      if (controlsWrapper) controlsWrapper.style.display = 'flex';
+
+      // 4. Tampilkan kembali Section Title default
+      const sectionMeta = document.querySelector('.section-meta');
+      if (sectionMeta) sectionMeta.style.display = 'flex';
+
+      // 5. Sembunyikan Tombol Back di Header
+      const headerBackBtn = document.getElementById('headerBackBtn');
+      if (headerBackBtn) headerBackBtn.style.display = 'none';
+
+      const headerLogo = document.getElementById('headerLogo');
+      if (headerLogo) headerLogo.style.display = 'flex';
+
+      // 6. Sembunyikan Loved Page Bar
+      const lovedPageBar = document.getElementById('lovedPageBar');
+      if (lovedPageBar) lovedPageBar.style.display = 'none';
+
+      // 7. Reset active tab ke 'global'
+      document.querySelectorAll('.neu-tab-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.cat === 'global');
+      });
+
+      // 8. Muat kembali chart global terbaru
+      loadTracks('global');
+
+      // Scroll ke paling atas
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     // Format Seconds to M:SS
@@ -2389,13 +2627,13 @@
         if (state.currentCategory === 'loved') {
           tracksGrid.innerHTML = `
             <div style="grid-column: 1/-1; text-align: center; padding: 48px 16px; color: var(--color-text-muted); font-family: 'Space Mono', monospace; width: 100%; box-sizing: border-box;">
-              <div style="font-size: 2.5rem; margin-bottom: 12px;">💔</div>
-              <div style="font-size: 1rem; font-weight: 700; color: var(--color-text); margin-bottom: 8px;">Belum Ada Riwayat Love</div>
+              <div style="font-size: 2.6rem; margin-bottom: 12px;">💔</div>
+              <div style="font-size: 1rem; font-weight: 700; color: var(--color-text); margin-bottom: 8px;">Belum Ada Musik yang di-Love</div>
               <div style="font-size: 0.8rem; max-width: 320px; margin: 0 auto 20px auto; line-height: 1.5;">
-                Klik ikon hati ❤️ pada lagu mana saja untuk menyimpannya ke koleksi favorit Anda secara realtime!
+                Klik tombol hati ❤️ pada kartu lagu mana saja untuk menyimpannya ke koleksi Anda secara realtime.
               </div>
-              <button class="tactile-btn play-btn-primary" onclick="loadTracks('global')">
-                Jelajahi Musik Viral
+              <button class="tactile-btn play-btn-primary" onclick="exitLovedView()">
+                ← KEMBALI KE DASHBOARD
               </button>
             </div>
           `;
