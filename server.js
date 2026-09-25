@@ -2,6 +2,7 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import CryptoJS from 'crypto-js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -132,6 +133,47 @@ async function fetchTikTokViralHits() {
 
 async function searchSongs(query) {
   try {
+    const cleanQ = query.replace(/[^\w\s]/gi, ' ').trim();
+    const sUrl = `https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&_marker=0&api_version=4&ctx=web6dot0&q=${encodeURIComponent(cleanQ)}&n=25&p=1`;
+    const sRes = await fetch(sUrl, {
+      headers: { 'User-Agent': 'Mozilla/5.0' },
+      signal: AbortSignal.timeout(5000)
+    });
+    if (sRes.ok) {
+      const data = await sRes.json();
+      const list = data.results || [];
+      if (list.length > 0) {
+        return list.map((item, idx) => {
+          const streamUrl = decryptSaavnMedia(item.more_info?.encrypted_media_url);
+          const title = (item.title || 'Track').replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&');
+          const artist = (item.subtitle || item.more_info?.music || 'Artist').replace(/&amp;/g, '&');
+          return {
+            id: `sr-${item.id || idx}`,
+            rank: idx + 1,
+            title,
+            artist,
+            album: item.more_info?.album || 'Single',
+            cover: item.image ? item.image.replace('150x150', '500x500') : '',
+            preview: streamUrl || '',
+            fullStreamUrl: streamUrl || '',
+            duration: Number(item.more_info?.duration) || 180,
+            trendVelocity: '⚡ 320kbps HD',
+            origin: 'Free Stream',
+            youtubeQuery: `${artist} ${title} official audio`,
+            externalUrls: {
+              saavn: item.perma_url || '',
+              youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(artist + ' ' + title)}`
+            }
+          };
+        }).filter(t => t.preview);
+      }
+    }
+  } catch (err) {
+    console.error('Saavn search error, fallback to iTunes:', err.message);
+  }
+
+  // Fallback to iTunes search
+  try {
     const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=25`);
     if (!res.ok) throw new Error(`iTunes search HTTP ${res.status}`);
     const json = await res.json();
@@ -145,9 +187,10 @@ async function searchSongs(query) {
       album: item.collectionName,
       cover: (item.artworkUrl100 || '').replace('100x100bb', '600x600bb'),
       preview: item.previewUrl || '',
+      fullStreamUrl: '',
       duration: Math.round((item.trackTimeMillis || 30000) / 1000),
-      trendVelocity: '🔍 MATCH',
-      origin: 'Global',
+      trendVelocity: '🔍 PREVIEW',
+      origin: 'iTunes',
       youtubeQuery: `${item.artistName} ${item.trackName} official audio`,
       externalUrls: {
         apple: item.trackViewUrl || '',
@@ -205,6 +248,98 @@ async function preload() {
 }
 preload();
 
+// ── Free Music Scraper (JioSaavn 320kbps Stream Decryptor) ──
+function decryptSaavnMedia(enc) {
+  if (!enc) return null;
+  try {
+    const key = CryptoJS.enc.Utf8.parse('38346591');
+    const decrypted = CryptoJS.DES.decrypt({
+      ciphertext: CryptoJS.enc.Base64.parse(enc)
+    }, key, {
+      mode: CryptoJS.mode.ECB,
+      padding: CryptoJS.pad.Pkcs7
+    });
+    const url = decrypted.toString(CryptoJS.enc.Utf8);
+    if (!url) return null;
+    return url.replace(/_[0-9]+\.mp4/, '_320.mp4');
+  } catch {
+    return null;
+  }
+}
+
+async function scrapeFullAudio(query) {
+  try {
+    const cleanQ = query.replace(/[^\w\s]/gi, ' ').trim();
+    const url = `https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&_marker=0&api_version=4&ctx=web6dot0&q=${encodeURIComponent(cleanQ)}&n=5&p=1`;
+    const res = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      },
+      signal: AbortSignal.timeout(6000)
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const results = data.results || [];
+    for (const item of results) {
+      const enc = item.more_info?.encrypted_media_url;
+      const streamUrl = decryptSaavnMedia(enc);
+      if (streamUrl) {
+        return {
+          found: true,
+          title: (item.title || '').replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&'),
+          artist: item.subtitle || item.more_info?.music || '',
+          album: item.more_info?.album || '',
+          duration: Number(item.more_info?.duration) || 0,
+          cover: item.image ? item.image.replace('150x150', '500x500') : '',
+          streamUrl,
+          bitrate: '320kbps HD'
+        };
+      }
+    }
+  } catch (err) {
+    console.error('Free music scraper error:', err.message);
+  }
+  return null;
+}
+
+async function scrapeViralIndo() {
+  try {
+    const url = 'https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&_marker=0&api_version=4&ctx=web6dot0&q=indonesia+viral+tiktok+hits&n=30&p=1';
+    const res = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0' },
+      signal: AbortSignal.timeout(7000)
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.results || []).map((item, idx) => {
+      const streamUrl = decryptSaavnMedia(item.more_info?.encrypted_media_url);
+      const title = (item.title || 'Lagu Viral').replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&');
+      const artist = (item.subtitle || 'Top Artist').replace(/&amp;/g, '&');
+      return {
+        id: `sv-${item.id || idx}`,
+        rank: idx + 1,
+        title,
+        artist,
+        album: item.more_info?.album || 'Viral Hits',
+        cover: item.image ? item.image.replace('150x150', '500x500') : '',
+        preview: streamUrl || '',
+        fullStreamUrl: streamUrl || '',
+        duration: Number(item.more_info?.duration) || 180,
+        trendVelocity: idx === 0 ? '🔥 #1 INDO' : idx < 5 ? `▲ +${5 - idx}` : '★ TOP HITS',
+        origin: 'Indo Hits',
+        youtubeQuery: `${artist} ${title} official audio`,
+        externalUrls: {
+          saavn: item.perma_url || '',
+          youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(artist + ' ' + title)}`
+        }
+      };
+    }).filter(t => t.preview);
+  } catch (err) {
+    console.error('Viral Indo scrape error:', err.message);
+    return [];
+  }
+}
+
 // Router
 export async function handleRequest(req, res) {
   const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
@@ -260,6 +395,8 @@ export async function handleRequest(req, res) {
         tracks = await fetchSearchGenre('kpop viral hits', 'K-Pop');
       } else if (category === 'japan') {
         tracks = await fetchSearchGenre('jpop viral hits', 'J-Pop');
+      } else if (category === 'indo') {
+        tracks = await scrapeViralIndo();
       } else {
         tracks = await fetchDeezerGlobal();
       }
@@ -407,6 +544,41 @@ export async function handleRequest(req, res) {
       }
       res.writeHead(200);
       res.end(JSON.stringify(ytResult));
+      return;
+    }
+
+    // ── Free Full Music Audio Stream Scraper (320kbps HD) ──
+    if (pathname === '/api/stream') {
+      const q = parsedUrl.searchParams.get('q') || '';
+      const artist = parsedUrl.searchParams.get('artist') || '';
+      const title = parsedUrl.searchParams.get('title') || '';
+      const query = q || `${artist} ${title}`.trim();
+
+      if (!query) {
+        res.writeHead(400);
+        res.end(JSON.stringify({ error: 'q or artist+title required' }));
+        return;
+      }
+
+      const streamKey = `str_${query.toLowerCase().replace(/[^a-z0-9]/g, '_').slice(0, 100)}`;
+      const cached = getFromCache(streamKey);
+      if (cached) {
+        res.writeHead(200);
+        res.end(JSON.stringify(cached));
+        return;
+      }
+
+      const result = await scrapeFullAudio(query);
+      if (result) {
+        // Cache for 30 minutes
+        cache.data[streamKey] = result;
+        cache.timestamps[streamKey] = Date.now() - cache.TTL_MS + 30 * 60 * 1000;
+        res.writeHead(200);
+        res.end(JSON.stringify(result));
+      } else {
+        res.writeHead(200);
+        res.end(JSON.stringify({ found: false, query }));
+      }
       return;
     }
 
