@@ -1160,7 +1160,27 @@
       border: none;
     }
 
-    /* Loading state */
+    /* ── High-End Neumorphic Shimmer Skeletons (Pure Shapes, Zero Text) ── */
+    @keyframes neuShimmer {
+      0% {
+        background-position: -200% 0;
+      }
+      100% {
+        background-position: 200% 0;
+      }
+    }
+
+    .skeleton-shimmer-box {
+      background: linear-gradient(90deg, #DDD9D5 25%, #EBE8E4 50%, #DDD9D5 75%);
+      background-size: 200% 100%;
+      animation: neuShimmer 1.8s infinite ease-in-out;
+      box-shadow: inset 1px 1px 3px rgba(0,0,0,0.05), inset -1px -1px 3px rgba(255,255,255,0.7);
+    }
+
+    .skeleton-pulse-neu {
+      animation: pulseSkeleton 1.6s infinite ease-in-out;
+    }
+
     .skeleton-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -1182,7 +1202,7 @@
     }
 
     @keyframes pulseSkeleton {
-      0%, 100% { opacity: 0.6; }
+      0%, 100% { opacity: 0.65; }
       50% { opacity: 1; }
     }
 
@@ -1575,19 +1595,50 @@
       border-radius: 3px;
     }
 
-    /* Skeleton */
+    /* Banner Skeleton */
     .banner-skeleton {
       width: 100%;
       height: 100%;
       background: var(--bg-surface);
-      animation: pulseSkeleton 1.5s infinite;
       display: flex;
       align-items: center;
-      justify-content: center;
-      color: var(--color-text-muted);
-      font-family: 'Space Mono', monospace;
-      font-size: 0.8rem;
-      gap: 8px;
+      padding: 16px 24px;
+      gap: 20px;
+      box-sizing: border-box;
+    }
+    .banner-skeleton-img {
+      width: 140px;
+      height: 140px;
+      border-radius: 18px;
+      flex-shrink: 0;
+    }
+    .banner-skeleton-content {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+      min-width: 0;
+    }
+    .banner-skeleton-tag {
+      width: 80px;
+      height: 16px;
+      border-radius: 6px;
+    }
+    .banner-skeleton-title {
+      width: 60%;
+      height: 24px;
+      border-radius: 8px;
+    }
+    .banner-skeleton-sub {
+      width: 38%;
+      height: 15px;
+      border-radius: 6px;
+    }
+    .banner-skeleton-btn {
+      width: 110px;
+      height: 36px;
+      border-radius: 12px;
+      margin-top: 4px;
     }
 
     @media (max-width: 768px) {
@@ -1595,6 +1646,11 @@
       .banner-cover-wrap { width: 106px; height: 106px; }
       .banner-song-title { font-size: 0.88rem; }
       .banner-slide { padding: 14px 16px; gap: 14px; }
+      .banner-skeleton { padding: 14px 16px; gap: 14px; }
+      .banner-skeleton-img { width: 95px; height: 95px; border-radius: 12px; }
+      .banner-skeleton-title { width: 85%; height: 18px; }
+      .banner-skeleton-sub { width: 50%; height: 13px; }
+      .banner-skeleton-btn { width: 85px; height: 28px; border-radius: 8px; }
     }
 
 
@@ -2240,7 +2296,15 @@
     <!-- Trending Banner Slider -->
     <div class="trending-banner" id="trendingBanner">
       <div class="banner-strip" id="bannerStrip">
-        <div class="banner-skeleton">Memuat trending global...</div>
+        <div class="banner-skeleton">
+          <div class="skeleton-shimmer-box banner-skeleton-img"></div>
+          <div class="banner-skeleton-content">
+            <div class="skeleton-shimmer-box banner-skeleton-tag"></div>
+            <div class="skeleton-shimmer-box banner-skeleton-title"></div>
+            <div class="skeleton-shimmer-box banner-skeleton-sub"></div>
+            <div class="skeleton-shimmer-box banner-skeleton-btn"></div>
+          </div>
+        </div>
       </div>
       <div class="banner-dots" id="bannerDots"></div>
     </div>
@@ -2951,10 +3015,24 @@
       document.body.scrollLeft = 0;
 
       tracksGrid.innerHTML = `
-        <div class="skeleton-grid" style="grid-column: 1 / -1; width: 100%; max-width: 100%;">
-          <div class="skeleton-card" style="height: 260px;"></div>
-          <div class="skeleton-card" style="height: 260px;"></div>
-          <div class="skeleton-card" style="height: 260px;"></div>
+        <div class="albums-grid" style="grid-column: 1 / -1; width: 100%;">
+          ${Array(8).fill(0).map(() => `
+            <div class="album-card skeleton-pulse-neu" style="pointer-events: none;">
+              <div class="skeleton-shimmer-box" style="width: 100%; aspect-ratio: 1/1; border-radius: 14px;"></div>
+              <div class="album-details" style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+                <div class="skeleton-shimmer-box" style="width: 85%; height: 16px; border-radius: 6px;"></div>
+                <div class="skeleton-shimmer-box" style="width: 55%; height: 12px; border-radius: 4px;"></div>
+                <div style="display: flex; justify-content: space-between; margin-top: 2px;">
+                  <div class="skeleton-shimmer-box" style="width: 35%; height: 11px; border-radius: 4px;"></div>
+                  <div class="skeleton-shimmer-box" style="width: 25%; height: 11px; border-radius: 4px;"></div>
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;">
+                <div class="skeleton-shimmer-box" style="height: 32px; border-radius: 10px;"></div>
+                <div class="skeleton-shimmer-box" style="height: 32px; border-radius: 10px;"></div>
+              </div>
+            </div>
+          `).join('')}
         </div>
       `;
 
@@ -3047,9 +3125,35 @@
               </svg>
               <span>KEMBALI KE TOP ALBUM</span>
             </button>
+            <div class="skeleton-shimmer-box" style="width: 80px; height: 24px; border-radius: 12px;"></div>
           </div>
-          <div style="text-align: center; padding: 40px; font-family: 'Space Mono'; color: var(--color-primary); background: var(--bg-surface); border-radius: 20px; box-shadow: var(--neu-extruded-card);">
-            Memuat tracklist album lengkap...
+
+          <div class="album-hero-card skeleton-pulse-neu" style="margin-bottom: 24px;">
+            <div class="skeleton-shimmer-box album-hero-cover" style="border-radius: 18px; flex-shrink: 0;"></div>
+            <div class="album-hero-info" style="flex: 1; display: flex; flex-direction: column; gap: 12px; width: 100%;">
+              <div class="skeleton-shimmer-box" style="width: 120px; height: 16px; border-radius: 6px;"></div>
+              <div class="skeleton-shimmer-box" style="width: 65%; height: 26px; border-radius: 8px;"></div>
+              <div class="skeleton-shimmer-box" style="width: 40%; height: 16px; border-radius: 6px;"></div>
+              <div class="skeleton-shimmer-box" style="width: 150px; height: 38px; border-radius: 12px; margin-top: 6px;"></div>
+            </div>
+          </div>
+
+          <div class="album-tracklist-wrapper">
+            ${Array(6).fill(0).map(() => `
+              <div class="album-track-item skeleton-pulse-neu" style="pointer-events: none;">
+                <div class="album-track-left" style="align-items: center; gap: 14px; flex: 1;">
+                  <div class="skeleton-shimmer-box" style="width: 20px; height: 16px; border-radius: 4px;"></div>
+                  <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
+                    <div class="skeleton-shimmer-box" style="width: 48%; height: 15px; border-radius: 4px;"></div>
+                    <div class="skeleton-shimmer-box" style="width: 28%; height: 11px; border-radius: 4px;"></div>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <div class="skeleton-shimmer-box" style="width: 32px; height: 14px; border-radius: 4px;"></div>
+                  <div class="skeleton-shimmer-box" style="width: 58px; height: 28px; border-radius: 8px;"></div>
+                </div>
+              </div>
+            `).join('')}
           </div>
         </div>
       `;
