@@ -1191,14 +1191,26 @@
     }
 
     .skeleton-card {
-      height: 140px;
-      width: 100%;
-      max-width: 100%;
-      box-sizing: border-box;
       background: var(--bg-surface);
       box-shadow: var(--neu-extruded-card);
       border-radius: 18px;
-      animation: pulseSkeleton 1.5s infinite;
+      padding: 16px;
+      box-sizing: border-box;
+      pointer-events: none;
+      animation: pulseSkeleton 1.6s infinite ease-in-out;
+    }
+
+    /* Player Dock Buffering State */
+    .neu-player-dock.is-buffering .dock-cover {
+      animation: neuShimmer 1.4s infinite ease-in-out;
+      opacity: 0.85;
+    }
+    .neu-player-dock.is-buffering #soundWave {
+      display: flex;
+    }
+    .neu-player-dock.is-buffering .wave-bar {
+      animation: pulseSkeleton 0.8s infinite alternate ease-in-out !important;
+      background: var(--color-primary) !important;
     }
 
     @keyframes pulseSkeleton {
@@ -2392,7 +2404,91 @@
 
     <!-- Tracks Container -->
     <div id="tracksGrid" class="tracks-grid">
-      <!-- Dynamic populated -->
+      <!-- Initial Neumorphic Shimmer Skeletons (Pure Shapes, Zero Text) -->
+      <div class="song-card skeleton-pulse-neu" style="pointer-events: none; opacity: 0.95;">
+        <div class="card-top">
+          <div class="cover-wrapper skeleton-shimmer-box" style="border-radius: 14px;"></div>
+          <div class="card-info" style="gap: 8px;">
+            <div class="skeleton-shimmer-box" style="width: 80%; height: 16px; border-radius: 6px;"></div>
+            <div class="skeleton-shimmer-box" style="width: 52%; height: 12px; border-radius: 4px;"></div>
+            <div class="badges-row" style="margin-top: 4px; gap: 6px;">
+              <div class="skeleton-shimmer-box" style="width: 50px; height: 16px; border-radius: 6px;"></div>
+              <div class="skeleton-shimmer-box" style="width: 42px; height: 16px; border-radius: 6px;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card-actions" style="margin-top: 6px;">
+          <div class="skeleton-shimmer-box" style="width: 80px; height: 32px; border-radius: 10px;"></div>
+          <div class="card-actions-right" style="gap: 6px;">
+            <div class="skeleton-shimmer-box" style="width: 32px; height: 32px; border-radius: 10px;"></div>
+            <div class="skeleton-shimmer-box" style="width: 32px; height: 32px; border-radius: 10px;"></div>
+            <div class="skeleton-shimmer-box" style="width: 32px; height: 32px; border-radius: 10px;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="song-card skeleton-pulse-neu" style="pointer-events: none; opacity: 0.95;">
+        <div class="card-top">
+          <div class="cover-wrapper skeleton-shimmer-box" style="border-radius: 14px;"></div>
+          <div class="card-info" style="gap: 8px;">
+            <div class="skeleton-shimmer-box" style="width: 75%; height: 16px; border-radius: 6px;"></div>
+            <div class="skeleton-shimmer-box" style="width: 48%; height: 12px; border-radius: 4px;"></div>
+            <div class="badges-row" style="margin-top: 4px; gap: 6px;">
+              <div class="skeleton-shimmer-box" style="width: 50px; height: 16px; border-radius: 6px;"></div>
+              <div class="skeleton-shimmer-box" style="width: 42px; height: 16px; border-radius: 6px;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card-actions" style="margin-top: 6px;">
+          <div class="skeleton-shimmer-box" style="width: 80px; height: 32px; border-radius: 10px;"></div>
+          <div class="card-actions-right" style="gap: 6px;">
+            <div class="skeleton-shimmer-box" style="width: 32px; height: 32px; border-radius: 10px;"></div>
+            <div class="skeleton-shimmer-box" style="width: 32px; height: 32px; border-radius: 10px;"></div>
+            <div class="skeleton-shimmer-box" style="width: 32px; height: 32px; border-radius: 10px;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="song-card skeleton-pulse-neu" style="pointer-events: none; opacity: 0.95;">
+        <div class="card-top">
+          <div class="cover-wrapper skeleton-shimmer-box" style="border-radius: 14px;"></div>
+          <div class="card-info" style="gap: 8px;">
+            <div class="skeleton-shimmer-box" style="width: 85%; height: 16px; border-radius: 6px;"></div>
+            <div class="skeleton-shimmer-box" style="width: 55%; height: 12px; border-radius: 4px;"></div>
+            <div class="badges-row" style="margin-top: 4px; gap: 6px;">
+              <div class="skeleton-shimmer-box" style="width: 50px; height: 16px; border-radius: 6px;"></div>
+              <div class="skeleton-shimmer-box" style="width: 42px; height: 16px; border-radius: 6px;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card-actions" style="margin-top: 6px;">
+          <div class="skeleton-shimmer-box" style="width: 80px; height: 32px; border-radius: 10px;"></div>
+          <div class="card-actions-right" style="gap: 6px;">
+            <div class="skeleton-shimmer-box" style="width: 32px; height: 32px; border-radius: 10px;"></div>
+            <div class="skeleton-shimmer-box" style="width: 32px; height: 32px; border-radius: 10px;"></div>
+            <div class="skeleton-shimmer-box" style="width: 32px; height: 32px; border-radius: 10px;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="song-card skeleton-pulse-neu" style="pointer-events: none; opacity: 0.95;">
+        <div class="card-top">
+          <div class="cover-wrapper skeleton-shimmer-box" style="border-radius: 14px;"></div>
+          <div class="card-info" style="gap: 8px;">
+            <div class="skeleton-shimmer-box" style="width: 70%; height: 16px; border-radius: 6px;"></div>
+            <div class="skeleton-shimmer-box" style="width: 45%; height: 12px; border-radius: 4px;"></div>
+            <div class="badges-row" style="margin-top: 4px; gap: 6px;">
+              <div class="skeleton-shimmer-box" style="width: 50px; height: 16px; border-radius: 6px;"></div>
+              <div class="skeleton-shimmer-box" style="width: 42px; height: 16px; border-radius: 6px;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card-actions" style="margin-top: 6px;">
+          <div class="skeleton-shimmer-box" style="width: 80px; height: 32px; border-radius: 10px;"></div>
+          <div class="card-actions-right" style="gap: 6px;">
+            <div class="skeleton-shimmer-box" style="width: 32px; height: 32px; border-radius: 10px;"></div>
+            <div class="skeleton-shimmer-box" style="width: 32px; height: 32px; border-radius: 10px;"></div>
+            <div class="skeleton-shimmer-box" style="width: 32px; height: 32px; border-radius: 10px;"></div>
+          </div>
+        </div>
+      </div>
     </div>
 
   </main>
@@ -2592,6 +2688,18 @@
       if (historyTracks.length > 15) historyTracks = historyTracks.slice(0, 15);
       saveHistory();
       renderHistory();
+    }
+
+    function renderHistorySkeleton(count = 5) {
+      if (!historySection || !historyScrollRow) return;
+      historySection.style.display = 'block';
+      historyScrollRow.innerHTML = Array(count).fill(0).map(() => `
+        <div class="history-card skeleton-pulse-neu" style="pointer-events: none; opacity: 0.95;">
+          <div class="history-cover-wrap skeleton-shimmer-box" style="margin-bottom: 8px;"></div>
+          <div class="skeleton-shimmer-box" style="width: 80%; height: 11px; border-radius: 4px; margin-bottom: 5px;"></div>
+          <div class="skeleton-shimmer-box" style="width: 55%; height: 9px; border-radius: 3px;"></div>
+        </div>
+      `).join('');
     }
 
     function renderHistory() {
@@ -3350,6 +3458,33 @@
     window.quickPlayAlbum = quickPlayAlbum;
     window.exitAlbumView = exitAlbumView;
 
+    // Helper: Render High-End Neumorphic Shimmer Skeleton Song Cards (Pure Shapes, Zero Text)
+    function renderTracksSkeleton(count = 6) {
+      return Array(count).fill(0).map(() => `
+        <div class="song-card skeleton-pulse-neu" style="pointer-events: none; opacity: 0.95;">
+          <div class="card-top">
+            <div class="cover-wrapper skeleton-shimmer-box" style="border-radius: 14px;"></div>
+            <div class="card-info" style="gap: 8px;">
+              <div class="skeleton-shimmer-box" style="width: 80%; height: 16px; border-radius: 6px;"></div>
+              <div class="skeleton-shimmer-box" style="width: 52%; height: 12px; border-radius: 4px;"></div>
+              <div class="badges-row" style="margin-top: 4px; gap: 6px;">
+                <div class="skeleton-shimmer-box" style="width: 50px; height: 16px; border-radius: 6px;"></div>
+                <div class="skeleton-shimmer-box" style="width: 42px; height: 16px; border-radius: 6px;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="card-actions" style="margin-top: 6px;">
+            <div class="skeleton-shimmer-box" style="width: 80px; height: 32px; border-radius: 10px;"></div>
+            <div class="card-actions-right" style="gap: 6px;">
+              <div class="skeleton-shimmer-box" style="width: 32px; height: 32px; border-radius: 10px;"></div>
+              <div class="skeleton-shimmer-box" style="width: 32px; height: 32px; border-radius: 10px;"></div>
+              <div class="skeleton-shimmer-box" style="width: 32px; height: 32px; border-radius: 10px;"></div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
     // Load Category Tracks (Realtime with fresh cache-busting)
     async function loadTracks(cat, forceRefresh = false) {
       // Pastikan banner, controls, dan section meta kembali tampil saat berganti kategori
@@ -3375,14 +3510,7 @@
       document.documentElement.scrollLeft = 0;
       document.body.scrollLeft = 0;
 
-      tracksGrid.innerHTML = `
-        <div class="skeleton-grid" style="grid-column: 1 / -1; width: 100%; max-width: 100%;">
-          <div class="skeleton-card"></div>
-          <div class="skeleton-card"></div>
-          <div class="skeleton-card"></div>
-          <div class="skeleton-card"></div>
-        </div>
-      `;
+      tracksGrid.innerHTML = renderTracksSkeleton(6);
 
       try {
         const res = await fetch(`/api/trends?category=${cat}&_t=${Date.now()}${forceRefresh ? '&fresh=1' : ''}`);
@@ -3410,12 +3538,7 @@
       document.querySelectorAll('.neu-tab-btn').forEach(b => b.classList.remove('active'));
 
       if (categoryHeading) categoryHeading.textContent = `PENCARIAN GLOBAL: "${query.toUpperCase()}"`;
-      tracksGrid.innerHTML = `
-        <div class="skeleton-grid" style="grid-column: 1 / -1; width: 100%; max-width: 100%;">
-          <div class="skeleton-card"></div>
-          <div class="skeleton-card"></div>
-        </div>
-      `;
+      tracksGrid.innerHTML = renderTracksSkeleton(4);
 
       try {
         const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
@@ -3723,8 +3846,22 @@
     }
 
     // Audio Engine Listeners
+    const setPlayerBuffering = (isBuffering) => {
+      const playerDock = document.getElementById('playerDock');
+      if (playerDock) {
+        playerDock.classList.toggle('is-buffering', isBuffering);
+      }
+    };
+
+    audioEngine.addEventListener('waiting', () => setPlayerBuffering(true));
+    audioEngine.addEventListener('loadstart', () => setPlayerBuffering(true));
+    audioEngine.addEventListener('canplay', () => setPlayerBuffering(false));
+    audioEngine.addEventListener('playing', () => setPlayerBuffering(false));
+    audioEngine.addEventListener('error', () => setPlayerBuffering(false));
+
     audioEngine.addEventListener('play', () => {
       state.isPlaying = true;
+      setPlayerBuffering(false);
       updatePlayerUI();
       if (state.currentCategory === 'album-detail') {
         updateAlbumTrackListView();
@@ -3735,6 +3872,7 @@
 
     audioEngine.addEventListener('pause', () => {
       state.isPlaying = false;
+      setPlayerBuffering(false);
       updatePlayerUI();
       if (state.currentCategory === 'album-detail') {
         updateAlbumTrackListView();
@@ -4001,15 +4139,16 @@
 
       modalSongTitle.textContent = rawTitle;
       videoFrameContainer.innerHTML = `
-        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
-          height:100%;gap:14px;color:var(--color-text-muted);
-          font-family:'Space Mono',monospace;font-size:0.78rem;text-align:center;padding:20px;">
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)"
-            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
-            style="animation:pulseSkeleton 1.2s infinite;">
-            <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
-          </svg>
-          Mencari video...<br><span style="color:var(--color-text);font-weight:700;">${rawTitle}</span>
+        <div class="skeleton-pulse-neu" style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: var(--bg-surface); border-radius: 16px; box-sizing: border-box;">
+          <div class="skeleton-shimmer-box" style="width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: var(--neu-extruded-sm);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--color-primary)" style="opacity: 0.6; margin-left: 2px;">
+              <polygon points="6 3 20 12 6 21 6 3"></polygon>
+            </svg>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; width: 65%;">
+            <div class="skeleton-shimmer-box" style="width: 80%; height: 16px; border-radius: 6px;"></div>
+            <div class="skeleton-shimmer-box" style="width: 48%; height: 12px; border-radius: 4px;"></div>
+          </div>
         </div>`;
       videoModal.classList.add('open');
       audioEngine.pause();
