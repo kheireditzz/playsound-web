@@ -592,13 +592,21 @@
       overflow: hidden;
       box-shadow: var(--neu-extruded-sm);
       background: #dcdad9;
+      contain: paint;
     }
 
-    .cover-img {
+    .cover-img,
+    .history-cover,
+    .banner-cover-img,
+    .dock-cover {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: block;
+      content-visibility: visible;
+      image-rendering: auto;
+      transform: translateZ(0);
+      backface-visibility: hidden;
     }
 
     .rank-pill {
@@ -1973,7 +1981,7 @@
   <!-- Bottom Tactile Audio Player Dock -->
   <footer class="neu-player-dock" id="playerDock">
     <div class="dock-track-info">
-      <img id="dockCover" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' fill='%23ccc'%3E%3Crect width='50' height='50'/%3E%3C/svg%3E" alt="Cover" class="dock-cover">
+      <img id="dockCover" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' fill='%23ccc'%3E%3Crect width='50' height='50'/%3E%3C/svg%3E" alt="Cover" class="dock-cover" loading="eager" decoding="async">
       <div class="dock-text">
         <div id="dockTitle" class="dock-title"></div>
         <div id="dockArtist" class="dock-artist"></div>
@@ -2182,7 +2190,7 @@
         return `
           <div class="history-card ${isPlaying ? 'is-playing' : ''}" onclick="playHistoryTrack(${idx})" title="${safeTitle} - ${safeArtist}">
             <div class="history-cover-wrap">
-              <img src="${coverUrl}" alt="${safeTitle}" class="history-cover" loading="lazy">
+              <img src="${coverUrl}" alt="${safeTitle}" class="history-cover" loading="eager" decoding="async">
               <div class="history-wave-mini">
                 <div class="history-mini-bar"></div>
                 <div class="history-mini-bar"></div>
@@ -2233,12 +2241,34 @@
       playerDock.classList.add('visible');
       document.body.classList.add('has-player');
 
+      // 1. Matikan audio sebelumnya seketika dan kosongkan pipeline agar audio lama tidak bocor
+      try {
+        audioEngine.pause();
+        audioEngine.currentTime = 0;
+        audioEngine.removeAttribute('src');
+        audioEngine.load();
+      } catch (e) {}
+
       state.currentIndex = -1;
       state.currentTrack = track;
+      state.isPlaying = true;
+
+      // 2. Reset progress bar dan durasi segera
+      const neuProgressFill = document.getElementById('neuProgressFill');
+      const currentTimeEl = document.getElementById('currentTime');
+      const durationTimeEl = document.getElementById('durationTime');
+      if (neuProgressFill) neuProgressFill.style.width = '0%';
+      if (currentTimeEl) currentTimeEl.textContent = '0:00';
+      if (durationTimeEl) durationTimeEl.textContent = formatTime(track.duration || 30);
 
       dockTitle.textContent = track.title;
       dockArtist.textContent = track.artist;
       dockCover.src = track.cover || '';
+
+      // 3. Update status UI seketika
+      updatePlayerUI();
+      renderTracks();
+      addToHistory(track);
 
       const initialAudio = track.fullStreamUrl || track.preview;
       if (dockDownloadBtn) {
@@ -2252,12 +2282,7 @@
 
       if (initialAudio) {
         audioEngine.src = initialAudio;
-        audioEngine.play().then(() => {
-          state.isPlaying = true;
-          updatePlayerUI();
-          renderTracks();
-          addToHistory(track);
-        }).catch(err => console.warn('Playback error:', err));
+        audioEngine.play().catch(err => console.warn('Playback error:', err));
       }
 
       if (!track.fullStreamUrl) {
@@ -2649,6 +2674,14 @@
         return;
       }
 
+      // Preload gambar 8 lagu pertama agar instan tanpa rendering delay
+      state.tracks.slice(0, 8).forEach(t => {
+        if (t.cover) {
+          const img = new Image();
+          img.src = t.cover;
+        }
+      });
+
       tracksGrid.innerHTML = state.tracks.map((track, idx) => {
         const isCurrent = state.currentTrack && state.currentTrack.id === track.id;
         const isPlayingThis = isCurrent && state.isPlaying;
@@ -2671,7 +2704,7 @@
           <div class="song-card ${isPlayingThis ? 'is-playing' : ''}" id="card-${safeId}">
             <div class="card-top">
               <div class="cover-wrapper">
-                <img src="${coverUrl}" alt="${safeTitle}" class="cover-img" loading="lazy">
+                <img src="${coverUrl}" alt="${safeTitle}" class="cover-img" loading="eager" decoding="async">
               </div>
               <div class="card-info">
                 <div class="song-title" title="${safeTitle}">${safeTitle}</div>
@@ -2784,13 +2817,34 @@
         return;
       }
 
+      // 1. Matikan audio sebelumnya seketika dan kosongkan pipeline agar audio lama tidak bocor
+      try {
+        audioEngine.pause();
+        audioEngine.currentTime = 0;
+        audioEngine.removeAttribute('src');
+        audioEngine.load();
+      } catch (e) {}
+
       state.currentIndex = idx;
       state.currentTrack = track;
+      state.isPlaying = true;
       addToHistory(track);
+
+      // 2. Reset progress bar dan durasi segera agar tidak berkedip data lagu sebelumnya
+      const neuProgressFill = document.getElementById('neuProgressFill');
+      const currentTimeEl = document.getElementById('currentTime');
+      const durationTimeEl = document.getElementById('durationTime');
+      if (neuProgressFill) neuProgressFill.style.width = '0%';
+      if (currentTimeEl) currentTimeEl.textContent = '0:00';
+      if (durationTimeEl) durationTimeEl.textContent = formatTime(track.duration || 30);
 
       dockTitle.textContent = track.title;
       dockArtist.textContent = track.artist;
       dockCover.src = track.cover || '';
+
+      // 3. Update status UI seketika
+      updatePlayerUI();
+      renderTracks();
 
       function setDownloadLink(url) {
         if (!dockDownloadBtn) return;
@@ -2808,11 +2862,7 @@
 
       if (initialAudio) {
         audioEngine.src = initialAudio;
-        audioEngine.play().then(() => {
-          state.isPlaying = true;
-          updatePlayerUI();
-          renderTracks();
-        }).catch(err => {
+        audioEngine.play().catch(err => {
           console.warn('Playback error:', err);
         });
       }
@@ -2830,11 +2880,7 @@
               if (!initialAudio || wasPlaying) {
                 audioEngine.src = streamData.streamUrl;
                 if (curPos > 0) audioEngine.currentTime = curPos;
-                audioEngine.play().then(() => {
-                  state.isPlaying = true;
-                  updatePlayerUI();
-                  renderTracks();
-                }).catch(() => {});
+                audioEngine.play().catch(() => {});
               }
             }
           })
@@ -3220,7 +3266,7 @@
         return `
           <div class="banner-slide" data-idx="${i}">
             <div class="banner-cover-wrap">
-              <img src="${cover}" alt="${escapeHtml(t.title)}" class="banner-cover-img" loading="lazy">
+              <img src="${cover}" alt="${escapeHtml(t.title)}" class="banner-cover-img" loading="eager" decoding="async" fetchpriority="high">
             </div>
             <div class="banner-info">
               <div class="banner-top-badges">
