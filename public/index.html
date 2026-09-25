@@ -1425,7 +1425,7 @@
       display: flex;
       align-items: center;
       gap: 22px;
-      padding: 18px 56px 18px 24px;
+      padding: 18px 24px;
       flex-shrink: 0;
       position: relative;
       box-sizing: border-box;
@@ -1536,31 +1536,7 @@
       transform: translateY(1px);
     }
 
-    /* Nav arrows — neumorphic circle */
-    .banner-nav-btn {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      border: none;
-      background: var(--bg-surface);
-      box-shadow: var(--neu-extruded-sm);
-      color: var(--color-text);
-      font-size: 1.1rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-      transition: all 0.15s ease;
-    }
 
-    .banner-nav-btn:hover { color: var(--color-primary); }
-    .banner-nav-btn:active { box-shadow: var(--neu-inset); transform: translateY(-50%) scale(0.95); }
-    .banner-nav-prev { left: 12px; }
-    .banner-nav-next { right: 12px; }
 
     /* Dots — teal when active, muted shadow when not */
     .banner-dots {
@@ -1609,8 +1585,7 @@
       .trending-banner { height: 155px; }
       .banner-cover-wrap { width: 106px; height: 106px; }
       .banner-song-title { font-size: 0.88rem; }
-      .banner-slide { padding: 14px 44px 14px 16px; gap: 14px; }
-      .banner-nav-btn { width: 26px; height: 26px; font-size: 0.95rem; }
+      .banner-slide { padding: 14px 16px; gap: 14px; }
     }
 
 
@@ -1905,8 +1880,6 @@
       <div class="banner-strip" id="bannerStrip">
         <div class="banner-skeleton">🌐 Memuat trending global...</div>
       </div>
-      <button class="banner-nav-btn banner-nav-prev" id="bannerPrev" aria-label="Sebelumnya">‹</button>
-      <button class="banner-nav-btn banner-nav-next" id="bannerNext" aria-label="Selanjutnya">›</button>
       <div class="banner-dots" id="bannerDots"></div>
     </div>
 
@@ -3214,8 +3187,6 @@
     // ── Trending Banner ──
     const bannerStrip = document.getElementById('bannerStrip');
     const bannerDots  = document.getElementById('bannerDots');
-    const bannerPrev  = document.getElementById('bannerPrev');
-    const bannerNext  = document.getElementById('bannerNext');
 
     let bannerSlides    = [];
     let bannerCurrent   = 0;
@@ -3297,8 +3268,6 @@
     document.getElementById('trendingBanner').addEventListener('mouseenter', () => clearInterval(bannerTimer));
     document.getElementById('trendingBanner').addEventListener('mouseleave', startBannerAutoplay);
 
-    bannerPrev.addEventListener('click', () => goToSlide(bannerCurrent - 1, true));
-    bannerNext.addEventListener('click', () => goToSlide(bannerCurrent + 1, true));
 
     // Touch/swipe support
     let touchStartX = 0;
