@@ -29,6 +29,124 @@ function setCache(key, val) {
   cache.timestamps[key] = Date.now();
 }
 
+// ── Spotify Realtime Scraper Engine (Embed & Pathfinder GraphQL) ──
+let cachedSpotifySession = { token: null, expiresAt: 0 };
+
+async function getSpotifyToken() {
+  const now = Date.now();
+  if (cachedSpotifySession.token && now < cachedSpotifySession.expiresAt - 60000) {
+    return cachedSpotifySession.token;
+  }
+  try {
+    const res = await fetch("https://open.spotify.com/embed/track/4uLU6hMCjMI75M1A2tKUQC", {
+      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
+      signal: AbortSignal.timeout(4500)
+    });
+    if (!res.ok) return null;
+    const html = await res.text();
+    const m = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
+    if (!m) return null;
+    const json = JSON.parse(m[1]);
+    const session = json.props?.pageProps?.state?.settings?.session;
+    if (session?.accessToken) {
+      cachedSpotifySession = {
+        token: session.accessToken,
+        expiresAt: session.accessTokenExpirationTimestampMs || (Date.now() + 3600000)
+      };
+      return cachedSpotifySession.token;
+    }
+  } catch (err) {
+    console.warn("Spotify token fetch warning:", err.message);
+  }
+  return null;
+}
+
+async function fetchSpotifyPlaylist(playlistId, originTag = "Spotify", limit = 50) {
+  try {
+    const embedRes = await fetch(`https://open.spotify.com/embed/playlist/${playlistId}`, {
+      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
+      signal: AbortSignal.timeout(5500)
+    });
+    if (!embedRes.ok) return [];
+    const html = await embedRes.text();
+    const m = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
+    if (!m) return [];
+    const json = JSON.parse(m[1]);
+    const entity = json.props?.pageProps?.state?.data?.entity;
+    const embedTracks = entity?.trackList || [];
+    if (embedTracks.length === 0) return [];
+
+    let coversMap = {};
+    const token = await getSpotifyToken();
+    if (token) {
+      try {
+        const vars = JSON.stringify({
+          uri: `spotify:playlist:${playlistId}`,
+          offset: 0,
+          limit: Math.min(100, embedTracks.length),
+          enableWatchFeedEntrypoint: false
+        });
+        const extensions = JSON.stringify({
+          persistedQuery: {
+            version: 1,
+            sha256Hash: "a65e12194ed5fc443a1cdebed5fabe33ca5b07b987185d63c72483867ad13cb4"
+          }
+        });
+        const qUrl = `https://api-partner.spotify.com/pathfinder/v1/query?operationName=fetchPlaylist&variables=${encodeURIComponent(vars)}&extensions=${encodeURIComponent(extensions)}`;
+        const qRes = await fetch(qUrl, {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Accept": "application/json",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+          },
+          signal: AbortSignal.timeout(4500)
+        });
+        if (qRes.ok) {
+          const qData = await qRes.json();
+          const items = qData.data?.playlistV2?.content?.items || [];
+          for (const it of items) {
+            const d = it.itemV2?.data;
+            if (d?.uri) {
+              const sources = d.albumOfTrack?.coverArt?.sources || [];
+              const best = sources.find(s => s.width >= 300) || sources[0];
+              if (best) coversMap[d.uri] = best.url;
+            }
+          }
+        }
+      } catch (qErr) {
+        console.warn("Pathfinder cover query non-blocking warning:", qErr.message);
+      }
+    }
+
+    return embedTracks.slice(0, limit).map((t, idx) => {
+      const rawTitle = t.title || "Track";
+      const rawArtist = (t.subtitle || "Artist").replace(/\u00A0/g, " ");
+      const spotifyTrackId = t.uri ? t.uri.replace("spotify:track:", "") : `${idx}`;
+      return {
+        id: `sp-${spotifyTrackId}`,
+        rank: idx + 1,
+        title: rawTitle,
+        artist: rawArtist,
+        album: entity.name || "Spotify Hits",
+        cover: coversMap[t.uri] || "",
+        preview: t.audioPreview?.url || "",
+        duration: Math.round((t.duration || 30000) / 1000),
+        trendVelocity: idx === 0 ? "TOP 1" : idx < 5 ? "TOP" : idx % 3 === 0 ? "BARU" : "HOT",
+        origin: originTag,
+        youtubeQuery: `${rawArtist} ${rawTitle} official audio`,
+        externalUrls: {
+          spotify: `https://open.spotify.com/track/${spotifyTrackId}`,
+          youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(rawArtist + " " + rawTitle)}`,
+          tiktok: `https://www.tiktok.com/search?q=${encodeURIComponent(rawArtist + " " + rawTitle)}`
+        }
+      };
+    });
+  } catch (err) {
+    console.error("fetchSpotifyPlaylist error:", err.message);
+    return [];
+  }
+}
+
 // Data Fetchers with Dynamic Daily Rotation & Fresh Releases
 async function fetchDeezerGlobal(isRotating = true) {
   try {
@@ -342,6 +460,16 @@ async function fetchSearchGenre(term, originTag) {
 // Preload Cache
 let preloadedGlobalTracks = [];
 async function preload() {
+  try {
+    const sp = await fetchSpotifyPlaylist('37i9dQZEVXbMDoHDwVN2tF', 'Spotify Global', 50);
+    if (sp && sp.length > 0) {
+      preloadedGlobalTracks = sp;
+      setCache('trends_global', sp);
+      return;
+    }
+  } catch (e) {
+    console.warn('Preload Spotify warning:', e.message);
+  }
   const d = await fetchDeezerGlobal();
   if (d && d.length > 0) {
     preloadedGlobalTracks = d;
@@ -375,31 +503,54 @@ function decryptSaavnMedia(enc) {
 
 async function scrapeFullAudio(query) {
   try {
-    const cleanQ = query.replace(/[^\w\s]/gi, ' ').trim();
-    const url = `https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&_marker=0&api_version=4&ctx=web6dot0&q=${encodeURIComponent(cleanQ)}&n=5&p=1`;
-    const res = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-      },
-      signal: AbortSignal.timeout(6000)
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    const results = data.results || [];
-    for (const item of results) {
-      const enc = item.more_info?.encrypted_media_url;
-      const streamUrl = decryptSaavnMedia(enc);
-      if (streamUrl) {
-        return {
-          found: true,
-          title: (item.title || '').replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&'),
-          artist: item.subtitle || item.more_info?.music || '',
-          album: item.more_info?.album || '',
-          duration: Number(item.more_info?.duration) || 0,
-          cover: item.image ? item.image.replace('150x150', '250x250') : '',
-          streamUrl,
-          bitrate: '320kbps HD'
-        };
+    const cleanQ = (query || '').replace(/[^\w\s]/gi, ' ').trim();
+    if (!cleanQ) return null;
+
+    const searchSaavn = async (term) => {
+      try {
+        const url = `https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&_marker=0&api_version=4&ctx=web6dot0&q=${encodeURIComponent(term)}&n=5&p=1`;
+        const res = await fetch(url, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          },
+          signal: AbortSignal.timeout(5000)
+        });
+        if (!res.ok) return null;
+        const data = await res.json();
+        const results = data.results || [];
+        for (const item of results) {
+          const enc = item.more_info?.encrypted_media_url;
+          const streamUrl = decryptSaavnMedia(enc);
+          if (streamUrl) {
+            return {
+              found: true,
+              title: (item.title || '').replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&'),
+              artist: item.subtitle || item.more_info?.music || '',
+              album: item.more_info?.album || '',
+              duration: Number(item.more_info?.duration) || 0,
+              cover: item.image ? item.image.replace('150x150', '250x250') : '',
+              streamUrl,
+              bitrate: '320kbps HD'
+            };
+          }
+        }
+      } catch {}
+      return null;
+    };
+
+    // 1. Coba pencarian penuh
+    let found = await searchSaavn(cleanQ);
+    if (found) return found;
+
+    // 2. Jika query berisi banyak artis (ada tanda koma atau spasi panjang), cari artis pertama + judul
+    if (query.includes(',')) {
+      const parts = query.split(',');
+      const primaryArtist = parts[0].trim();
+      const afterLastComma = parts[parts.length - 1].trim();
+      const subQuery = `${primaryArtist} ${afterLastComma}`.replace(/[^\w\s]/gi, ' ').trim();
+      if (subQuery && subQuery !== cleanQ) {
+        found = await searchSaavn(subQuery);
+        if (found) return found;
       }
     }
   } catch (err) {
@@ -517,16 +668,19 @@ export async function handleRequest(req, res) {
 
       let tracks = [];
       if (category === 'global') {
-        const deezer = await fetchDeezerGlobal(true);
-        if (deezer.length > 0) {
-          tracks = deezer;
+        const spotifyGlobal = await fetchSpotifyPlaylist('37i9dQZEVXbMDoHDwVN2tF', 'Spotify Global', 50);
+        if (spotifyGlobal.length > 0) {
+          tracks = spotifyGlobal;
         } else {
-          tracks = await fetchAppleRss('us', 'Billboard', 35);
+          const deezer = await fetchDeezerGlobal(true);
+          tracks = deezer.length > 0 ? deezer : await fetchAppleRss('us', 'Billboard', 35);
         }
       } else if (category === 'fresh') {
-        tracks = await fetchFreshReleases();
+        const spotifyFresh = await fetchSpotifyPlaylist('37i9dQZF1DXcBWIGoYBM5M', 'Spotify Hits', 50);
+        tracks = spotifyFresh.length > 0 ? spotifyFresh : await fetchFreshReleases();
       } else if (category === 'tiktok') {
-        tracks = await fetchTikTokViralHits();
+        const spotifyViral = await fetchSpotifyPlaylist('37i9dQZF1DX2L0iB23Enbq', 'Spotify Viral', 50);
+        tracks = spotifyViral.length > 0 ? spotifyViral : await fetchTikTokViralHits();
       } else if (category === 'us') {
         tracks = await fetchAppleRss('us', 'Billboard', 35);
       } else if (category === 'uk') {
