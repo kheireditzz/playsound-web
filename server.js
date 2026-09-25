@@ -470,18 +470,61 @@ export async function handleRequest(req, res) {
         res.end(JSON.stringify(cachedLyr));
         return;
       }
+
+      // 1. Try LRCLIB for Time-Synced Lyrics
+      try {
+        const cleanArtist = artist.replace(/\s*(feat\.|ft\.|with|,|\/).*$/i, '').trim();
+        const cleanTitle = title.replace(/\s*(\(.*\)|\[.*\]).*$/i, '').trim();
+        
+        let lrcRes = await fetch(
+          `https://lrclib.net/api/get?artist_name=${encodeURIComponent(cleanArtist)}&track_name=${encodeURIComponent(cleanTitle)}`,
+          { headers: { 'User-Agent': 'PlaySoundWeb/1.0' }, signal: AbortSignal.timeout(4500) }
+        );
+        
+        if (!lrcRes.ok) {
+          lrcRes = await fetch(
+            `https://lrclib.net/api/get?artist_name=${encodeURIComponent(artist)}&track_name=${encodeURIComponent(title)}`,
+            { headers: { 'User-Agent': 'PlaySoundWeb/1.0' }, signal: AbortSignal.timeout(4500) }
+          );
+        }
+
+        if (lrcRes.ok) {
+          const lrcData = await lrcRes.json();
+          if (lrcData.syncedLyrics || lrcData.plainLyrics) {
+            const result = {
+              artist,
+              title,
+              synced: !!lrcData.syncedLyrics,
+              syncedLyrics: lrcData.syncedLyrics || '',
+              lyrics: lrcData.plainLyrics || lrcData.syncedLyrics || '',
+              found: true
+            };
+            cache.data[lKey] = result;
+            cache.timestamps[lKey] = Date.now() - cache.TTL_MS + 60 * 60 * 1000;
+            res.writeHead(200);
+            res.end(JSON.stringify(result));
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn('LRCLIB fetch error:', err.message);
+      }
+
+      // 2. Fallback to lyrics.ovh
       try {
         const lyrRes = await fetch(
-          `https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`
+          `https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`,
+          { signal: AbortSignal.timeout(4000) }
         );
         if (!lyrRes.ok) throw new Error(`lyrics.ovh HTTP ${lyrRes.status}`);
         const lyrJson = await lyrRes.json();
         const result = {
           artist, title,
+          synced: false,
+          syncedLyrics: '',
           lyrics: lyrJson.lyrics || '',
           found: !!(lyrJson.lyrics && lyrJson.lyrics.trim().length > 10)
         };
-        // Override TTL to 60 min for lyrics (they never change)
         cache.data[lKey] = result;
         cache.timestamps[lKey] = Date.now() - cache.TTL_MS + 60 * 60 * 1000;
         res.writeHead(200);
@@ -489,7 +532,7 @@ export async function handleRequest(req, res) {
       } catch (err) {
         console.error('Lyrics fetch error:', err.message);
         res.writeHead(200);
-        res.end(JSON.stringify({ artist, title, lyrics: '', found: false }));
+        res.end(JSON.stringify({ artist, title, synced: false, syncedLyrics: '', lyrics: '', found: false }));
       }
       return;
     }
