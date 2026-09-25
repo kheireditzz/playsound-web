@@ -195,54 +195,6 @@
       }
     }
 
-    /* Header Left & Back to Dashboard Button */
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 0;
-    }
-
-    .header-back-btn {
-      background: var(--bg-surface);
-      border: none;
-      border-radius: 12px;
-      padding: 8px 14px;
-      display: none;
-      align-items: center;
-      gap: 7px;
-      box-shadow: var(--neu-extruded-sm);
-      cursor: pointer;
-      font-family: 'Space Mono', monospace;
-      font-size: 0.78rem;
-      font-weight: 700;
-      color: var(--color-primary);
-      transition: all 0.15s ease;
-      user-select: none;
-      -webkit-user-select: none;
-      text-decoration: none;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .header-back-btn:hover {
-      color: var(--color-text);
-      transform: translateX(-2px);
-    }
-
-    .header-back-btn:active {
-      box-shadow: var(--neu-inset);
-      transform: translateY(1px);
-    }
-
-    @media (max-width: 600px) {
-      .header-back-btn {
-        padding: 7px 11px;
-        gap: 5px;
-        font-size: 0.74rem;
-      }
-    }
-
     /* ── Loved Tracks Exclusive View Page Bar ── */
     .loved-page-bar {
       margin-top: 18px;
@@ -1873,29 +1825,19 @@
 
   <!-- Top Fixed Header -->
   <header class="neu-header">
-    <div class="header-left">
-      <!-- Tombol Back ke Dashboard (hanya muncul saat di Riwayat Love) -->
-      <button type="button" class="header-back-btn tactile-btn" id="headerBackBtn" onclick="exitLovedView()" title="Kembali ke Dashboard">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="15 18 9 12 15 6"></polyline>
+    <a href="#" class="header-logo" id="headerLogo" onclick="event.preventDefault(); exitLovedView();">
+      <div class="logo-badge" title="PlaySound">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 18V5l12-2v13"></path>
+          <circle cx="6" cy="18" r="3" fill="currentColor"></circle>
+          <circle cx="18" cy="16" r="3" fill="currentColor"></circle>
         </svg>
-        <span>DASHBOARD</span>
-      </button>
-
-      <a href="#" class="header-logo" id="headerLogo" onclick="event.preventDefault(); exitLovedView();">
-        <div class="logo-badge" title="PlaySound">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 18V5l12-2v13"></path>
-            <circle cx="6" cy="18" r="3" fill="currentColor"></circle>
-            <circle cx="18" cy="16" r="3" fill="currentColor"></circle>
-          </svg>
-        </div>
-        <div>
-          <div class="logo-title">PlaySound</div>
-          <div class="logo-subtitle">Viral Music Platform</div>
-        </div>
-      </a>
-    </div>
+      </div>
+      <div>
+        <div class="logo-title">PlaySound</div>
+        <div class="logo-subtitle">Viral Music Platform</div>
+      </div>
+    </a>
 
     <!-- Header Actions: Riwayat Love / Disukai -->
     <div class="header-actions">
@@ -2474,23 +2416,14 @@
       const sectionMeta = document.querySelector('.section-meta');
       if (sectionMeta) sectionMeta.style.display = 'none';
 
-      // 5. Tampilkan Tombol Back di Header (atas kiri)
-      const headerBackBtn = document.getElementById('headerBackBtn');
-      if (headerBackBtn) headerBackBtn.style.display = 'inline-flex';
-
-      const headerLogo = document.getElementById('headerLogo');
-      if (headerLogo && window.innerWidth <= 540) {
-        headerLogo.style.display = 'none';
-      }
-
-      // 6. Tampilkan Loved Page Bar
+      // 5. Tampilkan Loved Page Bar
       const lovedPageBar = document.getElementById('lovedPageBar');
       if (lovedPageBar) lovedPageBar.style.display = 'block';
 
       const lovedBarCountBadge = document.getElementById('lovedBarCountBadge');
       if (lovedBarCountBadge) lovedBarCountBadge.textContent = `${lovedTracks.length} Lagu Disimpan`;
 
-      // 7. Muat HANYA musik yang di-love
+      // 6. Muat HANYA musik yang di-love
       state.tracks = [...lovedTracks];
       renderTracks();
 
@@ -2516,14 +2449,7 @@
       const sectionMeta = document.querySelector('.section-meta');
       if (sectionMeta) sectionMeta.style.display = 'flex';
 
-      // 5. Sembunyikan Tombol Back di Header
-      const headerBackBtn = document.getElementById('headerBackBtn');
-      if (headerBackBtn) headerBackBtn.style.display = 'none';
-
-      const headerLogo = document.getElementById('headerLogo');
-      if (headerLogo) headerLogo.style.display = 'flex';
-
-      // 6. Sembunyikan Loved Page Bar
+      // 5. Sembunyikan Loved Page Bar
       const lovedPageBar = document.getElementById('lovedPageBar');
       if (lovedPageBar) lovedPageBar.style.display = 'none';
 
