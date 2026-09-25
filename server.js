@@ -50,7 +50,7 @@ async function fetchDeezerGlobal(isRotating = true) {
         cover: item.album?.cover_medium || item.album?.cover_big || item.album?.cover || '',
         preview: item.preview || '',
         duration: item.duration || 30,
-        trendVelocity: idx === 0 ? '🔥 #1 GLOBAL' : idx < 5 ? `▲ +${5 - idx}` : idx % 4 === 0 ? '★ NEW' : '▲ HOT',
+        trendVelocity: idx === 0 ? 'TOP GLOBAL' : idx < 5 ? 'TOP' : idx % 4 === 0 ? 'BARU' : 'HOT',
         origin: idx % 2 === 0 ? 'Spotify' : 'TikTok',
         youtubeQuery: `${artist} ${title} official audio`,
         externalUrls: {
@@ -106,7 +106,7 @@ async function fetchAppleRss(country = 'us', originTag = 'Billboard', limit = 40
         cover,
         preview,
         duration: 30,
-        trendVelocity: idx === 0 ? '🔥 #1' : idx < 4 ? `▲ +${4 - idx}` : idx % 3 === 0 ? '★ NEW' : '▲ TOP',
+        trendVelocity: idx === 0 ? 'TOP 1' : idx < 4 ? 'TOP' : idx % 3 === 0 ? 'BARU' : 'POPULER',
         origin: originTag,
         youtubeQuery: `${artist} ${title} official audio`,
         externalUrls: {
@@ -155,7 +155,7 @@ async function fetchTikTokViralHits() {
         cover: (item.artworkUrl100 || '').replace('100x100bb', '600x600bb'),
         preview: item.previewUrl || '',
         duration: Math.round((item.trackTimeMillis || 30000) / 1000),
-        trendVelocity: idx === 0 ? '🔥 SOUND OF THE WEEK' : idx < 5 ? '⚡ FYP VIRAL' : '★ TRENDING',
+        trendVelocity: idx === 0 ? 'TOP SOUND' : idx < 5 ? 'VIRAL FYP' : 'TRENDING',
         origin: 'TikTok',
         youtubeQuery: `${artist} ${title} official sound`,
         externalUrls: {
@@ -191,7 +191,7 @@ async function fetchFreshReleases() {
             cover: (item.artworkUrl100 || '').replace('100x100bb', '600x600bb'),
             preview: item.previewUrl || '',
             duration: Math.round((item.trackTimeMillis || 30000) / 1000),
-            trendVelocity: idx === 0 ? '✨ JUST DROPPED' : idx < 5 ? '🔥 NEW RELEASE' : '★ FRESH HIT',
+            trendVelocity: idx === 0 ? 'RILIS BARU' : idx < 5 ? 'BARU' : 'POPULER',
             origin: 'Fresh Hits',
             youtubeQuery: `${artist} ${title} official audio`,
             externalUrls: {
@@ -244,7 +244,7 @@ async function searchSongs(query) {
             preview: streamUrl,
             fullStreamUrl: streamUrl,
             duration: Number(item.more_info?.duration) || 180,
-            trendVelocity: '⚡ 320kbps FREE',
+            trendVelocity: '320kbps HD',
             origin: 'Free MP3',
             youtubeQuery: `${artist} ${title} official audio`,
             externalUrls: {
@@ -283,7 +283,7 @@ async function searchSongs(query) {
             preview: item.previewUrl || '',
             fullStreamUrl: '',
             duration: Math.round((item.trackTimeMillis || 30000) / 1000),
-            trendVelocity: '🔍 VIRAL',
+            trendVelocity: 'VIRAL',
             origin: 'iTunes',
             youtubeQuery: `${artist} ${title} official audio`,
             externalUrls: {
@@ -322,7 +322,7 @@ async function fetchSearchGenre(term, originTag) {
         cover: (item.artworkUrl100 || '').replace('100x100bb', '600x600bb'),
         preview: item.previewUrl || '',
         duration: Math.round((item.trackTimeMillis || 30000) / 1000),
-        trendVelocity: idx === 0 ? '🔥 #1' : idx < 5 ? `▲ +${5 - idx}` : '★ TRENDING',
+        trendVelocity: idx === 0 ? 'TOP 1' : idx < 5 ? 'TOP' : 'TRENDING',
         origin: originTag,
         youtubeQuery: `${artist} ${title} official`,
         externalUrls: {
@@ -452,7 +452,7 @@ async function scrapeViralIndo() {
             preview: streamUrl || '',
             fullStreamUrl: streamUrl || '',
             duration: Number(item.more_info?.duration) || 180,
-            trendVelocity: idx < 3 ? '🔥 #1 INDO' : '★ TOP HITS',
+            trendVelocity: idx < 3 ? 'TOP INDO' : 'HITS',
             origin: 'Indo Hits',
             youtubeQuery: `${artist} ${title} official audio`,
             externalUrls: {

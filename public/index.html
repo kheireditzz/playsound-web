@@ -1878,7 +1878,7 @@
     <!-- Trending Banner Slider -->
     <div class="trending-banner" id="trendingBanner">
       <div class="banner-strip" id="bannerStrip">
-        <div class="banner-skeleton">🌐 Memuat trending global...</div>
+        <div class="banner-skeleton">Memuat trending global...</div>
       </div>
       <div class="banner-dots" id="bannerDots"></div>
     </div>
@@ -1928,14 +1928,14 @@
 
       <!-- Categories Tabs -->
       <div class="filter-tabs" id="filterTabs">
-        <button type="button" class="neu-tab-btn active" data-cat="global">🌐 Global Viral 50</button>
-        <button type="button" class="neu-tab-btn" data-cat="fresh">✨ Rilis Terbaru</button>
-        <button type="button" class="neu-tab-btn" data-cat="indo">🇮🇩 Indo Viral Full</button>
-        <button type="button" class="neu-tab-btn" data-cat="tiktok">🔥 TikTok Sounds</button>
-        <button type="button" class="neu-tab-btn" data-cat="us">🇺🇸 Billboard / US</button>
-        <button type="button" class="neu-tab-btn" data-cat="uk">🇬🇧 UK Official 40</button>
-        <button type="button" class="neu-tab-btn" data-cat="kpop">🇰🇷 K-Pop Radar</button>
-        <button type="button" class="neu-tab-btn" data-cat="japan">🇯🇵 Japan Trends</button>
+        <button type="button" class="neu-tab-btn active" data-cat="global">Global Viral</button>
+        <button type="button" class="neu-tab-btn" data-cat="fresh">Rilis Terbaru</button>
+        <button type="button" class="neu-tab-btn" data-cat="indo">Indo Viral</button>
+        <button type="button" class="neu-tab-btn" data-cat="tiktok">TikTok Sounds</button>
+        <button type="button" class="neu-tab-btn" data-cat="us">Billboard US</button>
+        <button type="button" class="neu-tab-btn" data-cat="uk">UK Official</button>
+        <button type="button" class="neu-tab-btn" data-cat="kpop">K-Pop Radar</button>
+        <button type="button" class="neu-tab-btn" data-cat="japan">Japan Trends</button>
       </div>
     </div>
 
@@ -2146,7 +2146,7 @@
         preview: track.preview || '',
         fullStreamUrl: track.fullStreamUrl || '',
         duration: track.duration || 30,
-        trendVelocity: track.trendVelocity || '★ VIRAL',
+        trendVelocity: track.trendVelocity || 'VIRAL',
         origin: track.origin || 'Spotify',
         externalUrls: track.externalUrls || {}
       };
@@ -2378,7 +2378,7 @@
           preview: track.preview || '',
           fullStreamUrl: track.fullStreamUrl || '',
           duration: track.duration || 30,
-          trendVelocity: track.trendVelocity || '❤️ SAVED',
+          trendVelocity: track.trendVelocity || 'SAVED',
           origin: track.origin || 'Spotify',
           rank: track.rank || (lovedTracks.length + 1),
           externalUrls: track.externalUrls || {}
@@ -2525,7 +2525,7 @@
         loadHistory();
         loadLovedTracks();
 
-        showToast('✓ Musik berhasil diperbarui secara realtime!');
+        showToast('Musik berhasil diperbarui secara realtime');
       } catch (err) {
         console.error('Refresh realtime error:', err);
         showToast('Gagal memperbarui musik. Periksa koneksi internet.');
@@ -2625,13 +2625,13 @@
         if (state.currentCategory === 'loved') {
           tracksGrid.innerHTML = `
             <div style="grid-column: 1/-1; text-align: center; padding: 48px 16px; color: var(--color-text-muted); font-family: 'Space Mono', monospace; width: 100%; box-sizing: border-box;">
-              <div style="font-size: 2.6rem; margin-bottom: 12px;">💔</div>
+              <div style="font-size: 0.9rem; font-weight: 700; color: var(--color-primary); margin-bottom: 8px; letter-spacing: 1px;">KOSONG</div>
               <div style="font-size: 1rem; font-weight: 700; color: var(--color-text); margin-bottom: 8px;">Belum Ada Musik yang di-Love</div>
               <div style="font-size: 0.8rem; max-width: 320px; margin: 0 auto 20px auto; line-height: 1.5;">
-                Klik tombol hati ❤️ pada kartu lagu mana saja untuk menyimpannya ke koleksi Anda secara realtime.
+                Klik tombol love pada kartu lagu mana saja untuk menyimpannya ke koleksi Anda secara realtime.
               </div>
               <button class="tactile-btn play-btn-primary" onclick="exitLovedView()">
-                ← KEMBALI KE DASHBOARD
+                KEMBALI KE DASHBOARD
               </button>
             </div>
           `;
@@ -2685,7 +2685,7 @@
 
             <div class="card-actions">
               <button class="tactile-btn ${isPlayingThis ? 'tactile-btn' : 'play-btn-primary'}" onclick="playTrackByIndex(${idx})">
-                ${isPlayingThis ? '❚❚ JEDA' : '▶ PUTAR'}
+                ${isPlayingThis ? 'JEDA' : 'PUTAR'}
               </button>
               
               <div class="card-actions-right">
@@ -3196,13 +3196,15 @@
     const BANNER_DELAY  = 5000;
 
     const BADGE_MAP = {
-      'TikTok':    '🔥 TikTok Viral',
-      'Spotify':   '📈 Spotify Top',
-      'Billboard': '🇺🇸 Billboard',
-      'UK Official': '🇬🇧 UK Charts',
-      'K-Pop':     '🇰🇷 K-Pop Radar',
-      'J-Pop':     '🇯🇵 Oricon',
-      'Global':    '🌐 Global Viral',
+      'TikTok':    'TikTok Viral',
+      'Spotify':   'Spotify Top',
+      'Billboard': 'Billboard',
+      'UK Official': 'UK Charts',
+      'K-Pop':     'K-Pop Radar',
+      'J-Pop':     'Oricon',
+      'Global':    'Global Viral',
+      'Indo Hits': 'Indo Top',
+      'Fresh Hits': 'Rilis Baru'
     };
 
      function initBanner(tracks) {
@@ -3212,7 +3214,7 @@
       bannerCurrent = 0;
 
       bannerStrip.innerHTML = bannerSlides.map((t, i) => {
-        const badge = BADGE_MAP[t.origin] || `🌐 ${t.origin}`;
+        const badge = BADGE_MAP[t.origin] || t.origin;
         const cover = t.cover || '';
         const trackIdx = state.tracks.findIndex(x => x.id === t.id);
         return `
