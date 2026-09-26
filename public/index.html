@@ -1551,12 +1551,12 @@
       box-shadow: var(--neu-inset);
     }
 
-    /* Bottom Action Row (Download & YouTube stream) */
+    /* Bottom Action Row (Download & YouTube stream - Icon Only) */
     .full-player-extra-actions {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 14px;
+      gap: 16px;
       width: 100%;
       margin-top: 14px;
     }
@@ -1564,18 +1564,18 @@
     .full-extra-btn {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 10px 18px;
-      border-radius: 12px;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
       background: var(--bg-surface);
       border: 1px solid rgba(255, 255, 255, 0.75);
       box-shadow: var(--neu-extruded-sm);
       color: var(--color-text);
-      font-size: 0.78rem;
-      font-weight: 700;
       text-decoration: none;
       cursor: pointer;
       transition: all 0.15s ease;
+      flex-shrink: 0;
     }
 
     .full-extra-btn:hover {
@@ -1583,7 +1583,7 @@
     }
 
     .full-extra-btn:active {
-      transform: scale(0.96);
+      transform: scale(0.94);
       box-shadow: var(--neu-inset-sm);
     }
 
@@ -3577,22 +3577,20 @@
         </button>
       </div>
 
-      <!-- Extra Actions (Download MP3 & YouTube Official Stream) -->
+      <!-- Extra Actions (Download MP3 & YouTube Official Stream - Icon Only) -->
       <div class="full-player-extra-actions">
-        <a id="fullDownloadBtn" href="#" download class="full-extra-btn" title="Download Audio MP3 (Gratis 320kbps)">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <a id="fullDownloadBtn" href="#" download class="full-extra-btn" title="Download Audio MP3 (Gratis 320kbps)" aria-label="Download MP3">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
             <polyline points="7 10 12 15 17 10"></polyline>
             <line x1="12" y1="15" x2="12" y2="3"></line>
           </svg>
-          <span>Download MP3</span>
         </a>
 
-        <button type="button" id="fullYouTubeBtn" class="full-extra-btn btn-yt" title="Tonton Video Klip Resmi di YouTube" onclick="openYouTubeFromCurrentTrack()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <button type="button" id="fullYouTubeBtn" class="full-extra-btn btn-yt" title="Tonton Video Klip Resmi di YouTube" aria-label="Video YouTube" onclick="openYouTubeFromCurrentTrack()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
             <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
           </svg>
-          <span>Video YouTube</span>
         </button>
       </div>
     </div>
