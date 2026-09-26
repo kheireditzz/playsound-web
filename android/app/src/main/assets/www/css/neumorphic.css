@@ -79,7 +79,8 @@
       width: 100%;
       height: var(--header-height, 76px);
       background-color: var(--bg-surface);
-      box-shadow: 0 4px 14px var(--shadow-dark);
+      box-shadow: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.6);
       z-index: 5600;
       display: flex;
       align-items: center;
