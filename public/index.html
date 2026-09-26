@@ -60,6 +60,8 @@
       touch-action: pan-y;
       -webkit-overflow-scrolling: touch;
       scroll-behavior: smooth;
+      overscroll-behavior-y: none;
+      overscroll-behavior: none;
     }
 
     body {
@@ -77,7 +79,8 @@
       overflow-y: auto;
       touch-action: pan-y;
       -webkit-overflow-scrolling: touch;
-      overscroll-behavior-y: auto;
+      overscroll-behavior-y: none;
+      overscroll-behavior: none;
       position: relative;
     }
 
@@ -1737,6 +1740,8 @@
         overflow-x: hidden;
         overflow-y: auto;
         touch-action: pan-y;
+        overscroll-behavior-y: none;
+        overscroll-behavior: none;
       }
       body.has-player {
         padding-bottom: 150px;
@@ -5377,6 +5382,40 @@
         }
       }, { passive: true });
     }
+
+    // ── Nonaktifkan Tarik Refresh (Pull-to-Refresh) dari Atas ke Bawah ──
+    let pullTouchStartY = 0;
+
+    window.addEventListener('touchstart', (e) => {
+      if (e.touches && e.touches.length === 1) {
+        pullTouchStartY = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e) => {
+      if (e.touches && e.touches.length === 1) {
+        const touchY = e.touches[0].clientY;
+        const pullDistance = touchY - pullTouchStartY;
+        const isPageTop = (window.scrollY <= 0 || document.documentElement.scrollTop <= 0 || (document.body && document.body.scrollTop <= 0));
+
+        // Jika berada di puncak halaman dan ditarik ke bawah (mencegah reload browser)
+        if (isPageTop && pullDistance > 0) {
+          let targetEl = e.target;
+          let hasActiveInnerScroll = false;
+          while (targetEl && targetEl !== document.body && targetEl !== document.documentElement) {
+            if (targetEl.scrollTop > 0) {
+              hasActiveInnerScroll = true;
+              break;
+            }
+            targetEl = targetEl.parentElement;
+          }
+
+          if (!hasActiveInnerScroll && e.cancelable) {
+            e.preventDefault();
+          }
+        }
+      }
+    }, { passive: false });
 
     // Keydown listener untuk ESC (Tutup modal album & video)
     document.addEventListener('keydown', (e) => {
