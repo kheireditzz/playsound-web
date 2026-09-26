@@ -887,7 +887,7 @@
       margin: 0;
       width: calc(100% - 32px);
       max-width: 1200px;
-      height: 84px;
+      height: 72px;
       background: var(--bg-surface);
       border-radius: 20px;
       border: 1px solid rgba(255, 255, 255, 0.75);
@@ -1008,80 +1008,108 @@
       box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.5);
     }
 
-    /* Wave Pulse di Belakang Tombol Play / Pause (Ritme Gelombang Halus) */
+    /* Ritme Musik pada Tombol Start (Bukan Bulat-Bulat) */
     .main-play-wrap {
       position: relative;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 54px;
-      height: 54px;
+      gap: 5px;
       flex-shrink: 0;
+      padding: 0 2px;
     }
 
-    .play-wave-emitter {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 46px;
-      height: 46px;
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 1;
+    /* Equalizer Ritme Suara Mini Mengapit Tombol Start */
+    .rhythm-bars {
+      display: flex;
+      align-items: center;
+      gap: 2.5px;
+      height: 22px;
     }
 
-    .play-wave-emitter .wave-ring {
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      border: 1.8px solid rgba(0, 102, 102, 0.6);
-      box-shadow: 0 0 12px rgba(0, 166, 61, 0.35);
-      opacity: 0;
-      transform: scale(0.9);
-      pointer-events: none;
+    .rhythm-bars .r-bar {
+      width: 3px;
+      height: 4px;
+      border-radius: 3px;
+      background: var(--color-primary);
+      opacity: 0.35;
+      transition: height 0.15s ease, opacity 0.2s ease, background-color 0.2s ease;
     }
 
-    /* Gelombang aktif berdenyut membesar hanya saat audio berputar */
-    .neu-player-dock.is-playing .play-wave-emitter .wave-ring,
-    .main-play-wrap.is-playing .play-wave-emitter .wave-ring,
-    body.is-audio-playing .play-wave-emitter .wave-ring {
-      animation: neuPlayWavePulse 2.1s cubic-bezier(0.18, 0.65, 0.35, 1) infinite;
+    /* Saat audio berputar: bar ritme bergerak dinamis berirama */
+    .neu-player-dock.is-playing .rhythm-bars .r-bar,
+    .main-play-wrap.is-playing .rhythm-bars .r-bar,
+    body.is-audio-playing .rhythm-bars .r-bar {
+      opacity: 0.95;
+      animation: startBtnRhythm 0.85s infinite ease-in-out alternate;
     }
 
-    .neu-player-dock.is-playing .play-wave-emitter .wave-1,
-    .main-play-wrap.is-playing .play-wave-emitter .wave-1,
-    body.is-audio-playing .play-wave-emitter .wave-1 {
-      animation-delay: 0s;
+    .neu-player-dock.is-playing .rhythm-bars .b1,
+    .main-play-wrap.is-playing .rhythm-bars .b1,
+    body.is-audio-playing .rhythm-bars .b1 {
+      animation-delay: 0.1s;
+      animation-duration: 0.7s;
     }
 
-    .neu-player-dock.is-playing .play-wave-emitter .wave-2,
-    .main-play-wrap.is-playing .play-wave-emitter .wave-2,
-    body.is-audio-playing .play-wave-emitter .wave-2 {
-      animation-delay: 0.7s;
+    .neu-player-dock.is-playing .rhythm-bars .b2,
+    .main-play-wrap.is-playing .rhythm-bars .b2,
+    body.is-audio-playing .rhythm-bars .b2 {
+      animation-delay: 0.35s;
+      animation-duration: 0.55s;
     }
 
-    .neu-player-dock.is-playing .play-wave-emitter .wave-3,
-    .main-play-wrap.is-playing .play-wave-emitter .wave-3,
-    body.is-audio-playing .play-wave-emitter .wave-3 {
-      animation-delay: 1.4s;
+    .neu-player-dock.is-playing .rhythm-bars .b3,
+    .main-play-wrap.is-playing .rhythm-bars .b3,
+    body.is-audio-playing .rhythm-bars .b3 {
+      animation-delay: 0.2s;
+      animation-duration: 0.8s;
     }
 
-    @keyframes neuPlayWavePulse {
+    @keyframes startBtnRhythm {
       0% {
-        transform: scale(0.88);
-        opacity: 0.85;
-        border-color: rgba(0, 102, 102, 0.75);
+        height: 4px;
+        background: var(--color-primary);
       }
       50% {
-        opacity: 0.45;
-        border-color: rgba(0, 166, 61, 0.55);
+        height: 18px;
+        background: #00A63D;
       }
       100% {
-        transform: scale(1.95);
-        opacity: 0;
-        border-color: rgba(0, 166, 61, 0);
+        height: 7px;
+        background: var(--color-primary);
       }
+    }
+
+    /* Tombol Percepat (+10s) & Mundur (-10s) */
+    .btn-skip {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1px;
+      flex-shrink: 0;
+      color: var(--color-text);
+      cursor: pointer;
+    }
+
+    .btn-skip:hover {
+      color: var(--color-primary);
+    }
+
+    .btn-skip .skip-badge {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.52rem;
+      font-weight: 700;
+      color: var(--color-primary);
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    /* Durasi di Bawah Tombol Dihilangkan pada Player Bawah */
+    .neu-player-dock .progress-bar-container {
+      display: none !important;
     }
 
     /* Tactile Progress Bar (Sleek tanpa angka durasi di dock bawah) */
@@ -3019,24 +3047,34 @@
       </div>
     </div>
 
-    <!-- Center Play Controls & Sleek Progress Bar (Tanpa Angka Durasi) -->
+    <!-- Center Play Controls & Percepat (Tanpa Garis Durasi di Bawah) -->
     <div class="dock-center">
       <div class="player-buttons">
-        <button id="prevBtn" class="dock-ctrl-btn btn-step" title="Sebelumnya">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <button id="prevBtn" class="dock-ctrl-btn btn-step" title="Lagu Sebelumnya">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
             <polygon points="19 20 9 12 19 4 19 20"></polygon>
             <line x1="5" y1="19" x2="5" y2="5" stroke="currentColor" stroke-width="2.5"></line>
           </svg>
         </button>
 
+        <!-- Tombol Mundur 10 Detik -->
+        <button type="button" id="dockRewindBtn" class="dock-ctrl-btn btn-step btn-skip" title="Mundur 10 Detik" onclick="seekRelative(-10)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 19 2 12 11 5 11 19"></polygon>
+            <polygon points="22 19 13 12 22 5 22 19"></polygon>
+          </svg>
+          <span class="skip-badge">10s</span>
+        </button>
+
+        <!-- Tombol Start / Play-Pause dengan Ritme Musik -->
         <div class="main-play-wrap" id="mainPlayWrap">
-          <!-- Efek Ritme Gelombang Lembut di Belakang Tombol Play/Pause -->
-          <div class="play-wave-emitter" id="playWaveEmitter" aria-hidden="true">
-            <span class="wave-ring wave-1"></span>
-            <span class="wave-ring wave-2"></span>
-            <span class="wave-ring wave-3"></span>
+          <div class="rhythm-bars rhythm-left" aria-hidden="true">
+            <span class="r-bar b1"></span>
+            <span class="r-bar b2"></span>
+            <span class="r-bar b3"></span>
           </div>
-          <button id="mainPlayBtn" class="dock-ctrl-btn btn-main-play" title="Play/Pause">
+
+          <button id="mainPlayBtn" class="dock-ctrl-btn btn-main-play" title="Play/Pause (Start)">
             <svg id="playIcon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
               <polygon points="6 3 20 12 6 21 6 3"></polygon>
             </svg>
@@ -3045,19 +3083,34 @@
               <rect x="14" y="4" width="4" height="16"></rect>
             </svg>
           </button>
+
+          <div class="rhythm-bars rhythm-right" aria-hidden="true">
+            <span class="r-bar b3"></span>
+            <span class="r-bar b2"></span>
+            <span class="r-bar b1"></span>
+          </div>
         </div>
 
-        <button id="nextBtn" class="dock-ctrl-btn btn-step" title="Selanjutnya">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <!-- Tombol Percepat 10 Detik -->
+        <button type="button" id="dockForwardBtn" class="dock-ctrl-btn btn-step btn-skip" title="Percepat 10 Detik" onclick="seekRelative(10)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 19 22 12 13 5 13 19"></polygon>
+            <polygon points="2 19 11 12 2 5 2 19"></polygon>
+          </svg>
+          <span class="skip-badge">+10s</span>
+        </button>
+
+        <button id="nextBtn" class="dock-ctrl-btn btn-step" title="Lagu Selanjutnya">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
             <polygon points="5 4 15 12 5 20 5 4"></polygon>
             <line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="2.5"></line>
           </svg>
         </button>
       </div>
 
-      <div class="progress-bar-container">
+      <div class="progress-bar-container" style="display: none !important;">
         <span class="time-stamp-hidden" id="currentTimeText">0:00</span>
-        <div class="neu-range-wrap" id="progressBar" title="Geser untuk atur posisi lagu">
+        <div class="neu-range-wrap" id="progressBar" style="display: none;">
           <div class="neu-progress-fill" id="progressFill"></div>
           <div class="neu-progress-thumb" id="progressThumb"></div>
         </div>
@@ -4513,6 +4566,15 @@
       } else {
         audioEngine.play().catch(e => console.log('Play policy:', e));
       }
+    };
+
+    window.seekRelative = function(sec) {
+      if (!audioEngine.src) return;
+      const cur = audioEngine.currentTime || 0;
+      const dur = audioEngine.duration || (state.currentTrack ? state.currentTrack.duration : 30);
+      const target = Math.max(0, Math.min(dur, cur + sec));
+      audioEngine.currentTime = target;
+      savePlaybackSession();
     };
 
     window.openYouTubeFromCurrentTrack = function() {
