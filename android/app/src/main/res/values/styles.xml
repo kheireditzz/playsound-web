@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.PlayMusic" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="Theme.PlayMusic" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/primary_teal</item>
         <item name="colorPrimaryDark">@color/neu_bg</item>
         <item name="colorAccent">@color/primary_teal</item>

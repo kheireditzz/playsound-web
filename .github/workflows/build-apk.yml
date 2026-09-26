@@ -73,18 +73,22 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main'
         with:
           tag_name: v2.4.6
-          name: "Play Music v2.4.6 (Official Production APK)"
+          name: "Play Music v2.4.6 (Real Native Android APK)"
           body: |
-            ### 🎵 Play Music v2.4.6 — Official Production Android APK
+            ### 🎵 Play Music v2.4.6 — Real Native Android APK (Production)
             
-            Versi rilis resmi Play Music untuk platform Android. Aplikasi ditandatangani dengan keystore produksi tetap (*persistent release signature*), sehingga pembaruan versi mendatang dapat langsung dipasang tanpa perlu uninstal aplikasi sebelumnya.
+            Rilis resmi **Real Native Android APK** untuk Play Music. Dibangun 100% menggunakan arsitektur native Android Views, Foreground MediaService, MediaSession lock screen controls, Neumorphic Tactile UI, dan native DownloadManager (bukan WebView wrapper).
             
-            #### 🌟 Fitur & Perubahan Terbaru:
-            - **Pemutaran Penuh 100%**: Bebas dari batas cuplikan 30 detik (didukung multi-source audio JioSaavn 320kbps, SoundCloud Full, dan YouTube Hi-Fi).
-            - **Pembaruan Langsung (In-App Update)**: Dapat langsung memperbarui aplikasi via menu Pengaturan tanpa kehilangan data/uninstal.
-            - **Desain Neumorphism Tactile**: Tampilan taktil modern monokromatik (`#E7E5E4`) dengan status bar & navigation bar terintegrasi rapi.
-            - **Native Audio & Download Manager**: Unduhan MP3 berkecepatan tinggi langsung tersimpan di folder *Downloads* perangkat.
-            - **Lirik Karaoke Real-Time**: Sinkronisasi lirik bergulir otomatis per bait/detik.
+            Aplikasi ditandatangani dengan keystore produksi tetap (*persistent release signature*), sehingga pembaruan versi mendatang dapat langsung dipasang tanpa perlu uninstal aplikasi sebelumnya.
+            
+            #### 🌟 Fitur Unggulan Real Native:
+            - **100% Real Native Android**: Performa mulus 60fps dengan RecyclerView native, custom tactile drawables, dan zero-lag playback.
+            - **Background Audio Service**: Putar musik di latar belakang secara stabil dengan kontrol notifikasi dan lock screen via MediaSessionCompat.
+            - **Pemutaran Penuh 100%**: Bebas dari batasan 30 detik (didukung multi-engine 320kbps Hi-Fi).
+            - **Pembaruan Langsung (In-App Update)**: Dapat langsung memeriksa dan memperbarui APK dari menu Pengaturan tanpa uninstal.
+            - **Neumorphism Tactile Design**: Permukaan taktil `#E7E5E4` dengan extruded dual-shadow dan sensasi tombol empuk saat disentuh.
+            - **Native Download Manager**: Mengunduh audio MP3 kualitas tinggi langsung ke folder Downloads perangkat dengan notifikasi sistem.
+            - **Lirik Karaoke Real-Time**: Sinkronisasi lirik per baris/detik di modal pemutar penuh.
             
             #### 📥 Cara Pasang / Update:
             1. Unduh file **`playmusic-release.apk`** di bawah ini.
