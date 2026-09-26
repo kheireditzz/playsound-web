@@ -1698,6 +1698,49 @@
       gap: 10px;
     }
 
+    /* Lyrics Calibration / Sync Bar */
+    .lyrics-sync-bar {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 6px;
+      margin-bottom: 2px;
+      width: 100%;
+    }
+
+    .lyrics-sync-btn {
+      padding: 4px 10px;
+      font-size: 0.7rem;
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      border-radius: 8px;
+      background: var(--bg-surface);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      box-shadow: var(--neu-extruded-sm);
+      color: var(--color-text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .lyrics-sync-btn:active {
+      transform: scale(0.94);
+      box-shadow: var(--neu-inset-sm);
+      color: var(--color-primary);
+    }
+
+    .lyrics-sync-badge {
+      font-size: 0.72rem;
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      color: var(--color-primary);
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(0, 102, 102, 0.08);
+      cursor: pointer;
+      user-select: none;
+    }
+
     /* Button LED & Repeat Indicator */
     .full-btn-secondary {
       position: relative;
@@ -3509,6 +3552,13 @@
         <div class="lyric-empty" id="lyricsStatus">Memuat lirik karaoke...</div>
       </div>
 
+      <!-- Bar Kalibrasi Offset Sinkronisasi Lirik -->
+      <div class="lyrics-sync-bar" id="lyricsSyncBar">
+        <button type="button" class="lyrics-sync-btn" onclick="adjustLyricsOffset(-0.15)" title="Percepat Lirik 0.15 detik">⏪ -0.15s</button>
+        <span class="lyrics-sync-badge" id="lyricsOffsetBadge" onclick="resetLyricsOffset()" title="Ketuk untuk reset ke otomatis">SYNC: +0.40s</span>
+        <button type="button" class="lyrics-sync-btn" onclick="adjustLyricsOffset(0.15)" title="Perlambat Lirik 0.15 detik">⏩ +0.15s</button>
+      </div>
+
       <!-- Track Metadata & Bitrate Badge -->
       <div class="full-player-track-info">
         <div class="full-track-text">
@@ -4944,12 +4994,63 @@
       }
     };
 
-    // ── FITUR 1: LIRIK KARAOKE REAL-TIME (SYNCED LYRICS) ──
+    // ── FITUR 1: LIRIK KARAOKE REAL-TIME (SYNCED LYRICS DENGAN 60FPS RAF SYNC & KALIBRASI) ──
     let lyricsData = []; // Array of { time: number, text: string }
     let activeLyricIndex = -1;
     let currentLyricsTrackKey = '';
     let isUserScrollingLyrics = false;
     let lyricsScrollTimeout = null;
+    let lyricsRafId = null;
+
+    // Offset Kompensasi Default (+0.45s lead-time) agar lirik pas bersamaan dengan vokal
+    let lyricsOffset = 0.45;
+    try {
+      const savedOffset = localStorage.getItem('playsound_lyrics_offset');
+      if (savedOffset !== null) {
+        lyricsOffset = parseFloat(savedOffset);
+        if (isNaN(lyricsOffset)) lyricsOffset = 0.45;
+      }
+    } catch(e) {}
+
+    function updateLyricsOffsetBadge() {
+      const badge = document.getElementById('lyricsOffsetBadge');
+      if (badge) {
+        const sign = lyricsOffset >= 0 ? '+' : '';
+        badge.textContent = `SYNC: ${sign}${lyricsOffset.toFixed(2)}s`;
+      }
+    }
+
+    window.adjustLyricsOffset = function(delta) {
+      lyricsOffset = Math.round((lyricsOffset + delta) * 100) / 100;
+      try { localStorage.setItem('playsound_lyrics_offset', lyricsOffset); } catch(e) {}
+      updateLyricsOffsetBadge();
+      syncKaraokeLyrics(audioEngine.currentTime || 0, true);
+    };
+
+    window.resetLyricsOffset = function() {
+      lyricsOffset = 0.45;
+      try { localStorage.setItem('playsound_lyrics_offset', lyricsOffset); } catch(e) {}
+      updateLyricsOffsetBadge();
+      syncKaraokeLyrics(audioEngine.currentTime || 0, true);
+    };
+
+    function startLyricsRafLoop() {
+      if (lyricsRafId) cancelAnimationFrame(lyricsRafId);
+      function frame() {
+        if (state.isPlaying && !audioEngine.paused && state.activePlayerTab === 'lyrics') {
+          syncKaraokeLyrics(audioEngine.currentTime || 0);
+        }
+        lyricsRafId = requestAnimationFrame(frame);
+      }
+      lyricsRafId = requestAnimationFrame(frame);
+    }
+
+    function stopLyricsRafLoop() {
+      if (lyricsRafId) {
+        cancelAnimationFrame(lyricsRafId);
+        lyricsRafId = null;
+      }
+    }
 
     const lyricsContainer = document.getElementById('fullLyricsContainer');
     if (lyricsContainer) {
@@ -4958,7 +5059,7 @@
         clearTimeout(lyricsScrollTimeout);
         lyricsScrollTimeout = setTimeout(() => {
           isUserScrollingLyrics = false;
-        }, 2500);
+        }, 2000);
       }, { passive: true });
     }
 
@@ -4968,12 +5069,17 @@
       const tabLyricsBtn = document.getElementById('tabLyricsBtn');
       const artworkBox = document.getElementById('fullArtworkBox');
       const lyricsBox = document.getElementById('fullLyricsContainer');
+      const syncBar = document.getElementById('lyricsSyncBar');
 
       if (tab === 'lyrics') {
         if (tabArtworkBtn) tabArtworkBtn.classList.remove('active');
         if (tabLyricsBtn) tabLyricsBtn.classList.add('active');
         if (artworkBox) artworkBox.style.display = 'none';
         if (lyricsBox) lyricsBox.style.display = 'flex';
+        if (syncBar) syncBar.style.display = 'flex';
+
+        updateLyricsOffsetBadge();
+        startLyricsRafLoop();
 
         if (state.currentTrack) {
           loadLyricsForTrack(state.currentTrack);
@@ -4998,7 +5104,9 @@
         if (tabLyricsBtn) tabLyricsBtn.classList.remove('active');
         if (tabArtworkBtn) tabArtworkBtn.classList.add('active');
         if (lyricsBox) lyricsBox.style.display = 'none';
+        if (syncBar) syncBar.style.display = 'none';
         if (artworkBox) artworkBox.style.display = 'flex';
+        stopLyricsRafLoop();
       }
     };
 
@@ -5098,9 +5206,12 @@
       if (!lyricsData || lyricsData.length === 0 || !lyricsContainer) return;
       if (lyricsContainer.style.display === 'none') return;
 
+      // Hitung waktu efektif dengan kompensasi latensi vokal
+      const effectiveTime = currentTime + lyricsOffset;
+
       let currentIdx = -1;
       for (let i = 0; i < lyricsData.length; i++) {
-        if (currentTime >= lyricsData[i].time - 0.2) {
+        if (effectiveTime >= lyricsData[i].time) {
           currentIdx = i;
         } else {
           break;
@@ -5894,6 +6005,9 @@
       if ('mediaSession' in navigator) {
         navigator.mediaSession.playbackState = 'playing';
       }
+      if (state.activePlayerTab === 'lyrics') {
+        startLyricsRafLoop();
+      }
       if (state.currentCategory === 'album-detail') {
         updateAlbumTrackListView();
       } else {
@@ -5906,6 +6020,7 @@
       setPlayerBuffering(false);
       updatePlayerUI();
       savePlaybackSession();
+      stopLyricsRafLoop();
       if ('mediaSession' in navigator) {
         navigator.mediaSession.playbackState = 'paused';
       }
