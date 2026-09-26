@@ -132,3 +132,143 @@ export async function getDirectYouTubeAudioUrl(videoId) {
 
   return null;
 }
+
+/**
+ * Pencarian Cepat Multi-Track YouTube & YouTube Music untuk Universal Search
+ */
+export async function searchYouTubeTracks(query, limit = 20) {
+  const q = (query || '').trim();
+  if (!q) return [];
+
+  try {
+    const res = await fetch('https://www.youtube.com/youtubei/v1/search', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
+      },
+      body: JSON.stringify({
+        context: {
+          client: {
+            clientName: 'WEB',
+            clientVersion: '2.20240101.00.00',
+            hl: 'id',
+            gl: 'ID'
+          }
+        },
+        query: q
+      }),
+      signal: AbortSignal.timeout(4500)
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      const sections = data.contents?.twoColumnSearchResultsRenderer?.primaryContents?.sectionListRenderer?.contents || [];
+      const results = [];
+
+      for (const s of sections) {
+        const items = s.itemSectionRenderer?.contents || [];
+        for (const it of items) {
+          const v = it.videoRenderer;
+          if (!v || !v.videoId || !v.lengthText?.simpleText) continue;
+
+          const durStr = v.lengthText.simpleText;
+          let durSec = 180;
+          if (durStr.includes(':')) {
+            const parts = durStr.split(':').map(Number);
+            if (parts.length === 2) durSec = parts[0] * 60 + parts[1];
+            else if (parts.length === 3) durSec = parts[0] * 3600 + parts[1] * 60 + parts[2];
+          }
+
+          if (durSec < 45 || durSec > 900) continue;
+
+          const rawTitle = v.title?.runs?.[0]?.text || '';
+          const uploader = v.ownerText?.runs?.[0]?.text || 'YouTube';
+
+          let artist = uploader;
+          let title = rawTitle;
+          if (rawTitle.includes(' - ')) {
+            const parts = rawTitle.split(' - ');
+            artist = parts[0].trim();
+            title = parts.slice(1).join(' - ')
+              .replace(/\(Official.*?\)/gi, '')
+              .replace(/\[Official.*?\]/gi, '')
+              .replace(/\(Lyric.*?\)/gi, '')
+              .replace(/\[Lyric.*?\]/gi, '')
+              .replace(/\(Audio.*?\)/gi, '')
+              .replace(/\[Audio.*?\]/gi, '')
+              .trim();
+          }
+
+          const thumbs = v.thumbnail?.thumbnails || [];
+          const cover = thumbs[thumbs.length - 1]?.url || `https://i.ytimg.com/vi/${v.videoId}/hqdefault.jpg`;
+
+          results.push({
+            id: `yt-sr-${v.videoId}`,
+            title: title || rawTitle,
+            artist: artist || uploader,
+            album: 'YouTube Music',
+            cover,
+            preview: `/api/stream-audio?id=${v.videoId}`,
+            fullStreamUrl: `/api/stream-audio?id=${v.videoId}`,
+            duration: durSec,
+            origin: 'YouTube'
+          });
+
+          if (results.length >= limit) break;
+        }
+        if (results.length >= limit) break;
+      }
+
+      if (results.length > 0) {
+        return results;
+      }
+    }
+  } catch (err) {
+    console.warn('YouTube Innertube search warning:', err.message);
+  }
+
+  // Fallback: yt-dlp search jika Innertube terhalang
+  try {
+    const cleanCmdQ = q.replace(/["$`\\]/g, ' ').trim();
+    const cmd = `yt-dlp "ytsearch${limit}:${cleanCmdQ}" --print "%(id)s\\t%(title)s\\t%(duration)s\\t%(uploader)s" --no-warnings`;
+    const { stdout } = await execPromise(cmd, { timeout: 14000 });
+    const lines = (stdout || '').trim().split('\n').filter(Boolean);
+    const results = [];
+
+    for (const line of lines) {
+      const [videoId, rawTitle, durStr, uploader] = line.split('\t');
+      if (!videoId || videoId.length !== 11) continue;
+      const durSec = parseInt(durStr, 10) || 180;
+      if (durSec < 45 || durSec > 900) continue;
+
+      let artist = uploader || 'YouTube';
+      let title = rawTitle || '';
+      if (rawTitle && rawTitle.includes(' - ')) {
+        const parts = rawTitle.split(' - ');
+        artist = parts[0].trim();
+        title = parts.slice(1).join(' - ')
+          .replace(/\(Official.*?\)/gi, '')
+          .replace(/\[Official.*?\]/gi, '')
+          .trim();
+      }
+
+      results.push({
+        id: `yt-sr-${videoId}`,
+        title: title || rawTitle,
+        artist: artist || uploader || 'YouTube',
+        album: 'YouTube Music',
+        cover: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+        preview: `/api/stream-audio?id=${videoId}`,
+        fullStreamUrl: `/api/stream-audio?id=${videoId}`,
+        duration: durSec,
+        origin: 'YouTube'
+      });
+    }
+
+    return results;
+  } catch (ytErr) {
+    console.warn('yt-dlp multi-search warning:', ytErr.message);
+    return [];
+  }
+}

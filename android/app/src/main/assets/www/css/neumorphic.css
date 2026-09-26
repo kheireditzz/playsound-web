@@ -863,6 +863,124 @@
       align-items: center;
       gap: 4px;
       color: var(--color-text);
+      transition: all 0.15s ease;
+    }
+
+    .origin-badge.origin-youtube {
+      color: #D32F2F;
+      border: 1px solid rgba(211, 47, 47, 0.25);
+    }
+    .origin-badge.origin-spotify {
+      color: #008732;
+      border: 1px solid rgba(0, 166, 61, 0.25);
+    }
+    .origin-badge.origin-jiosaavn {
+      color: #006666;
+      border: 1px solid rgba(0, 102, 102, 0.25);
+    }
+    .origin-badge.origin-apple {
+      color: #334155;
+      border: 1px solid rgba(51, 65, 85, 0.25);
+    }
+    .origin-badge.origin-deezer {
+      color: #7E22CE;
+      border: 1px solid rgba(126, 34, 206, 0.25);
+    }
+
+    /* Universal Search Category Filter Bar */
+    .search-category-bar {
+      margin-top: 14px;
+      margin-bottom: 6px;
+      padding: 12px 14px;
+      background: var(--bg-surface);
+      border-radius: 16px;
+      box-shadow: var(--neu-inset);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    .search-cat-header-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .search-cat-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--color-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .search-cat-clear-btn {
+      background: transparent;
+      border: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--color-danger);
+      cursor: pointer;
+      padding: 3px 6px;
+      border-radius: 6px;
+      transition: background 0.15s ease;
+    }
+
+    .search-cat-clear-btn:hover {
+      background: rgba(255, 33, 87, 0.08);
+    }
+
+    .search-cat-chips {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 2px;
+      width: 100%;
+    }
+
+    .search-cat-chips::-webkit-scrollbar {
+      display: none;
+    }
+
+    .search-cat-chip {
+      background: var(--bg-surface);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: 10px;
+      padding: 7px 13px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      box-shadow: var(--neu-extruded-sm);
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: all 0.16s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .search-cat-chip:active {
+      transform: translateY(1px);
+    }
+
+    .search-cat-chip.active {
+      background: var(--color-primary);
+      color: #FFFFFF;
+      box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.35);
+      border-color: transparent;
     }
 
     /* Card Actions */

@@ -978,6 +978,8 @@
       if (controlsWrapper) controlsWrapper.style.display = 'flex';
       const sectionMeta = document.querySelector('.section-meta');
       if (sectionMeta) sectionMeta.style.display = 'flex';
+      const searchCategoryBar = document.getElementById('searchCategoryBar');
+      if (searchCategoryBar) searchCategoryBar.style.display = 'none';
 
       if (cat === 'loved') {
         openLovedView();
@@ -1052,7 +1054,48 @@
       }
     };
 
-    // Search Query (Pencarian Global Realtime & SpotiFlyer Link Importer)
+    // ── Universal Multi-Platform Search Controller ──
+    let rawSearchResults = [];
+    let activeSearchCategory = 'all';
+
+    window.filterSearchResults = function(source) {
+      activeSearchCategory = source || 'all';
+      document.querySelectorAll('.search-cat-chip').forEach(chip => {
+        chip.classList.toggle('active', chip.dataset.source === activeSearchCategory);
+      });
+
+      if (activeSearchCategory === 'all') {
+        state.tracks = [...rawSearchResults];
+      } else {
+        state.tracks = rawSearchResults.filter(t => {
+          const orig = (t.origin || '').toLowerCase();
+          return orig.includes(activeSearchCategory.toLowerCase());
+        });
+      }
+
+      if (trackCountBadge) {
+        trackCountBadge.textContent = `${state.tracks.length} Hasil (${activeSearchCategory === 'all' ? 'Universal' : activeSearchCategory})`;
+      }
+      renderTracks();
+    };
+
+    window.clearSearchAndReturnToCharts = function() {
+      const searchInput = document.getElementById('searchInput');
+      if (searchInput) searchInput.value = '';
+      const searchCategoryBar = document.getElementById('searchCategoryBar');
+      if (searchCategoryBar) searchCategoryBar.style.display = 'none';
+
+      rawSearchResults = [];
+      activeSearchCategory = 'all';
+
+      // Aktifkan tab pertama (Global Viral)
+      document.querySelectorAll('.neu-tab-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.cat === 'global');
+      });
+      loadTracks('global');
+    };
+
+    // Search Query (Pencarian Universal Realtime & SpotiFlyer Link Importer)
     async function runSearch(query) {
       const cleanQ = (query || '').trim();
       if (!cleanQ) return;
@@ -1065,23 +1108,34 @@
       if (historyPanel) historyPanel.style.display = 'none';
       if (typeof saveSearchHistory === 'function') saveSearchHistory(cleanQ);
 
-      // Reset active tabs
+      // Tampilkan Category Bar Pencarian Universal
+      const searchCategoryBar = document.getElementById('searchCategoryBar');
+      if (searchCategoryBar) searchCategoryBar.style.display = 'flex';
+      activeSearchCategory = 'all';
+      document.querySelectorAll('.search-cat-chip').forEach(chip => {
+        chip.classList.toggle('active', chip.dataset.source === 'all');
+      });
+
+      // Reset active tabs chart
       document.querySelectorAll('.neu-tab-btn').forEach(b => b.classList.remove('active'));
 
       const isUrl = /^https?:\/\//i.test(cleanQ) || /(spotify\.com|jiosaavn\.com|youtube\.com|youtu\.be)/i.test(cleanQ);
       if (isUrl) {
         if (categoryHeading) categoryHeading.textContent = `MENGIMPOR LINK: "${cleanQ.slice(0, 36)}..."`;
+        if (categorySubtitle) categorySubtitle.textContent = 'Menganalisis audio resmi & metadata lagu...';
       } else {
-        if (categoryHeading) categoryHeading.textContent = `PENCARIAN GLOBAL: "${cleanQ.toUpperCase()}"`;
+        if (categoryHeading) categoryHeading.textContent = `PENCARIAN UNIVERSAL: "${cleanQ.toUpperCase()}"`;
+        if (categorySubtitle) categorySubtitle.textContent = 'Menelusuri semua platform musik: YouTube, Spotify, JioSaavn, Apple, Deezer.';
       }
       tracksGrid.innerHTML = renderTracksSkeleton(4);
 
       try {
         const res = await fetch(`/api/search?q=${encodeURIComponent(cleanQ)}`);
         const data = await res.json();
-        state.tracks = data.data || [];
+        rawSearchResults = data.data || [];
+        state.tracks = [...rawSearchResults];
         renderTracks();
-        if (trackCountBadge) trackCountBadge.textContent = `${state.tracks.length} Hasil`;
+        if (trackCountBadge) trackCountBadge.textContent = `${state.tracks.length} Hasil (Universal)`;
 
         // SpotiFlyer-Style Link Import Response Handler
         if (data.isLinkImport && state.tracks.length > 0) {
@@ -1179,7 +1233,7 @@
                 <div class="song-artist" title="${safeArtist}">${safeArtist}</div>
                 <div class="badges-row">
                   <span class="velocity-badge">${track.trendVelocity}</span>
-                  <span class="origin-badge">${track.origin}</span>
+                  <span class="origin-badge origin-${(track.origin || 'Universal').toLowerCase().replace(/[^a-z0-9]/g, '')}">${track.origin}</span>
                 </div>
               </div>
             </div>

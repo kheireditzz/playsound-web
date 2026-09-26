@@ -195,6 +195,43 @@
         <button type="button" class="neu-tab-btn" data-cat="kpop">K-Pop Radar</button>
         <button type="button" class="neu-tab-btn" data-cat="japan">Japan Trends</button>
       </div>
+
+      <!-- Universal Search Category Filter Bar (Hanya muncul saat pencarian aktif) -->
+      <div class="search-category-bar" id="searchCategoryBar" style="display: none;">
+        <div class="search-cat-header-wrap">
+          <div class="search-cat-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="2" y1="12" x2="22" y2="12"></line>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+            </svg>
+            <span>Kategori Pencarian Universal</span>
+          </div>
+          <button type="button" class="search-cat-clear-btn" onclick="window.clearSearchAndReturnToCharts()" title="Reset ke Tangga Lagu">
+            ✕ Tutup Pencarian
+          </button>
+        </div>
+        <div class="search-cat-chips" id="searchCatChips">
+          <button type="button" class="search-cat-chip active" data-source="all" onclick="window.filterSearchResults('all')">
+            🌐 Semua Platform
+          </button>
+          <button type="button" class="search-cat-chip" data-source="YouTube" onclick="window.filterSearchResults('YouTube')">
+            ▶️ YouTube Music
+          </button>
+          <button type="button" class="search-cat-chip" data-source="Spotify" onclick="window.filterSearchResults('Spotify')">
+            🟢 Spotify
+          </button>
+          <button type="button" class="search-cat-chip" data-source="JioSaavn" onclick="window.filterSearchResults('JioSaavn')">
+            💎 JioSaavn 320k
+          </button>
+          <button type="button" class="search-cat-chip" data-source="Apple" onclick="window.filterSearchResults('Apple')">
+            🍎 Apple Music
+          </button>
+          <button type="button" class="search-cat-chip" data-source="Deezer" onclick="window.filterSearchResults('Deezer')">
+            🎧 Deezer
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Dedicated Loved View Header (Hanya muncul saat di Riwayat Love) -->

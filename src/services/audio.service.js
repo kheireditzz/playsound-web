@@ -2,7 +2,7 @@ import https from 'node:https';
 import CryptoJS from 'crypto-js';
 import { BAD_TRACK_KEYWORDS } from '../config/constants.js';
 import { getSpotifyToken } from './spotify.service.js';
-import { searchYouTubeVideo } from './youtube-audio.service.js';
+import { searchYouTubeVideo, searchYouTubeTracks } from './youtube-audio.service.js';
 
 // ── Native HTTPS JSON Requester (Bypass undici TLS alerts di Node 26) ──
 export function httpsGetJson(urlStr, timeoutMs = 5000) {
@@ -256,26 +256,10 @@ export async function searchSongs(query) {
   const seen = new Set();
   const candidates = [];
 
-  // 1. Search Deezer Global
-  const deezerPromise = (async () => {
+  // 1. Search YouTube & YouTube Music (100% Full Duration Official Songs)
+  const youtubePromise = (async () => {
     try {
-      const res = await fetch(`https://api.deezer.com/search?q=${encodeURIComponent(rawQ)}&limit=30`, {
-        headers: { 'User-Agent': 'Mozilla/5.0' },
-        signal: AbortSignal.timeout(4500)
-      });
-      if (!res.ok) return [];
-      const json = await res.json();
-      return (json.data || []).map(t => ({
-        id: `dz-sr-${t.id}`,
-        title: t.title_short || t.title,
-        artist: t.artist?.name || 'Artist',
-        album: t.album?.title || 'Single',
-        cover: t.album?.cover_medium || t.album?.cover_big || t.album?.cover || '',
-        preview: t.preview || '',
-        fullStreamUrl: '',
-        duration: t.duration || 30,
-        origin: 'Deezer'
-      }));
+      return await searchYouTubeTracks(cleanQ, 20);
     } catch {
       return [];
     }
@@ -321,7 +305,7 @@ export async function searchSongs(query) {
         const covers = d.albumOfTrack?.coverArt?.sources || [];
         const bestCover = covers.find(c => c.width >= 300) || covers[0];
         const artist = d.artists?.items?.map(a => a.profile?.name).filter(Boolean).join(', ') || 'Artist';
-        const durSec = Math.round((d.duration?.totalMilliseconds || 30000) / 1000);
+        const durSec = Math.round((d.duration?.totalMilliseconds || 180000) / 1000);
         return {
           id: `sp-sr-${d.id || Math.random()}`,
           title: d.name || 'Track',
@@ -339,7 +323,7 @@ export async function searchSongs(query) {
     }
   })();
 
-  // 3. Search JioSaavn
+  // 3. Search JioSaavn (320kbps CD Quality Full Songs)
   const saavnPromise = (async () => {
     try {
       const sUrl = `https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&_marker=0&api_version=4&ctx=web6dot0&q=${encodeURIComponent(cleanQ)}&n=20&p=1`;
@@ -358,7 +342,7 @@ export async function searchSongs(query) {
           preview: streamUrl || '',
           fullStreamUrl: streamUrl || '',
           duration: Number(item.more_info?.duration) || 180,
-          origin: '320kbps HD'
+          origin: 'JioSaavn'
         };
       });
     } catch {
@@ -366,7 +350,32 @@ export async function searchSongs(query) {
     }
   })();
 
-  // 4. Search iTunes
+  // 4. Search Deezer Global
+  const deezerPromise = (async () => {
+    try {
+      const res = await fetch(`https://api.deezer.com/search?q=${encodeURIComponent(rawQ)}&limit=25`, {
+        headers: { 'User-Agent': 'Mozilla/5.0' },
+        signal: AbortSignal.timeout(4500)
+      });
+      if (!res.ok) return [];
+      const json = await res.json();
+      return (json.data || []).map(t => ({
+        id: `dz-sr-${t.id}`,
+        title: t.title_short || t.title,
+        artist: t.artist?.name || 'Artist',
+        album: t.album?.title || 'Single',
+        cover: t.album?.cover_medium || t.album?.cover_big || t.album?.cover || '',
+        preview: '',
+        fullStreamUrl: '',
+        duration: t.duration || 180,
+        origin: 'Deezer'
+      }));
+    } catch {
+      return [];
+    }
+  })();
+
+  // 5. Search iTunes / Apple Music
   const itunesPromise = (async () => {
     try {
       const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(rawQ)}&entity=song&limit=20`, {
@@ -380,9 +389,9 @@ export async function searchSongs(query) {
         artist: item.artistName,
         album: item.collectionName || 'Single',
         cover: (item.artworkUrl100 || '').replace('100x100bb', '300x300bb'),
-        preview: item.previewUrl || '',
+        preview: '',
         fullStreamUrl: '',
-        duration: Math.round((item.trackTimeMillis || 30000) / 1000),
+        duration: Math.round((item.trackTimeMillis || 180000) / 1000),
         origin: 'Apple'
       }));
     } catch {
@@ -390,14 +399,15 @@ export async function searchSongs(query) {
     }
   })();
 
-  const [deezerRes, spotifyRes, saavnRes, itunesRes] = await Promise.allSettled([
-    deezerPromise, spotifyPromise, saavnPromise, itunesPromise
+  const [ytRes, spotifyRes, saavnRes, deezerRes, itunesRes] = await Promise.allSettled([
+    youtubePromise, spotifyPromise, saavnPromise, deezerPromise, itunesPromise
   ]);
 
   const rawList = [
-    ...(deezerRes.status === 'fulfilled' ? deezerRes.value : []),
+    ...(ytRes.status === 'fulfilled' ? ytRes.value : []),
     ...(spotifyRes.status === 'fulfilled' ? spotifyRes.value : []),
     ...(saavnRes.status === 'fulfilled' ? saavnRes.value : []),
+    ...(deezerRes.status === 'fulfilled' ? deezerRes.value : []),
     ...(itunesRes.status === 'fulfilled' ? itunesRes.value : [])
   ];
 
@@ -412,8 +422,12 @@ export async function searchSongs(query) {
     if (seen.has(dedupeKey)) {
       const existing = candidates.find(c => c.dedupeKey === dedupeKey);
       if (existing) {
+        // Bagikan URL full stream jika ada sumber lain yang punya stream lengkap
+        if (!existing.fullStreamUrl && item.fullStreamUrl) {
+          existing.fullStreamUrl = item.fullStreamUrl;
+          if (item.duration && item.duration > 35) existing.duration = item.duration;
+        }
         if (!existing.preview && item.preview) existing.preview = item.preview;
-        if (!existing.fullStreamUrl && item.fullStreamUrl) existing.fullStreamUrl = item.fullStreamUrl;
         if (!existing.cover && item.cover) existing.cover = item.cover;
       }
       continue;
@@ -432,8 +446,8 @@ export async function searchSongs(query) {
       if (lowerArtist.includes(tok)) score += 20;
     }
 
-    if (item.fullStreamUrl) score += 35;
-    else if (item.preview) score += 25;
+    if (item.fullStreamUrl) score += 40;
+    if (item.origin === 'YouTube' || item.origin === 'Spotify') score += 20;
     if (item.cover && item.cover.startsWith('http')) score += 10;
 
     item.relevanceScore = score;
@@ -443,18 +457,18 @@ export async function searchSongs(query) {
 
   candidates.sort((a, b) => b.relevanceScore - a.relevanceScore);
 
-  return candidates.slice(0, 45).map((t, idx) => ({
+  return candidates.slice(0, 50).map((t, idx) => ({
     id: t.id || `sr-${idx}`,
     rank: idx + 1,
     title: t.title,
     artist: t.artist,
     album: t.album || 'Single',
     cover: t.cover || '',
-    preview: t.preview || '',
+    preview: t.fullStreamUrl || t.preview || '',
     fullStreamUrl: t.fullStreamUrl || '',
-    duration: t.duration || 30,
-    trendVelocity: idx === 0 ? 'TOP RELEVAN' : idx < 5 ? 'TOP' : 'COCOK',
-    origin: t.origin,
+    duration: t.duration || 180,
+    trendVelocity: idx === 0 ? 'TOP RELEVAN' : idx < 5 ? 'VIRAL' : 'COCOK',
+    origin: t.origin || 'Universal',
     youtubeQuery: `${t.artist} ${t.title} official audio`,
     externalUrls: {
       spotify: `https://open.spotify.com/search/${encodeURIComponent(t.artist + ' ' + t.title)}`,
