@@ -1080,33 +1080,6 @@
       }
     }
 
-    /* Tombol Percepat (+10s) & Mundur (-10s) */
-    .btn-skip {
-      width: 36px;
-      height: 36px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 1px;
-      flex-shrink: 0;
-      color: var(--color-text);
-      cursor: pointer;
-    }
-
-    .btn-skip:hover {
-      color: var(--color-primary);
-    }
-
-    .btn-skip .skip-badge {
-      font-family: 'Space Mono', monospace;
-      font-size: 0.52rem;
-      font-weight: 700;
-      color: var(--color-primary);
-      line-height: 1;
-      letter-spacing: -0.02em;
-    }
-
     /* Durasi di Bawah Tombol Dihilangkan pada Player Bawah */
     .neu-player-dock .progress-bar-container {
       display: none !important;
@@ -3047,23 +3020,14 @@
       </div>
     </div>
 
-    <!-- Center Play Controls & Percepat (Tanpa Garis Durasi di Bawah) -->
+    <!-- Center Play Controls (Tanpa Garis Durasi di Bawah) -->
     <div class="dock-center">
       <div class="player-buttons">
         <button id="prevBtn" class="dock-ctrl-btn btn-step" title="Lagu Sebelumnya">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
             <polygon points="19 20 9 12 19 4 19 20"></polygon>
             <line x1="5" y1="19" x2="5" y2="5" stroke="currentColor" stroke-width="2.5"></line>
           </svg>
-        </button>
-
-        <!-- Tombol Mundur 10 Detik -->
-        <button type="button" id="dockRewindBtn" class="dock-ctrl-btn btn-step btn-skip" title="Mundur 10 Detik" onclick="seekRelative(-10)">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="11 19 2 12 11 5 11 19"></polygon>
-            <polygon points="22 19 13 12 22 5 22 19"></polygon>
-          </svg>
-          <span class="skip-badge">10s</span>
         </button>
 
         <!-- Tombol Start / Play-Pause dengan Ritme Musik -->
@@ -3091,17 +3055,8 @@
           </div>
         </div>
 
-        <!-- Tombol Percepat 10 Detik -->
-        <button type="button" id="dockForwardBtn" class="dock-ctrl-btn btn-step btn-skip" title="Percepat 10 Detik" onclick="seekRelative(10)">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="13 19 22 12 13 5 13 19"></polygon>
-            <polygon points="2 19 11 12 2 5 2 19"></polygon>
-          </svg>
-          <span class="skip-badge">+10s</span>
-        </button>
-
         <button id="nextBtn" class="dock-ctrl-btn btn-step" title="Lagu Selanjutnya">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
             <polygon points="5 4 15 12 5 20 5 4"></polygon>
             <line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="2.5"></line>
           </svg>
