@@ -296,16 +296,21 @@ export const DownloadCenter = {
     if (!this.input) this.input = document.getElementById('downloadMainInput');
 
     let text = '';
-    try {
-      if (navigator.clipboard && navigator.clipboard.readText) {
-        text = await navigator.clipboard.readText();
+    // Prioritaskan clipboard native Android dari jembatan Java
+    if (window.AndroidApp && typeof window.AndroidApp.getClipboardText === 'function') {
+      try {
+        text = window.AndroidApp.getClipboardText();
+      } catch (e) {
+        console.warn('AndroidApp clipboard error:', e);
       }
-    } catch (e) {
-      console.warn('Clipboard read error:', e);
     }
 
-    if (!text) {
-      text = prompt('Tempel link musik (Spotify / YouTube / JioSaavn / SoundCloud / Gaana) di sini:');
+    if (!text && navigator.clipboard && navigator.clipboard.readText) {
+      try {
+        text = await navigator.clipboard.readText();
+      } catch (e) {
+        console.warn('Navigator clipboard error:', e);
+      }
     }
 
     if (text && text.trim()) {
@@ -314,7 +319,15 @@ export const DownloadCenter = {
         this.input.value = text.trim();
         this.input.focus();
       }
+      window.showToast?.('Link musik berhasil ditempel dari papan klip!', 'success', 'download');
       this.analyzeCurrentInput();
+    } else {
+      if (!this.input) this.input = document.getElementById('downloadMainInput');
+      if (this.input) {
+        this.input.focus();
+        this.input.select?.();
+      }
+      window.showToast?.('Papan klip kosong. Silakan ketik atau tempel link musik pada kolom input.', 'info', 'download');
     }
   },
 

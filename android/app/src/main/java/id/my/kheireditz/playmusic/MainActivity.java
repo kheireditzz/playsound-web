@@ -32,6 +32,12 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.webkit.JsPromptResult;
+import android.webkit.JsResult;
+import android.widget.EditText;
+import androidx.appcompat.app.AlertDialog;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -152,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // WebChromeClient
+        // WebChromeClient dengan Handler Dialog Native Murni
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
@@ -162,6 +168,44 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     loadingBar.setVisibility(View.GONE);
                 }
+            }
+
+            @Override
+            public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Play Music")
+                        .setMessage(message)
+                        .setPositiveButton("OKE", (dialog, which) -> result.confirm())
+                        .setCancelable(false)
+                        .show();
+                return true;
+            }
+
+            @Override
+            public boolean onJsConfirm(WebView view, String url, String message, JsResult result) {
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Play Music")
+                        .setMessage(message)
+                        .setPositiveButton("YA", (dialog, which) -> result.confirm())
+                        .setNegativeButton("BATAL", (dialog, which) -> result.cancel())
+                        .setCancelable(false)
+                        .show();
+                return true;
+            }
+
+            @Override
+            public boolean onJsPrompt(WebView view, String url, String message, String defaultValue, JsPromptResult result) {
+                final EditText input = new EditText(MainActivity.this);
+                input.setText(defaultValue);
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Play Music")
+                        .setMessage(message)
+                        .setView(input)
+                        .setPositiveButton("OKE", (dialog, which) -> result.confirm(input.getText().toString()))
+                        .setNegativeButton("BATAL", (dialog, which) -> result.cancel())
+                        .setCancelable(false)
+                        .show();
+                return true;
             }
 
             @Override
@@ -340,6 +384,32 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         v.vibrate(18);
                     }
+                }
+            } catch (Exception ignored) {}
+        }
+
+        @JavascriptInterface
+        public String getClipboardText() {
+            try {
+                ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                if (clipboard != null && clipboard.hasPrimaryClip()) {
+                    ClipData clip = clipboard.getPrimaryClip();
+                    if (clip != null && clip.getItemCount() > 0) {
+                        CharSequence text = clip.getItemAt(0).getText();
+                        if (text != null) return text.toString();
+                    }
+                }
+            } catch (Exception ignored) {}
+            return "";
+        }
+
+        @JavascriptInterface
+        public void setClipboardText(String text) {
+            try {
+                ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                if (clipboard != null) {
+                    ClipData clip = ClipData.newPlainText("PlayMusic", text);
+                    clipboard.setPrimaryClip(clip);
                 }
             } catch (Exception ignored) {}
         }

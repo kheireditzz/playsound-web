@@ -1011,23 +1011,34 @@
     window.handlePasteMusicLink = async function() {
       try {
         let text = '';
-        if (navigator.clipboard && navigator.clipboard.readText) {
+        if (window.AndroidApp && typeof window.AndroidApp.getClipboardText === 'function') {
+          try {
+            text = window.AndroidApp.getClipboardText();
+          } catch (e) {
+            console.warn('AndroidApp clipboard error:', e);
+          }
+        }
+        if (!text && navigator.clipboard && navigator.clipboard.readText) {
           try {
             text = await navigator.clipboard.readText();
           } catch (clipErr) {
-            console.log('Clipboard permission prompt:', clipErr);
+            console.log('Clipboard permission info:', clipErr);
           }
         }
         if (window.openDownloadCenter) {
           window.openDownloadCenter(text ? text.trim() : '');
         } else {
-          if (!text) {
-            text = prompt('Tempel link musik (Spotify / YouTube / JioSaavn) di sini:');
-          }
           if (text && text.trim()) {
             const cleanText = text.trim();
             if (searchInput) searchInput.value = cleanText;
+            window.showToast?.('Link musik berhasil ditempel!', 'success', 'search');
             runSearch(cleanText);
+          } else {
+            if (searchInput) {
+              searchInput.focus();
+              searchInput.select?.();
+            }
+            window.showToast?.('Papan klip kosong. Silakan ketik atau tempel link musik pada kolom pencarian.', 'info', 'search');
           }
         }
       } catch (err) {
