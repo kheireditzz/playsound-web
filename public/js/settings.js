@@ -227,8 +227,19 @@
   };
 
   // ── Clear Data Handlers ──
-  window.clearDownloadHistoryFromSettings = function() {
-    if (confirm('Bersihkan seluruh riwayat unduhan musik?')) {
+  window.clearDownloadHistoryFromSettings = async function() {
+    Settings.triggerHaptic();
+    const ok = await (window.showNeuConfirm ? window.showNeuConfirm({
+      title: 'Hapus Riwayat Unduhan',
+      badge: 'KONFIRMASI',
+      message: 'Bersihkan seluruh riwayat unduhan musik?',
+      type: 'warning',
+      confirmText: 'Hapus Riwayat',
+      cancelText: 'Batal',
+      isDanger: true
+    }) : Promise.resolve(confirm('Bersihkan seluruh riwayat unduhan musik?')));
+
+    if (ok) {
       if (window.clearAllDownloadHistory) {
         window.clearAllDownloadHistory();
       } else {
@@ -241,8 +252,19 @@
     }
   };
 
-  window.clearPlayHistoryFromSettings = function() {
-    if (confirm('Bersihkan riwayat lagu yang pernah diputar?')) {
+  window.clearPlayHistoryFromSettings = async function() {
+    Settings.triggerHaptic();
+    const ok = await (window.showNeuConfirm ? window.showNeuConfirm({
+      title: 'Hapus Riwayat Putar',
+      badge: 'KONFIRMASI',
+      message: 'Bersihkan riwayat lagu yang pernah diputar?',
+      type: 'warning',
+      confirmText: 'Hapus Riwayat',
+      cancelText: 'Batal',
+      isDanger: true
+    }) : Promise.resolve(confirm('Bersihkan riwayat lagu yang pernah diputar?')));
+
+    if (ok) {
       localStorage.removeItem('playmusic_history');
       const histSec = document.getElementById('historySection');
       if (histSec) histSec.style.display = 'none';
@@ -253,8 +275,19 @@
     }
   };
 
-  window.clearFavoritesFromSettings = function() {
-    if (confirm('Hapus semua daftar lagu disukai (favorit)?')) {
+  window.clearFavoritesFromSettings = async function() {
+    Settings.triggerHaptic();
+    const ok = await (window.showNeuConfirm ? window.showNeuConfirm({
+      title: 'Hapus Favorit',
+      badge: 'KONFIRMASI',
+      message: 'Hapus semua daftar lagu disukai (favorit)?',
+      type: 'warning',
+      confirmText: 'Hapus Semua',
+      cancelText: 'Batal',
+      isDanger: true
+    }) : Promise.resolve(confirm('Hapus semua daftar lagu disukai (favorit)?')));
+
+    if (ok) {
       localStorage.removeItem('playmusic_loved_tracks');
       if (window.loadLovedTracks) window.loadLovedTracks();
       const badge = document.getElementById('headerLovedBadge');
@@ -266,8 +299,19 @@
     }
   };
 
-  window.resetSettingsToDefault = function() {
-    if (confirm('Kembalikan semua preferensi dan pengaturan ke setelan awal?')) {
+  window.resetSettingsToDefault = async function() {
+    Settings.triggerHaptic();
+    const ok = await (window.showNeuConfirm ? window.showNeuConfirm({
+      title: 'Reset Setelan',
+      badge: 'PERINGATAN',
+      message: 'Kembalikan semua preferensi dan pengaturan ke setelan awal?',
+      type: 'warning',
+      confirmText: 'Reset Ulang',
+      cancelText: 'Batal',
+      isDanger: true
+    }) : Promise.resolve(confirm('Kembalikan semua preferensi dan pengaturan ke setelan awal?')));
+
+    if (ok) {
       Settings.reset();
       if (window.shouldShowNotification('system')) {
         window.showToast?.('Pengaturan dikembalikan ke setelan awal', 'info', 'system');
@@ -297,8 +341,8 @@
       if (!res.ok) throw new Error('Network error');
       const data = await res.json();
 
-      const serverVersionCode = data.versionCode || 246;
-      const serverVersionName = data.version || '2.4.6';
+      const serverVersionCode = data.versionCode || 250;
+      const serverVersionName = data.version || '2.5.0';
 
       const localVersionCode = (window.AndroidApp && typeof window.AndroidApp.getAppVersionCode === 'function')
         ? window.AndroidApp.getAppVersionCode()
@@ -306,18 +350,46 @@
 
       if (serverVersionCode > localVersionCode) {
         const changelogList = (data.changelog || []).map(c => `• ${c}`).join('\n');
-        const proceed = confirm(`Pembaruan Tersedia: v${serverVersionName}!\n\nCatatan Rilis:\n${changelogList}\n\nAplikasi ditandatangani dengan keystore tetap sehingga Anda dapat langsung memperbarui tanpa perlu uninstal.\n\nUnduh dan pasang pembaruan sekarang?`);
+        const proceed = await (window.showNeuConfirm ? window.showNeuConfirm({
+          title: `Pembaruan Tersedia`,
+          badge: `VERSI BARU v${serverVersionName}`,
+          message: `Tersedia rilis pembaruan v${serverVersionName}.\n\nCatatan Rilis:\n${changelogList}\n\nAplikasi ditandatangani dengan keystore tetap sehingga pembaruan dapat langsung dipasang tanpa perlu uninstal.\n\nUnduh dan pasang pembaruan sekarang?`,
+          type: 'info',
+          confirmText: 'Unduh Pembaruan',
+          cancelText: 'Nanti'
+        }) : Promise.resolve(confirm(`Pembaruan Tersedia: v${serverVersionName}!\n\nUnduh sekarang?`)));
+
         if (proceed) {
           window.downloadAndroidApk();
         }
       } else {
         if (isManual) {
-          alert(`Aplikasi Anda sudah versi terbaru (v${serverVersionName})!\n\nTanda tangan keystore tetap aktif sehingga update berikutnya dapat langsung dipasang tanpa perlu uninstal.`);
+          if (window.showNeuAlert) {
+            await window.showNeuAlert({
+              title: 'Versi Terkini',
+              badge: `VERSI v${serverVersionName}`,
+              message: `Aplikasi Anda sudah versi terbaru (v${serverVersionName})!\n\nTanda tangan keystore tetap aktif sehingga update berikutnya dapat langsung dipasang tanpa perlu uninstal.`,
+              type: 'success',
+              confirmText: 'Mengerti'
+            });
+          } else {
+            alert(`Aplikasi Anda sudah versi terbaru (v${serverVersionName})!`);
+          }
         }
       }
     } catch (e) {
       if (isManual) {
-        alert('Gagal memeriksa pembaruan server. Pastikan koneksi internet aktif.');
+        if (window.showNeuAlert) {
+          await window.showNeuAlert({
+            title: 'Koneksi Terganggu',
+            badge: 'PERIKSA KONEKSI',
+            message: 'Gagal memeriksa pembaruan server. Pastikan koneksi internet aktif.',
+            type: 'error',
+            confirmText: 'Tutup'
+          });
+        } else {
+          alert('Gagal memeriksa pembaruan server. Pastikan koneksi internet aktif.');
+        }
       }
     }
   };

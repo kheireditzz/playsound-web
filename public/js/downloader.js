@@ -63,9 +63,19 @@ export const DownloadHistory = {
     window.showToast?.('Item riwayat unduhan dihapus.', 'info', 'download');
   },
 
-  clear() {
+  async clear() {
     if (this.items.length === 0) return;
-    if (confirm('Yakin ingin membersihkan semua riwayat unduhan musik?')) {
+    const ok = await (window.showNeuConfirm ? window.showNeuConfirm({
+      title: 'Hapus Riwayat Unduhan',
+      badge: 'KONFIRMASI',
+      message: 'Yakin ingin membersihkan semua riwayat unduhan musik?',
+      type: 'warning',
+      confirmText: 'Hapus Semua',
+      cancelText: 'Batal',
+      isDanger: true
+    }) : Promise.resolve(confirm('Yakin ingin membersihkan semua riwayat unduhan musik?')));
+
+    if (ok) {
       this.items = [];
       this.save();
       this.render();

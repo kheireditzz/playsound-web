@@ -3473,3 +3473,165 @@
         width: 100%;
       }
     }
+
+    /* ==========================================================================
+       NEUMORPHIC UNIVERSAL DIALOG MODAL (ANTI-AI-SLOP & TACTILE NEUMORPHISM)
+       Replaces ugly browser alert/confirm without domain leaks
+       ========================================================================== */
+    .neu-dialog-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 100000;
+      background: rgba(30, 41, 56, 0.45);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .neu-dialog-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .neu-dialog-box {
+      background: var(--bg-surface, #E7E5E4);
+      width: 100%;
+      max-width: 420px;
+      border-radius: 28px;
+      padding: 28px 24px 22px;
+      box-shadow: 14px 14px 32px var(--shadow-dark, #c5c3c2), -14px -14px 32px var(--shadow-light, #ffffff);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transform: scale(0.92) translateY(12px);
+      transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+      box-sizing: border-box;
+    }
+
+    .neu-dialog-backdrop.active .neu-dialog-box {
+      transform: scale(1) translateY(0);
+    }
+
+    .neu-dialog-icon-wrapper {
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      background: var(--bg-surface, #E7E5E4);
+      box-shadow: var(--neu-inset);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      flex-shrink: 0;
+    }
+
+    .neu-dialog-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 12px;
+      width: 100%;
+    }
+
+    .neu-dialog-badge {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: rgba(0, 102, 102, 0.08);
+      color: var(--color-primary, #006666);
+      border: 1px solid rgba(0, 102, 102, 0.15);
+      display: inline-block;
+    }
+
+    .neu-dialog-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--color-text, #1E2938);
+      margin: 0;
+      line-height: 1.3;
+    }
+
+    .neu-dialog-body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--color-text-muted, #64748B);
+      margin-bottom: 22px;
+      width: 100%;
+      word-break: break-word;
+      text-align: center;
+    }
+
+    .neu-dialog-body p {
+      margin: 0 0 8px 0;
+    }
+
+    .neu-dialog-body p:last-child {
+      margin-bottom: 0;
+    }
+
+    .neu-dialog-actions {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .neu-dialog-btn {
+      flex: 1;
+      padding: 13px 18px;
+      border-radius: 16px;
+      border: none;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .neu-dialog-btn-confirm {
+      background: var(--color-primary, #006666);
+      color: #ffffff;
+      box-shadow: 4px 4px 10px rgba(0, 102, 102, 0.3), -2px -2px 8px var(--shadow-light, #ffffff);
+    }
+
+    .neu-dialog-btn-confirm:active {
+      transform: scale(0.97);
+      box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.35);
+    }
+
+    .neu-dialog-btn-confirm.btn-danger {
+      background: var(--color-danger, #FF2157);
+      box-shadow: 4px 4px 10px rgba(255, 33, 87, 0.3), -2px -2px 8px var(--shadow-light, #ffffff);
+    }
+
+    .neu-dialog-btn-cancel {
+      background: var(--bg-surface, #E7E5E4);
+      color: var(--color-text, #1E2938);
+      box-shadow: var(--neu-extruded-sm);
+    }
+
+    .neu-dialog-btn-cancel:active {
+      box-shadow: var(--neu-inset);
+      transform: scale(0.97);
+    }

@@ -491,12 +491,14 @@ export async function handleApiRoute(req, res, pathname, parsedUrl) {
       downloadUrl: 'https://github.com/kheireditzz/playsound-web/releases/latest/download/playmusic-release.apk',
       githubReleasesUrl: 'https://github.com/kheireditzz/playsound-web/releases',
       changelog: [
-        '100% Real Native Android APK (Zero WebView, Native MediaPlayer & MediaSession)',
-        'Dock navigasi bawah melengkung tactile neumorphic dengan fitur tengah naik ke atas (raised center action)',
-        'Tombol Tutup (X) pada mini player pemutar musik di bagian bawah',
-        'Riwayat Pencarian interaktif dengan hapus item dan hapus semua, serta chip tren populer',
-        'Menu Pengaturan lengkap: Kualitas bitrate (320kbps Hi-Fi), equalizer suara, sleep timer, & pembersih cache',
-        'Loading state shimmer skeleton tactile yang halus saat memuat lagu dan pencarian'
+        'Universal Search multi-platform: YouTube Music, Spotify, JioSaavn 320k, Deezer, Apple Music',
+        'Audio streaming full durasi tanpa batasan preview untuk seluruh katalog lagu',
+        'Bilah filter kategori pencarian universal dinamis dengan badge platform',
+        'Sistem dialog notifikasi in-app tactile Neumorphism modern tanpa popup browser',
+        'Dock navigasi melengkung tactile neumorphic dengan raised center action',
+        'Tombol Tutup (X) pada mini player pemutar musik bagian bawah',
+        'Riwayat Pencarian interaktif dan manajemen cache & data',
+        'Menu Pengaturan lengkap: Kualitas bitrate 320kbps Hi-Fi, equalizer, & sleep timer'
       ]
     }));
     return;
