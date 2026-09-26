@@ -9,7 +9,65 @@
 
   let currentResolve = null;
 
+  function triggerHaptic() {
+    if (window.navigator && window.navigator.vibrate) {
+      try { window.navigator.vibrate(18); } catch (e) {}
+    }
+  }
+
+  function closeDialog(result) {
+    triggerHaptic();
+    const backdrop = document.getElementById('neuAlertBackdrop');
+    if (backdrop) {
+      backdrop.classList.remove('active');
+      backdrop.style.display = 'none';
+    }
+    if (typeof currentResolve === 'function') {
+      const resolve = currentResolve;
+      currentResolve = null;
+      resolve(result !== false);
+    }
+  }
+
+  window.closeNeuDialog = function (result) {
+    closeDialog(result !== false);
+  };
+
+  function bindEvents() {
+    const backdrop = document.getElementById('neuAlertBackdrop');
+    const cancelBtn = document.getElementById('neuAlertCancelBtn');
+    const confirmBtn = document.getElementById('neuAlertConfirmBtn');
+    if (!backdrop) return;
+
+    if (cancelBtn) {
+      cancelBtn.onclick = function (e) {
+        if (e) { e.preventDefault(); e.stopPropagation(); }
+        closeDialog(false);
+      };
+    }
+
+    if (confirmBtn) {
+      confirmBtn.onclick = function (e) {
+        if (e) { e.preventDefault(); e.stopPropagation(); }
+        closeDialog(true);
+      };
+    }
+
+    backdrop.onclick = function (e) {
+      if (e.target === backdrop) {
+        closeDialog(false);
+      }
+    };
+
+    document.addEventListener('keydown', function (e) {
+      if (backdrop.classList.contains('active') && e.key === 'Escape') {
+        closeDialog(false);
+      }
+    });
+  }
+
   function ensureDialogDom() {
+    bindEvents();
     if (document.getElementById('neuAlertBackdrop')) return;
 
     const dialogHtml = `
@@ -18,7 +76,7 @@
           <div class="neu-alert-icon-wrapper" id="neuAlertIconWrapper">
             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#006666" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12"></line>
               <line x1="12" y1="8" x2="12.01" y2="8"></line>
             </svg>
           </div>
@@ -28,8 +86,8 @@
           </div>
           <div class="neu-alert-body" id="neuAlertBody"></div>
           <div class="neu-alert-actions" id="neuAlertActions">
-            <button type="button" class="neu-alert-btn neu-alert-btn-cancel" id="neuAlertCancelBtn" style="display:none;">Batal</button>
-            <button type="button" class="neu-alert-btn neu-alert-btn-confirm" id="neuAlertConfirmBtn">Mengerti</button>
+            <button type="button" class="neu-alert-btn neu-alert-btn-cancel" id="neuAlertCancelBtn" onclick="window.closeNeuDialog(false)" style="display:none;">Batal</button>
+            <button type="button" class="neu-alert-btn neu-alert-btn-confirm" id="neuAlertConfirmBtn" onclick="window.closeNeuDialog(true)">Mengerti</button>
           </div>
         </div>
       </div>
@@ -37,70 +95,15 @@
 
     if (document.body) {
       document.body.insertAdjacentHTML('beforeend', dialogHtml);
+      bindEvents();
     } else {
       document.addEventListener('DOMContentLoaded', () => {
         if (!document.getElementById('neuAlertBackdrop') && document.body) {
           document.body.insertAdjacentHTML('beforeend', dialogHtml);
-          bindEvents();
         }
+        bindEvents();
       });
-      return;
     }
-
-    bindEvents();
-  }
-
-  function bindEvents() {
-    const backdrop = document.getElementById('neuAlertBackdrop');
-    const cancelBtn = document.getElementById('neuAlertCancelBtn');
-    const confirmBtn = document.getElementById('neuAlertConfirmBtn');
-    if (!backdrop || !confirmBtn) return;
-
-    function triggerHaptic() {
-      if (window.navigator && window.navigator.vibrate) {
-        try { window.navigator.vibrate(18); } catch (e) {}
-      }
-    }
-
-    if (cancelBtn) {
-      cancelBtn.onclick = () => {
-        triggerHaptic();
-        closeDialog(false);
-      };
-    }
-
-    confirmBtn.onclick = () => {
-      triggerHaptic();
-      closeDialog(true);
-    };
-
-    backdrop.onclick = (e) => {
-      if (e.target === backdrop) {
-        triggerHaptic();
-        closeDialog(false);
-      }
-    };
-
-    document.addEventListener('keydown', (e) => {
-      if (backdrop.classList.contains('active') && e.key === 'Escape') {
-        closeDialog(false);
-      }
-    });
-  }
-
-  function closeDialog(result) {
-    const backdrop = document.getElementById('neuAlertBackdrop');
-    if (!backdrop) return;
-
-    backdrop.classList.remove('active');
-    setTimeout(() => {
-      backdrop.style.display = 'none';
-      if (typeof currentResolve === 'function') {
-        const resolve = currentResolve;
-        currentResolve = null;
-        resolve(result);
-      }
-    }, 200);
   }
 
   const icons = {
@@ -156,6 +159,10 @@
       if (confirmBtn) {
         confirmBtn.textContent = confirmText;
         confirmBtn.className = 'neu-alert-btn neu-alert-btn-confirm';
+        confirmBtn.onclick = function (e) {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
+          closeDialog(true);
+        };
       }
 
       if (backdrop) {
@@ -217,11 +224,19 @@
       if (cancelBtn) {
         cancelBtn.style.display = 'inline-flex';
         cancelBtn.textContent = cancelText;
+        cancelBtn.onclick = function (e) {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
+          closeDialog(false);
+        };
       }
 
       if (confirmBtn) {
         confirmBtn.textContent = confirmText;
         confirmBtn.className = 'neu-alert-btn neu-alert-btn-confirm' + (isDanger ? ' btn-danger' : '');
+        confirmBtn.onclick = function (e) {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
+          closeDialog(true);
+        };
       }
 
       if (backdrop) {
@@ -255,7 +270,7 @@
     });
   };
 
-  // Pastikan DOM dialog di-mount sedini mungkin
+  // Mount listeners on load
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', ensureDialogDom);
   } else {
