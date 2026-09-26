@@ -1,0 +1,22 @@
+{
+  "name": "Play Music by Kheireditz",
+  "short_name": "Play Music",
+  "description": "Play Music by Kheireditz - Viral Music Platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#E7E5E4",
+  "theme_color": "#006666",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
+    }
+  ]
+}

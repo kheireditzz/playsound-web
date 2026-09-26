@@ -1,0 +1,806 @@
+/* ── Neumorphic Full-Screen Menu & Comprehensive Settings Styles ── */
+
+/* ── 1. BODY MENU OPEN STATE: Sembunyikan TOTAL Seluruh Dashboard Agar Tidak Tembus ── */
+body.menu-open {
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+  touch-action: none;
+}
+
+body.menu-open main.container,
+body.menu-open #playerDock,
+body.menu-open .neu-player-dock,
+body.menu-open #downloadViewContainer,
+body.menu-open #lovedPageBar,
+body.menu-open #historySection,
+body.menu-open #trendingBanner,
+body.menu-open .controls-wrapper {
+  display: none !important;
+}
+
+/* ── 2. HEADER HAMBURGER BUTTON (Kanan Atas Header) ── */
+.header-menu-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--bg-surface);
+  border: none;
+  box-shadow: var(--neu-extruded-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-text);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  -webkit-user-select: none;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.header-menu-btn:hover {
+  transform: translateY(-1px);
+}
+
+.header-menu-btn:active {
+  box-shadow: var(--neu-inset);
+  transform: translateY(1px);
+}
+
+/* Hamburger 3-Line Box */
+.hamburger-box {
+  width: 20px;
+  height: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hamburger-line {
+  display: block;
+  width: 100%;
+  height: 2.2px;
+  background-color: var(--color-text);
+  border-radius: 2px;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.header-menu-btn:hover .hamburger-line {
+  background-color: var(--color-primary);
+}
+
+/* Transformasi Ikon Hamburger menjadi Tanda Silang (X) saat Menu Aktif */
+.header-menu-btn.is-active {
+  box-shadow: var(--neu-inset);
+  color: var(--color-primary);
+}
+
+.header-menu-btn.is-active .hamburger-line:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+  background-color: var(--color-primary);
+}
+
+.header-menu-btn.is-active .hamburger-line:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.header-menu-btn.is-active .hamburger-line:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+  background-color: var(--color-primary);
+}
+
+/* ── 3. FULL-SCREEN HAMBURGER MENU BACKDROP (100% Solid Opaque di Bawah Header) ── */
+.settings-backdrop {
+  position: fixed;
+  top: var(--header-height, 76px);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: calc(100% - var(--header-height, 76px));
+  height: calc(100dvh - var(--header-height, 76px));
+  background: var(--bg-surface) !important;
+  background-color: var(--bg-surface) !important;
+  z-index: 5500;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.22s ease;
+  transform: translateY(-6px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.settings-backdrop.is-open {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transform: translateY(0) !important;
+}
+
+/* ── 4. CONTAINER MENU FULL PAGE ── */
+.settings-modal {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  min-height: 100%;
+  background: var(--bg-surface) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+  display: flex;
+  flex-direction: column;
+  padding: 22px 24px 80px;
+  box-sizing: border-box;
+}
+
+/* ── 5. HEADER PANEL MENU ── */
+.settings-header {
+  padding: 8px 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1.5px solid rgba(0, 0, 0, 0.05);
+  background: var(--bg-surface);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.settings-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.settings-header-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--bg-surface);
+  box-shadow: var(--neu-inset);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.settings-header-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+  line-height: 1.2;
+}
+
+.settings-header-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 3px;
+}
+
+.settings-close-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: none;
+  background: var(--bg-surface);
+  box-shadow: var(--neu-extruded-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  transition: all 0.18s ease;
+  flex-shrink: 0;
+}
+
+.settings-close-btn:hover {
+  color: var(--color-danger);
+  transform: translateY(-1px);
+}
+
+.settings-close-btn:active {
+  box-shadow: var(--neu-inset);
+  transform: translateY(1px);
+}
+
+/* ── 6. MENU HERO FEATURED NAVIGATION CARDS ── */
+.menu-hero-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 20px;
+  margin-bottom: 24px;
+}
+
+.menu-nav-card {
+  background: var(--bg-surface);
+  border-radius: 18px;
+  padding: 16px 18px;
+  box-shadow: var(--neu-extruded-card);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.menu-nav-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08), var(--neu-extruded-card);
+}
+
+.menu-nav-card:active {
+  box-shadow: var(--neu-inset);
+  transform: translateY(1px);
+}
+
+.menu-nav-card-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: var(--bg-surface);
+  box-shadow: var(--neu-inset);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.menu-nav-card-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.menu-nav-card-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  line-height: 1.25;
+}
+
+.menu-nav-card-sub {
+  font-size: 0.74rem;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.menu-nav-card-arrow {
+  color: var(--color-text-muted);
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+/* ── 7. KATEGORI PENGATURAN (BESAR, MEWAH, TAKTIL, & RESPONSIF) ── */
+.settings-category-title-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.settings-category-headline {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.settings-category-card {
+  position: relative;
+  background: var(--bg-surface);
+  border: 2px solid transparent;
+  border-radius: 16px;
+  padding: 16px 14px;
+  min-height: 82px;
+  box-shadow: var(--neu-extruded-sm);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  user-select: none;
+  -webkit-user-select: none;
+  text-align: left;
+  outline: none;
+}
+
+.settings-category-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--neu-extruded);
+}
+
+.settings-category-card:active {
+  box-shadow: var(--neu-inset);
+  transform: translateY(1px);
+}
+
+.settings-category-card.active {
+  box-shadow: var(--neu-inset);
+  border-color: var(--color-primary);
+  background: rgba(0, 102, 102, 0.05);
+  transform: translateY(1px);
+}
+
+.cat-card-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--bg-surface);
+  box-shadow: var(--neu-extruded-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.settings-category-card.active .cat-card-icon {
+  box-shadow: var(--neu-inset);
+}
+
+.cat-notif { color: var(--color-primary); }
+.cat-audio { color: var(--color-success); }
+.cat-display { color: var(--color-warning); }
+.cat-storage { color: var(--color-danger); }
+.cat-apk { color: #00A63D; }
+
+.cat-card-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.cat-card-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.2;
+  transition: color 0.18s ease;
+}
+
+.settings-category-card.active .cat-card-title {
+  color: var(--color-primary);
+}
+
+.cat-card-desc {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cat-card-active-dot {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  opacity: 0;
+  transform: scale(0);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.settings-category-card.active .cat-card-active-dot {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ── 8. SETTINGS CONTENT SECTIONS ── */
+.settings-body {
+  padding: 4px 0 0;
+}
+
+.settings-section {
+  display: none;
+  animation: fadeInSettings 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.settings-section.active {
+  display: block;
+}
+
+@keyframes fadeInSettings {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.settings-group-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-primary);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Settings Card Item (Besar, Lega, Taktil) */
+.settings-card {
+  background: var(--bg-surface);
+  border-radius: 18px;
+  padding: 18px 20px;
+  margin-bottom: 14px;
+  box-shadow: var(--neu-extruded-sm);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  transition: all 0.15s ease;
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
+}
+
+.settings-card-info {
+  flex: 1;
+}
+
+.settings-card-label {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.settings-badge-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: rgba(0, 102, 102, 0.12);
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.settings-badge-pill.danger {
+  background: rgba(255, 33, 87, 0.12);
+  color: var(--color-danger);
+}
+
+.settings-card-desc {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-top: 5px;
+  line-height: 1.45;
+}
+
+/* Tactile Neumorphic Switch Toggle (Touch-Friendly) */
+.neu-switch {
+  position: relative;
+  display: inline-block;
+  width: 58px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.neu-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.neu-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: var(--bg-surface);
+  box-shadow: var(--neu-inset);
+  border-radius: 30px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.neu-slider:before {
+  position: absolute;
+  content: "";
+  height: 24px;
+  width: 24px;
+  left: 4px;
+  bottom: 4px;
+  background: var(--bg-surface);
+  box-shadow: var(--neu-extruded-sm);
+  border-radius: 50%;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.neu-switch input:checked + .neu-slider {
+  background: var(--color-primary);
+  box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.35), inset -2px -2px 5px rgba(255, 255, 255, 0.2);
+}
+
+.neu-switch input:checked + .neu-slider:before {
+  transform: translateX(26px);
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+/* Dropdown / Select Option */
+.neu-select {
+  background: var(--bg-surface);
+  border: none;
+  box-shadow: var(--neu-inset);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  color: var(--color-text);
+  font-weight: 700;
+  outline: none;
+  cursor: pointer;
+}
+
+/* Range Slider */
+.neu-range-wrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  margin-top: 12px;
+}
+
+.neu-range-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 10px;
+  border-radius: 8px;
+  background: var(--bg-surface);
+  box-shadow: var(--neu-inset);
+  outline: none;
+}
+
+.neu-range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  box-shadow: var(--neu-extruded-sm);
+  cursor: pointer;
+  border: 2.5px solid var(--color-primary);
+  transition: transform 0.12s ease;
+}
+
+.neu-range-slider::-webkit-slider-thumb:active {
+  transform: scale(1.15);
+}
+
+.neu-range-val {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  min-width: 48px;
+  text-align: right;
+}
+
+/* Theme Selector Grid */
+.theme-options-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.theme-option-card {
+  background: var(--bg-surface);
+  border-radius: 14px;
+  padding: 14px 10px;
+  box-shadow: var(--neu-extruded-sm);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.theme-option-card.active {
+  box-shadow: var(--neu-inset);
+  border-color: var(--color-primary);
+}
+
+.theme-option-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  margin: 0 auto 8px;
+  box-shadow: var(--neu-extruded-sm);
+}
+
+.theme-option-name {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+/* Action Buttons inside Settings */
+.settings-action-btn {
+  background: var(--bg-surface);
+  border: none;
+  border-radius: 14px;
+  padding: 14px 18px;
+  min-height: 48px;
+  box-shadow: var(--neu-extruded-sm);
+  cursor: pointer;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 12px;
+  transition: all 0.18s ease;
+}
+
+.settings-action-btn:hover {
+  transform: translateY(-1px);
+}
+
+.settings-action-btn:active {
+  box-shadow: var(--neu-inset);
+  transform: translateY(1px);
+}
+
+.settings-action-btn.danger {
+  color: var(--color-danger);
+}
+
+/* Dark Theme Variables Override */
+html.theme-dark {
+  --bg-surface: #1E293B;
+  --shadow-light: #293548;
+  --shadow-dark: #131b26;
+  --color-text: #F1F5F9;
+  --color-text-muted: #94A3B8;
+  --color-secondary: #0F172A;
+}
+
+html.theme-midnight {
+  --bg-surface: #0F172A;
+  --shadow-light: #1E293B;
+  --shadow-dark: #070B14;
+  --color-text: #F8FAFC;
+  --color-text-muted: #64748B;
+  --color-secondary: #020617;
+}
+
+/* ── 9. RESPONSIVE MOBILE & TABLET RULES ── */
+@media (max-width: 768px) {
+  .menu-hero-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .settings-category-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .settings-category-card {
+    min-height: 74px;
+    padding: 14px 12px;
+    gap: 10px;
+  }
+
+  .cat-card-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .cat-card-title {
+    font-size: 0.86rem;
+  }
+
+  .cat-card-desc {
+    font-size: 0.68rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .settings-modal {
+    padding: 16px 14px 70px;
+  }
+
+  .settings-header-title {
+    font-size: 1.05rem;
+  }
+
+  .settings-header-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .settings-category-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .settings-category-card {
+    min-height: 70px;
+    padding: 12px 10px;
+    gap: 8px;
+    border-radius: 14px;
+  }
+
+  .cat-card-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+  }
+
+  .cat-card-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .cat-card-title {
+    font-size: 0.82rem;
+  }
+
+  .cat-card-desc {
+    font-size: 0.65rem;
+  }
+
+  .settings-card {
+    padding: 15px 14px;
+    gap: 12px;
+    border-radius: 14px;
+  }
+
+  .settings-card-label {
+    font-size: 0.88rem;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .settings-card-desc {
+    font-size: 0.74rem;
+  }
+
+  .theme-options-grid {
+    grid-template-columns: 1fr;
+  }
+}
