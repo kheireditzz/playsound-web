@@ -1,13 +1,13 @@
 // ── PlayMusic Full Settings & Preferences Manager ──
 (function() {
-  const STORAGE_KEY = 'playmusic_settings_v2';
+  const STORAGE_KEY = 'playmusic_settings_v3';
 
   const DEFAULT_SETTINGS = {
-    // 1. Notifikasi (Hanya Notifikasi Putar Musik yang Aktif secara Default)
-    notifyMusicPlay: true,    // Notifikasi judul & artis saat lagu diputar (Aktif)
-    notifyDownloads: false,   // Notifikasi unduhan (Mati sesuai permintaan)
-    notifyFavorites: false,   // Notifikasi favorit (Mati)
-    notifySystem: false,      // Notifikasi sistem / refresh (Mati)
+    // 1. Notifikasi (Semua Notifikasi Nonaktif/Mati secara Default)
+    notifyMusicPlay: false,   // Notifikasi judul & artis saat lagu diputar (Nonaktif)
+    notifyDownloads: false,   // Notifikasi unduhan (Nonaktif)
+    notifyFavorites: false,   // Notifikasi favorit (Nonaktif)
+    notifySystem: false,      // Notifikasi sistem / refresh (Nonaktif)
 
     // 2. Audio & Pemutaran
     audioQuality: '320k',     // '320k', '192k', 'auto'
@@ -28,9 +28,17 @@
 
     load() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
+        const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('playmusic_settings_v2');
         if (raw) {
-          return Object.assign({}, DEFAULT_SETTINGS, JSON.parse(raw));
+          const parsed = JSON.parse(raw);
+          if (!localStorage.getItem(STORAGE_KEY)) {
+            // Migrasi: matikan semua notifikasi secara default
+            parsed.notifyMusicPlay = false;
+            parsed.notifyDownloads = false;
+            parsed.notifyFavorites = false;
+            parsed.notifySystem = false;
+          }
+          return Object.assign({}, DEFAULT_SETTINGS, parsed);
         }
       } catch (e) {
         console.warn('Gagal membaca preferensi pengguna:', e);

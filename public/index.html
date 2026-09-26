@@ -26,9 +26,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <!-- Modular Tactile Neumorphic Stylesheets -->
-  <link rel="stylesheet" href="/css/neumorphic.css?v=2.4.2">
-  <link rel="stylesheet" href="/css/download-center.css?v=2.4.2">
-  <link rel="stylesheet" href="/css/settings.css?v=2.4.2">
+  <link rel="stylesheet" href="/css/neumorphic.css?v=2.4.3">
+  <link rel="stylesheet" href="/css/download-center.css?v=2.4.3">
+  <link rel="stylesheet" href="/css/settings.css?v=2.4.3">
 </head>
 <body>
 
@@ -124,12 +124,12 @@
             </svg>
           </div>
           <div class="download-quick-info">
-            <div class="download-quick-title">📥 Pusat Unduhan Musik (High Quality)</div>
+            <div class="download-quick-title">📥 UNDUH MUSIC DISINI</div>
             <div class="download-quick-desc">Download Lagu, Album & Playlist dari Spotify, YouTube, JioSaavn, SoundCloud, Gaana</div>
           </div>
         </div>
         <button type="button" class="tactile-btn download-quick-btn" onclick="event.stopPropagation(); window.openDownloadCenter();">
-          BUKA UNDUHAN
+          Unduh
         </button>
       </div>
 
@@ -898,12 +898,12 @@
             <div class="settings-card-info">
               <div class="settings-card-label">
                 Notifikasi Putar Musik
-                <span class="settings-badge-pill">Aktif Default</span>
+                <span class="settings-badge-pill danger">Nonaktif</span>
               </div>
               <div class="settings-card-desc">Menampilkan pop-up judul & musisi saat lagu mulai diputar.</div>
             </div>
             <label class="neu-switch">
-              <input type="checkbox" id="settingNotifyMusic" checked onchange="window.Settings.set('notifyMusicPlay', this.checked)">
+              <input type="checkbox" id="settingNotifyMusic" onchange="window.Settings.set('notifyMusicPlay', this.checked)">
               <span class="neu-slider"></span>
             </label>
           </div>
@@ -1099,8 +1099,8 @@
   </div>
 
   <!-- Modular Scripts -->
-  <script src="/js/settings.js?v=2.4.2"></script>
-  <script src="/js/core.js?v=2.4.2"></script>
-  <script type="module" src="/js/downloader.js?v=2.4.2"></script>
+  <script src="/js/settings.js?v=2.4.3"></script>
+  <script src="/js/core.js?v=2.4.3"></script>
+  <script type="module" src="/js/downloader.js?v=2.4.3"></script>
 </body>
 </html>
