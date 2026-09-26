@@ -10,8 +10,8 @@ android {
         applicationId "id.my.kheireditz.playmusic"
         minSdk 24
         targetSdk 34
-        versionCode 246
-        versionName "2.4.6"
+        versionCode 250
+        versionName "2.5.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

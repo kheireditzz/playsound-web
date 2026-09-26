@@ -35,7 +35,7 @@ public class ApiClient {
         conn.setRequestMethod("GET");
         conn.setConnectTimeout(10000);
         conn.setReadTimeout(15000);
-        conn.setRequestProperty("User-Agent", "PlayMusicApp/2.4.6 (Android Native)");
+        conn.setRequestProperty("User-Agent", "PlayMusicApp/2.5.0 (Android Native)");
         conn.setRequestProperty("Accept", "application/json");
 
         int code = conn.getResponseCode();

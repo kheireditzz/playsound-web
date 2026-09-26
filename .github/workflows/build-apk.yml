@@ -57,7 +57,7 @@ jobs:
           fi
           echo "Found APK at $APK_PATH"
           cp "$APK_PATH" release-output/playmusic-release.apk
-          cp "$APK_PATH" release-output/playmusic-v2.4.6.apk
+          cp "$APK_PATH" release-output/playmusic-v2.5.0.apk
           cd release-output
           sha256sum playmusic-release.apk > playmusic-release.apk.sha256
           ls -lh
@@ -65,30 +65,30 @@ jobs:
       - name: Upload APK Artifact to GitHub Actions
         uses: actions/upload-artifact@v4
         with:
-          name: playmusic-v2.4.6-production-apk
+          name: playmusic-v2.5.0-production-apk
           path: release-output/*
 
       - name: Publish to GitHub Releases
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main'
         with:
-          tag_name: v2.4.6
-          name: "Play Music v2.4.6 (Real Native Android APK)"
+          tag_name: v2.5.0
+          name: "Play Music v2.5.0 (Real Native Android APK)"
           body: |
-            ### 🎵 Play Music v2.4.6 — Real Native Android APK (Production)
+            ### 🎵 Play Music v2.5.0 — Real Native Android APK (Production)
             
-            Rilis resmi **Real Native Android APK** untuk Play Music. Dibangun 100% menggunakan arsitektur native Android Views, Foreground MediaService, MediaSession lock screen controls, Neumorphic Tactile UI, dan native DownloadManager (bukan WebView wrapper).
+            Rilis resmi **Real Native Android APK** untuk Play Music. Dibangun 100% menggunakan arsitektur native Android Views, Foreground MediaService, MediaSession lock screen controls, Neumorphic Curved Dock dengan raised center feature, mini player close button, search history, comprehensive settings, dan native DownloadManager (bukan WebView wrapper).
             
             Aplikasi ditandatangani dengan keystore produksi tetap (*persistent release signature*), sehingga pembaruan versi mendatang dapat langsung dipasang tanpa perlu uninstal aplikasi sebelumnya.
             
-            #### 🌟 Fitur Unggulan Real Native:
-            - **100% Real Native Android**: Performa mulus 60fps dengan RecyclerView native, custom tactile drawables, dan zero-lag playback.
-            - **Background Audio Service**: Putar musik di latar belakang secara stabil dengan kontrol notifikasi dan lock screen via MediaSessionCompat.
-            - **Pemutaran Penuh 100%**: Bebas dari batasan 30 detik (didukung multi-engine 320kbps Hi-Fi).
-            - **Pembaruan Langsung (In-App Update)**: Dapat langsung memeriksa dan memperbarui APK dari menu Pengaturan tanpa uninstal.
-            - **Neumorphism Tactile Design**: Permukaan taktil `#E7E5E4` dengan extruded dual-shadow dan sensasi tombol empuk saat disentuh.
-            - **Native Download Manager**: Mengunduh audio MP3 kualitas tinggi langsung ke folder Downloads perangkat dengan notifikasi sistem.
-            - **Lirik Karaoke Real-Time**: Sinkronisasi lirik per baris/detik di modal pemutar penuh.
+            #### 🌟 Pembaruan & Fitur Unggulan v2.5.0:
+            - **100% Real Native Android APK**: Zero WebView, performa mulus 60fps dengan RecyclerView native dan custom tactile drawables.
+            - **Curved Bottom Dock & Raised Center Feature**: Dock navigasi bawah dengan sudut lengkung elegan dan tombol tengah floating yang naik ke atas sedikit untuk akses instan Now Playing / Quick Vibe.
+            - **Tombol Tutup (X) Mini Player**: Mini player di bagian bawah kini dilengkapi tombol 'X' untuk menutup/menghentikan pemutar mini kapanpun dibutuhkan.
+            - **Riwayat Pencarian (Search History)**: Riwayat pencarian interaktif di bawah kolom pencarian lengkap dengan tombol hapus satuan dan tombol hapus semua, serta chip tren populer.
+            - **Pengaturan APK Lengkap & Mewah**: Pengaturan komprehensif untuk bitrate (320kbps Hi-Fi, 256kbps, 128kbps, saver), preset equalizer, sleep timer otomatis, pembersihan cache memori, dan pembaruan in-place.
+            - **Tactile Shimmer Skeleton Loading State**: Loading state modern dengan placeholder kartu berdenyut tactile saat memuat lagu dan pencarian.
+            - **Lirik Karaoke Real-Time & Audio 320 kbps**: Sinkronisasi lirik per baris/detik di modal pemutar penuh.
             
             #### 📥 Cara Pasang / Update:
             1. Unduh file **`playmusic-release.apk`** di bawah ini.
@@ -96,7 +96,7 @@ jobs:
             3. Aplikasi siap digunakan!
           files: |
             release-output/playmusic-release.apk
-            release-output/playmusic-v2.4.6.apk
+            release-output/playmusic-v2.5.0.apk
             release-output/playmusic-release.apk.sha256
           draft: false
           prerelease: false

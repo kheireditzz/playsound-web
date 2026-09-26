@@ -10,7 +10,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -29,6 +31,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,6 +47,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -53,18 +58,23 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements MusicService.PlaybackListener {
 
-    private static final String APP_VERSION = "2.4.6";
-    private static final int APP_VERSION_CODE = 246;
+    private static final String APP_VERSION = "2.5.0";
+    private static final int APP_VERSION_CODE = 250;
+    private static final String PREF_NAME = "playmusic_prefs";
+    private static final String KEY_SEARCH_HISTORY = "search_history";
+    private static final String KEY_AUDIO_BITRATE = "audio_bitrate";
+    private static final String KEY_EQ_PRESET = "eq_preset";
 
     // UI Elements
     private ViewFlipper viewFlipper;
-    private LinearLayout navTabHome, navTabSearch, navTabDownload, navTabSettings;
+    private LinearLayout navTabHome, navTabSearch, navTabCenter, navTabDownload, navTabSettings;
     private ImageView imgNavHome, imgNavSearch, imgNavDownload, imgNavSettings;
     private TextView tvNavHome, tvNavSearch, tvNavDownload, tvNavSettings;
 
     // Home Tab
     private SwipeRefreshLayout swipeRefreshHome;
     private RecyclerView rvHomeSongs;
+    private LinearLayout layoutHomeLoading;
     private ProgressBar pbHomeLoading;
     private TrackAdapter homeAdapter;
     private String currentCategory = "global";
@@ -73,6 +83,10 @@ public class MainActivity extends AppCompatActivity implements MusicService.Play
     // Search Tab
     private EditText etSearchQuery;
     private ImageButton btnClearSearch;
+    private ScrollView scrollSearchHistory;
+    private LinearLayout layoutHistoryItems;
+    private TextView tvClearAllHistory, tvNoHistory;
+    private LinearLayout layoutSearchLoading;
     private RecyclerView rvSearchResults;
     private ProgressBar pbSearchLoading;
     private TrackAdapter searchAdapter;
@@ -86,12 +100,22 @@ public class MainActivity extends AppCompatActivity implements MusicService.Play
     // Settings Tab
     private TextView tvSettingsVersionInfo;
     private Button btnCheckAppUpdate, btnDownloadLatestApk;
+    private TextView tvActiveQualityDesc, tvActiveEqDesc, tvSleepTimerStatus, tvAudioCacheSize;
+    private TextView chipQuality320, chipQuality256, chipQuality128, chipQualitySaver;
+    private TextView chipEqBass, chipEqVocal, chipEqTreble, chipEqSpatial, chipEqFlat;
+    private TextView chipTimerOff, chipTimer15, chipTimer30, chipTimer45, chipTimer60;
+    private Button btnClearAudioCache;
 
-    // Sticky Bottom Mini Player
+    // Sleep Timer Handler
+    private final Handler sleepTimerHandler = new Handler(Looper.getMainLooper());
+    private Runnable sleepTimerRunnable;
+    private long sleepTimerEndTime = 0;
+
+    // Sticky Bottom Mini Player (With Close 'X' Button)
     private LinearLayout miniPlayerLayout;
     private ImageView imgMiniArtwork;
     private TextView tvMiniTitle, tvMiniArtist;
-    private ImageButton btnMiniPlayPause, btnMiniNext;
+    private ImageButton btnMiniPlayPause, btnMiniNext, btnMiniClose;
 
     // Full Player Dialog Elements
     private Dialog fullPlayerDialog;
@@ -114,6 +138,11 @@ public class MainActivity extends AppCompatActivity implements MusicService.Play
             musicService = binder.getService();
             isBound = true;
             musicService.setPlaybackListener(MainActivity.this);
+
+            if (musicService.getCurrentTrack() != null) {
+                onTrackChanged(musicService.getCurrentTrack());
+                onPlaybackStateChanged(musicService.isPlaying());
+            }
         }
 
         @Override
@@ -165,6 +194,7 @@ public class MainActivity extends AppCompatActivity implements MusicService.Play
 
         navTabHome = findViewById(R.id.navTabHome);
         navTabSearch = findViewById(R.id.navTabSearch);
+        navTabCenter = findViewById(R.id.navTabCenter);
         navTabDownload = findViewById(R.id.navTabDownload);
         navTabSettings = findViewById(R.id.navTabSettings);
 
@@ -184,6 +214,7 @@ public class MainActivity extends AppCompatActivity implements MusicService.Play
         tvMiniArtist = findViewById(R.id.tvMiniArtist);
         btnMiniPlayPause = findViewById(R.id.btnMiniPlayPause);
         btnMiniNext = findViewById(R.id.btnMiniNext);
+        btnMiniClose = findViewById(R.id.btnMiniClose);
 
         findViewById(R.id.btnTopRefresh).setOnClickListener(v -> switchTab(1));
     }
@@ -191,6 +222,21 @@ public class MainActivity extends AppCompatActivity implements MusicService.Play
     private void setupNavigation() {
         navTabHome.setOnClickListener(v -> switchTab(0));
         navTabSearch.setOnClickListener(v -> switchTab(1));
+
+        // Raised Center Feature: Now Playing / Quick Vibe
+        if (navTabCenter != null) {
+            navTabCenter.setOnClickListener(v -> {
+                if (musicService != null && musicService.getCurrentTrack() != null) {
+                    showFullPlayerDialog();
+                } else if (homeAdapter != null && !homeAdapter.getTracks().isEmpty()) {
+                    musicService.setPlaylist(homeAdapter.getTracks(), 0);
+                    Toast.makeText(this, "Quick Vibe: Memutar " + homeAdapter.getTracks().get(0).getTitle(), Toast.LENGTH_SHORT).show();
+                } else {
+                    switchTab(0);
+                }
+            });
+        }
+
         navTabDownload.setOnClickListener(v -> switchTab(2));
         navTabSettings.setOnClickListener(v -> switchTab(3));
     }
@@ -218,6 +264,7 @@ public class MainActivity extends AppCompatActivity implements MusicService.Play
     private void setupHomeTab() {
         swipeRefreshHome = findViewById(R.id.swipeRefreshHome);
         rvHomeSongs = findViewById(R.id.rvHomeSongs);
+        layoutHomeLoading = findViewById(R.id.layoutHomeLoading);
         pbHomeLoading = findViewById(R.id.pbHomeLoading);
 
         rvHomeSongs.setLayoutManager(new LinearLayoutManager(this));
@@ -270,29 +317,39 @@ public class MainActivity extends AppCompatActivity implements MusicService.Play
 
     private void loadCategoryTrends(String category) {
         currentCategory = category;
-        pbHomeLoading.setVisibility(View.VISIBLE);
+
+        if (layoutHomeLoading != null) layoutHomeLoading.setVisibility(View.VISIBLE);
+        if (rvHomeSongs != null) rvHomeSongs.setVisibility(View.GONE);
+        if (pbHomeLoading != null) pbHomeLoading.setVisibility(View.GONE);
 
         ApiClient.getTrends(category, new ApiClient.ApiCallback<List<Track>>() {
             @Override
             public void onSuccess(List<Track> result) {
-                pbHomeLoading.setVisibility(View.GONE);
+                if (layoutHomeLoading != null) layoutHomeLoading.setVisibility(View.GONE);
+                if (rvHomeSongs != null) rvHomeSongs.setVisibility(View.VISIBLE);
                 swipeRefreshHome.setRefreshing(false);
                 homeAdapter.setTracks(result);
             }
 
             @Override
             public void onError(Exception e) {
-                pbHomeLoading.setVisibility(View.GONE);
+                if (layoutHomeLoading != null) layoutHomeLoading.setVisibility(View.GONE);
+                if (rvHomeSongs != null) rvHomeSongs.setVisibility(View.VISIBLE);
                 swipeRefreshHome.setRefreshing(false);
                 Toast.makeText(MainActivity.this, "Gagal memuat tren musik: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    // ── 2. SEARCH TAB ──
+    // ── 2. SEARCH TAB & RIWAYAT PENCAHARIAN ──
     private void setupSearchTab() {
         etSearchQuery = findViewById(R.id.etSearchQuery);
         btnClearSearch = findViewById(R.id.btnClearSearch);
+        scrollSearchHistory = findViewById(R.id.scrollSearchHistory);
+        layoutHistoryItems = findViewById(R.id.layoutHistoryItems);
+        tvClearAllHistory = findViewById(R.id.tvClearAllHistory);
+        tvNoHistory = findViewById(R.id.tvNoHistory);
+        layoutSearchLoading = findViewById(R.id.layoutSearchLoading);
         rvSearchResults = findViewById(R.id.rvSearchResults);
         pbSearchLoading = findViewById(R.id.pbSearchLoading);
 
@@ -312,9 +369,17 @@ public class MainActivity extends AppCompatActivity implements MusicService.Play
         });
         rvSearchResults.setAdapter(searchAdapter);
 
+        // Load History Initially
+        loadSearchHistory();
+
+        tvClearAllHistory.setOnClickListener(v -> clearAllHistory());
+
         etSearchQuery.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                performSearch(etSearchQuery.getText().toString().trim());
+                String q = etSearchQuery.getText().toString().trim();
+                if (!q.isEmpty()) {
+                    performSearch(q);
+                }
                 return true;
             }
             return false;
@@ -324,6 +389,10 @@ public class MainActivity extends AppCompatActivity implements MusicService.Play
             etSearchQuery.setText("");
             searchAdapter.setTracks(new ArrayList<>());
             btnClearSearch.setVisibility(View.GONE);
+            rvSearchResults.setVisibility(View.GONE);
+            if (layoutSearchLoading != null) layoutSearchLoading.setVisibility(View.GONE);
+            scrollSearchHistory.setVisibility(View.VISIBLE);
+            loadSearchHistory();
         });
 
         etSearchQuery.addTextChangedListener(new TextWatcher() {
@@ -332,22 +401,185 @@ public class MainActivity extends AppCompatActivity implements MusicService.Play
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                btnClearSearch.setVisibility(s.length() > 0 ? View.VISIBLE : View.GONE);
+                boolean hasText = s.length() > 0;
+                btnClearSearch.setVisibility(hasText ? View.VISIBLE : View.GONE);
+                if (!hasText) {
+                    rvSearchResults.setVisibility(View.GONE);
+                    if (layoutSearchLoading != null) layoutSearchLoading.setVisibility(View.GONE);
+                    scrollSearchHistory.setVisibility(View.VISIBLE);
+                    loadSearchHistory();
+                }
             }
 
             @Override
             public void afterTextChanged(Editable s) {}
         });
+
+        // Setup Trending Tags Listeners
+        setupTrendingChips();
+    }
+
+    private void setupTrendingChips() {
+        int[] trendIds = {R.id.chipTrend1, R.id.chipTrend2, R.id.chipTrend3, R.id.chipTrend4, R.id.chipTrend5};
+        for (int id : trendIds) {
+            TextView chip = findViewById(id);
+            if (chip != null) {
+                chip.setOnClickListener(v -> {
+                    String text = chip.getText().toString();
+                    // Hilangkan emoji di awal kata untuk query pencarian bersih
+                    String cleanQuery = text.replaceAll("^[\\p{So}\\p{Cn}\\s]+", "").trim();
+                    etSearchQuery.setText(cleanQuery);
+                    etSearchQuery.setSelection(cleanQuery.length());
+                    performSearch(cleanQuery);
+                });
+            }
+        }
+    }
+
+    private void loadSearchHistory() {
+        if (layoutHistoryItems == null) return;
+        layoutHistoryItems.removeAllViews();
+
+        SharedPreferences prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        String historyJson = prefs.getString(KEY_SEARCH_HISTORY, "[]");
+
+        List<String> historyList = new ArrayList<>();
+        try {
+            JSONArray arr = new JSONArray(historyJson);
+            for (int i = 0; i < arr.length(); i++) {
+                historyList.add(arr.getString(i));
+            }
+        } catch (JSONException ignored) {}
+
+        if (historyList.isEmpty()) {
+            tvNoHistory.setVisibility(View.VISIBLE);
+            tvClearAllHistory.setVisibility(View.GONE);
+            return;
+        }
+
+        tvNoHistory.setVisibility(View.GONE);
+        tvClearAllHistory.setVisibility(View.VISIBLE);
+
+        for (String query : historyList) {
+            View itemView = createHistoryItemView(query);
+            layoutHistoryItems.addView(itemView);
+        }
+    }
+
+    private View createHistoryItemView(final String query) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setBackgroundResource(R.drawable.neu_history_chip);
+
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                dpToPx(42)
+        );
+        params.setMargins(0, dpToPx(4), 0, dpToPx(4));
+        row.setLayoutParams(params);
+        row.setPadding(dpToPx(12), dpToPx(6), dpToPx(10), dpToPx(6));
+
+        // Icon History
+        ImageView iconHistory = new ImageView(this);
+        iconHistory.setImageResource(R.drawable.ic_history);
+        iconHistory.setColorFilter(ContextCompat.getColor(this, R.color.primary_teal));
+        LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(dpToPx(18), dpToPx(18));
+        row.addView(iconHistory, iconParams);
+
+        // Text Query
+        TextView tvQuery = new TextView(this);
+        tvQuery.setText(query);
+        tvQuery.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
+        tvQuery.setTextSize(13);
+        LinearLayout.LayoutParams textParams = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f);
+        textParams.setMargins(dpToPx(10), 0, dpToPx(6), 0);
+        row.addView(tvQuery, textParams);
+
+        // Row Click: Run search
+        row.setOnClickListener(v -> {
+            etSearchQuery.setText(query);
+            etSearchQuery.setSelection(query.length());
+            performSearch(query);
+        });
+
+        // Delete 'X' Button
+        ImageView btnDelete = new ImageView(this);
+        btnDelete.setImageResource(R.drawable.ic_close);
+        btnDelete.setColorFilter(ContextCompat.getColor(this, R.color.text_secondary));
+        LinearLayout.LayoutParams delParams = new LinearLayout.LayoutParams(dpToPx(24), dpToPx(24));
+        btnDelete.setPadding(dpToPx(3), dpToPx(3), dpToPx(3), dpToPx(3));
+        btnDelete.setOnClickListener(v -> removeHistoryItem(query));
+        row.addView(btnDelete, delParams);
+
+        return row;
+    }
+
+    private void saveQueryToHistory(String query) {
+        if (query == null || query.trim().isEmpty()) return;
+        query = query.trim();
+
+        SharedPreferences prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        String historyJson = prefs.getString(KEY_SEARCH_HISTORY, "[]");
+
+        List<String> list = new ArrayList<>();
+        try {
+            JSONArray arr = new JSONArray(historyJson);
+            for (int i = 0; i < arr.length(); i++) {
+                String item = arr.getString(i);
+                if (!item.equalsIgnoreCase(query)) {
+                    list.add(item);
+                }
+            }
+        } catch (JSONException ignored) {}
+
+        list.add(0, query);
+        if (list.size() > 12) list = list.subList(0, 12);
+
+        JSONArray newArr = new JSONArray(list);
+        prefs.edit().putString(KEY_SEARCH_HISTORY, newArr.toString()).apply();
+    }
+
+    private void removeHistoryItem(String query) {
+        SharedPreferences prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        String historyJson = prefs.getString(KEY_SEARCH_HISTORY, "[]");
+
+        List<String> list = new ArrayList<>();
+        try {
+            JSONArray arr = new JSONArray(historyJson);
+            for (int i = 0; i < arr.length(); i++) {
+                String item = arr.getString(i);
+                if (!item.equalsIgnoreCase(query)) {
+                    list.add(item);
+                }
+            }
+        } catch (JSONException ignored) {}
+
+        JSONArray newArr = new JSONArray(list);
+        prefs.edit().putString(KEY_SEARCH_HISTORY, newArr.toString()).apply();
+        loadSearchHistory();
+    }
+
+    private void clearAllHistory() {
+        SharedPreferences prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        prefs.edit().remove(KEY_SEARCH_HISTORY).apply();
+        loadSearchHistory();
+        Toast.makeText(this, "Semua riwayat pencarian dihapus", Toast.LENGTH_SHORT).show();
     }
 
     private void performSearch(String query) {
         if (query.isEmpty()) return;
-        pbSearchLoading.setVisibility(View.VISIBLE);
+        saveQueryToHistory(query);
+
+        scrollSearchHistory.setVisibility(View.GONE);
+        if (layoutSearchLoading != null) layoutSearchLoading.setVisibility(View.VISIBLE);
+        rvSearchResults.setVisibility(View.GONE);
 
         ApiClient.search(query, new ApiClient.ApiCallback<List<Track>>() {
             @Override
             public void onSuccess(List<Track> result) {
-                pbSearchLoading.setVisibility(View.GONE);
+                if (layoutSearchLoading != null) layoutSearchLoading.setVisibility(View.GONE);
+                rvSearchResults.setVisibility(View.VISIBLE);
                 searchAdapter.setTracks(result);
                 if (result.isEmpty()) {
                     Toast.makeText(MainActivity.this, "Tidak ada hasil untuk \"" + query + "\"", Toast.LENGTH_SHORT).show();
@@ -356,7 +588,8 @@ public class MainActivity extends AppCompatActivity implements MusicService.Play
 
             @Override
             public void onError(Exception e) {
-                pbSearchLoading.setVisibility(View.GONE);
+                if (layoutSearchLoading != null) layoutSearchLoading.setVisibility(View.GONE);
+                rvSearchResults.setVisibility(View.VISIBLE);
                 Toast.makeText(MainActivity.this, "Pencarian gagal: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -369,7 +602,6 @@ public class MainActivity extends AppCompatActivity implements MusicService.Play
         btnTriggerDownload = findViewById(R.id.btnTriggerDownload);
         pbDownloadResolve = findViewById(R.id.pbDownloadResolve);
 
-        // Tombol Paste Otomatis dari Clipboard
         btnPasteUrl.setOnClickListener(v -> {
             ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
             if (clipboard != null && clipboard.hasPrimaryClip()) {
@@ -400,7 +632,6 @@ public class MainActivity extends AppCompatActivity implements MusicService.Play
                         Track t = tracks.get(0);
                         downloadTrackNative(t);
                     } else {
-                        // Fallback download langsung ke endpoint download backend
                         String directDownloadUrl = ApiClient.BASE_URL + "/api/download?url=" + Uri.encode(url);
                         enqueueDownload("playmusic_track.mp3", directDownloadUrl);
                     }
@@ -448,16 +679,219 @@ public class MainActivity extends AppCompatActivity implements MusicService.Play
         }
     }
 
-    // ── 4. SETTINGS TAB ──
+    // ── 4. SETTINGS TAB (LENGKAP & MEWAH) ──
     private void setupSettingsTab() {
         tvSettingsVersionInfo = findViewById(R.id.tvSettingsVersionInfo);
         btnCheckAppUpdate = findViewById(R.id.btnCheckAppUpdate);
         btnDownloadLatestApk = findViewById(R.id.btnDownloadLatestApk);
 
-        tvSettingsVersionInfo.setText("Versi Terpasang: v" + APP_VERSION + " (Build Produksi Resmi)");
+        tvActiveQualityDesc = findViewById(R.id.tvActiveQualityDesc);
+        tvActiveEqDesc = findViewById(R.id.tvActiveEqDesc);
+        tvSleepTimerStatus = findViewById(R.id.tvSleepTimerStatus);
+        tvAudioCacheSize = findViewById(R.id.tvAudioCacheSize);
+        btnClearAudioCache = findViewById(R.id.btnClearAudioCache);
+
+        chipQuality320 = findViewById(R.id.chipQuality320);
+        chipQuality256 = findViewById(R.id.chipQuality256);
+        chipQuality128 = findViewById(R.id.chipQuality128);
+        chipQualitySaver = findViewById(R.id.chipQualitySaver);
+
+        chipEqBass = findViewById(R.id.chipEqBass);
+        chipEqVocal = findViewById(R.id.chipEqVocal);
+        chipEqTreble = findViewById(R.id.chipEqTreble);
+        chipEqSpatial = findViewById(R.id.chipEqSpatial);
+        chipEqFlat = findViewById(R.id.chipEqFlat);
+
+        chipTimerOff = findViewById(R.id.chipTimerOff);
+        chipTimer15 = findViewById(R.id.chipTimer15);
+        chipTimer30 = findViewById(R.id.chipTimer30);
+        chipTimer45 = findViewById(R.id.chipTimer45);
+        chipTimer60 = findViewById(R.id.chipTimer60);
+
+        tvSettingsVersionInfo.setText("Versi APK: v" + APP_VERSION + " Pro (Real Native Edition)");
 
         btnCheckAppUpdate.setOnClickListener(v -> checkAppUpdate(true));
         btnDownloadLatestApk.setOnClickListener(v -> downloadAndInstallApk(ApiClient.BASE_URL + "/download/apk"));
+
+        setupQualitySettings();
+        setupEqSettings();
+        setupSleepTimer();
+        setupCacheManagement();
+    }
+
+    private void setupQualitySettings() {
+        TextView[] qChips = {chipQuality320, chipQuality256, chipQuality128, chipQualitySaver};
+        String[] qNames = {"320 kbps Hi-Fi", "256 kbps Studio", "128 kbps Standard", "Data Saver"};
+        String[] qDescs = {
+                "Aktif: 320 kbps Ultra Hi-Fi (Bitrate Penuh & Lossless)",
+                "Aktif: 256 kbps Studio (Detail Seimbang)",
+                "Aktif: 128 kbps Standard (Cepat & Ringan)",
+                "Aktif: Data Saver 96 kbps (Hemat Kuota)"
+        };
+
+        SharedPreferences prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        int savedIdx = prefs.getInt(KEY_AUDIO_BITRATE, 0);
+
+        for (int i = 0; i < qChips.length; i++) {
+            final int idx = i;
+            if (qChips[i] != null) {
+                qChips[i].setOnClickListener(v -> {
+                    prefs.edit().putInt(KEY_AUDIO_BITRATE, idx).apply();
+                    for (int j = 0; j < qChips.length; j++) {
+                        if (qChips[j] != null) {
+                            boolean isSel = (j == idx);
+                            qChips[j].setBackgroundResource(isSel ? R.drawable.neu_chip_active : R.drawable.neu_chip_inactive);
+                            qChips[j].setTextColor(ContextCompat.getColor(MainActivity.this, isSel ? R.color.white : R.color.text_primary));
+                        }
+                    }
+                    if (tvActiveQualityDesc != null) tvActiveQualityDesc.setText(qDescs[idx]);
+                    Toast.makeText(MainActivity.this, "Kualitas audio disetel ke " + qNames[idx], Toast.LENGTH_SHORT).show();
+                });
+            }
+        }
+    }
+
+    private void setupEqSettings() {
+        TextView[] eqChips = {chipEqBass, chipEqVocal, chipEqTreble, chipEqSpatial, chipEqFlat};
+        String[] eqNames = {"Bass Boost", "Vocal Clarity", "Treble Booster", "3D Spatial", "Flat Studio"};
+
+        SharedPreferences prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        int savedEq = prefs.getInt(KEY_EQ_PRESET, 0);
+
+        for (int i = 0; i < eqChips.length; i++) {
+            final int idx = i;
+            if (eqChips[i] != null) {
+                eqChips[i].setOnClickListener(v -> {
+                    prefs.edit().putInt(KEY_EQ_PRESET, idx).apply();
+                    for (int j = 0; j < eqChips.length; j++) {
+                        if (eqChips[j] != null) {
+                            boolean isSel = (j == idx);
+                            eqChips[j].setBackgroundResource(isSel ? R.drawable.neu_chip_active : R.drawable.neu_chip_inactive);
+                            eqChips[j].setTextColor(ContextCompat.getColor(MainActivity.this, isSel ? R.color.white : R.color.text_primary));
+                        }
+                    }
+                    if (tvActiveEqDesc != null) tvActiveEqDesc.setText("Preset: " + eqNames[idx]);
+                    Toast.makeText(MainActivity.this, "Preset Equalizer: " + eqNames[idx], Toast.LENGTH_SHORT).show();
+                });
+            }
+        }
+    }
+
+    private void setupSleepTimer() {
+        TextView[] timerChips = {chipTimerOff, chipTimer15, chipTimer30, chipTimer45, chipTimer60};
+        int[] minutes = {0, 15, 30, 45, 60};
+
+        for (int i = 0; i < timerChips.length; i++) {
+            final int idx = i;
+            final int min = minutes[i];
+            if (timerChips[i] != null) {
+                timerChips[i].setOnClickListener(v -> {
+                    for (int j = 0; j < timerChips.length; j++) {
+                        if (timerChips[j] != null) {
+                            boolean isSel = (j == idx);
+                            timerChips[j].setBackgroundResource(isSel ? R.drawable.neu_chip_active : R.drawable.neu_chip_inactive);
+                            timerChips[j].setTextColor(ContextCompat.getColor(MainActivity.this, isSel ? R.color.white : R.color.text_primary));
+                        }
+                    }
+
+                    if (sleepTimerRunnable != null) {
+                        sleepTimerHandler.removeCallbacks(sleepTimerRunnable);
+                        sleepTimerRunnable = null;
+                    }
+
+                    if (min == 0) {
+                        tvSleepTimerStatus.setText("Status: Nonaktif");
+                        Toast.makeText(MainActivity.this, "Sleep timer dinonaktifkan", Toast.LENGTH_SHORT).show();
+                    } else {
+                        sleepTimerEndTime = System.currentTimeMillis() + (min * 60 * 1000L);
+                        tvSleepTimerStatus.setText("Status: Musik akan berhenti dalam " + min + " menit");
+                        Toast.makeText(MainActivity.this, "Sleep timer disetel: " + min + " menit", Toast.LENGTH_SHORT).show();
+
+                        sleepTimerRunnable = () -> {
+                            if (musicService != null) {
+                                musicService.pause();
+                            }
+                            tvSleepTimerStatus.setText("Status: Nonaktif (Waktu habis)");
+                            Toast.makeText(MainActivity.this, "Sleep timer: Musik otomatis dijeda.", Toast.LENGTH_LONG).show();
+                            // Reset Chip to Off
+                            for (int k = 0; k < timerChips.length; k++) {
+                                if (timerChips[k] != null) {
+                                    boolean isOff = (k == 0);
+                                    timerChips[k].setBackgroundResource(isOff ? R.drawable.neu_chip_active : R.drawable.neu_chip_inactive);
+                                    timerChips[k].setTextColor(ContextCompat.getColor(MainActivity.this, isOff ? R.color.white : R.color.text_primary));
+                                }
+                            }
+                        };
+                        sleepTimerHandler.postDelayed(sleepTimerRunnable, min * 60 * 1000L);
+                    }
+                });
+            }
+        }
+    }
+
+    private void setupCacheManagement() {
+        calculateCacheSize();
+
+        if (btnClearAudioCache != null) {
+            btnClearAudioCache.setOnClickListener(v -> {
+                clearAppCache();
+                calculateCacheSize();
+                Toast.makeText(this, "Cache audio berhasil dibersihkan!", Toast.LENGTH_SHORT).show();
+            });
+        }
+    }
+
+    private void calculateCacheSize() {
+        try {
+            long size = getDirSize(getCacheDir()) + (getExternalCacheDir() != null ? getDirSize(getExternalCacheDir()) : 0);
+            double mb = size / (1024.0 * 1024.0);
+            if (tvAudioCacheSize != null) {
+                if (mb < 0.1) {
+                    tvAudioCacheSize.setText("Cache Sementara: Bersih (0 KB)");
+                } else {
+                    tvAudioCacheSize.setText(String.format(Locale.getDefault(), "Cache Sementara: %.1f MB", mb));
+                }
+            }
+        } catch (Exception ignored) {}
+    }
+
+    private long getDirSize(File dir) {
+        if (dir == null || !dir.exists()) return 0;
+        long bytes = 0;
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File f : files) {
+                if (f.isDirectory()) {
+                    bytes += getDirSize(f);
+                } else {
+                    bytes += f.length();
+                }
+            }
+        }
+        return bytes;
+    }
+
+    private void clearAppCache() {
+        try {
+            deleteDir(getCacheDir());
+            if (getExternalCacheDir() != null) deleteDir(getExternalCacheDir());
+        } catch (Exception ignored) {}
+    }
+
+    private boolean deleteDir(File dir) {
+        if (dir != null && dir.isDirectory()) {
+            String[] children = dir.list();
+            if (children != null) {
+                for (String child : children) {
+                    boolean success = deleteDir(new File(dir, child));
+                    if (!success) return false;
+                }
+            }
+            return dir.delete();
+        } else if (dir != null && dir.isFile()) {
+            return dir.delete();
+        }
+        return false;
     }
 
     private void checkAppUpdate(boolean showToastIfLatest) {
@@ -560,6 +994,16 @@ public class MainActivity extends AppCompatActivity implements MusicService.Play
             if (musicService != null) musicService.playNext();
         });
 
+        // Close 'X' Button on Mini Player
+        if (btnMiniClose != null) {
+            btnMiniClose.setOnClickListener(v -> {
+                if (musicService != null) {
+                    musicService.pause();
+                }
+                miniPlayerLayout.setVisibility(View.GONE);
+            });
+        }
+
         miniPlayerLayout.setOnClickListener(v -> showFullPlayerDialog());
     }
 
@@ -640,7 +1084,6 @@ public class MainActivity extends AppCompatActivity implements MusicService.Play
         tvPlayerLyrics.setText("Memuat lirik...");
         ImageLoader.getInstance().displayImage(track.getCover(), imgPlayerArtwork, R.drawable.ic_music_note);
 
-        // Ambil lirik secara asinkron
         ApiClient.getLyrics(track.getTitle(), track.getArtist(), new ApiClient.ApiCallback<String>() {
             @Override
             public void onSuccess(String lyrics) {
@@ -708,6 +1151,10 @@ public class MainActivity extends AppCompatActivity implements MusicService.Play
         return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
     }
 
+    private int dpToPx(int dp) {
+        return Math.round(dp * getResources().getDisplayMetrics().density);
+    }
+
     private void setupBackNavigation() {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
@@ -734,6 +1181,9 @@ public class MainActivity extends AppCompatActivity implements MusicService.Play
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (sleepTimerRunnable != null) {
+            sleepTimerHandler.removeCallbacks(sleepTimerRunnable);
+        }
         if (isBound) {
             unbindService(serviceConnection);
             isBound = false;

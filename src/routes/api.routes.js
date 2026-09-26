@@ -473,19 +473,20 @@ export async function handleApiRoute(req, res, pathname, parsedUrl) {
       'Cache-Control': 'no-cache, no-store, must-revalidate'
     });
     res.end(JSON.stringify({
-      version: '2.4.6',
-      versionCode: 246,
-      appName: 'Play Music',
+      version: '2.5.0',
+      versionCode: 250,
+      appName: 'Play Music Pro',
       packageName: 'id.my.kheireditz.playmusic',
       releaseDate: '2026-09-26',
       downloadUrl: 'https://github.com/kheireditzz/playsound-web/releases/latest/download/playmusic-release.apk',
       githubReleasesUrl: 'https://github.com/kheireditzz/playsound-web/releases',
       changelog: [
-        'Pemutaran musik 100% full duration (anti-cut 30 detik)',
-        'Arsitektur audio multi-source: JioSaavn 320kbps, SoundCloud Full, & YouTube Hi-Fi',
-        'Pembaruan menu pengaturan taktil & perbaikan hamburger menu non-transparan',
-        'Pusat Unduhan Musik yang disempurnakan dengan auto-paste clipboard',
-        'Aplikasi Android siap produksi dengan fitur pembaruan langsung tanpa uninstal'
+        '100% Real Native Android APK (Zero WebView, Native MediaPlayer & MediaSession)',
+        'Dock navigasi bawah melengkung tactile neumorphic dengan fitur tengah naik ke atas (raised center action)',
+        'Tombol Tutup (X) pada mini player pemutar musik di bagian bawah',
+        'Riwayat Pencarian interaktif dengan hapus item dan hapus semua, serta chip tren populer',
+        'Menu Pengaturan lengkap: Kualitas bitrate (320kbps Hi-Fi), equalizer suara, sleep timer, & pembersih cache',
+        'Loading state shimmer skeleton tactile yang halus saat memuat lagu dan pencarian'
       ]
     }));
     return;

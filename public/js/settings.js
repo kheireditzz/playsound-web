@@ -276,8 +276,8 @@
   };
 
   // ── Android APK Download & In-App Update Engine ──
-  const CURRENT_APP_VERSION = '2.4.6';
-  const CURRENT_VERSION_CODE = 246;
+  const CURRENT_APP_VERSION = '2.5.0';
+  const CURRENT_VERSION_CODE = 250;
 
   window.downloadAndroidApk = function() {
     Settings.triggerHaptic();
@@ -334,7 +334,7 @@
         envBadge.textContent = `Aplikasi Android (v${v})`;
         envBadge.style.color = '#00A63D';
       } else {
-        envBadge.textContent = 'Versi Web (Siap Unduh APK)';
+        envBadge.textContent = 'Aplikasi Android Resmi (PlayMusic Native APK)';
       }
     }
 

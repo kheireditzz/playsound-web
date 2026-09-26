@@ -47,7 +47,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Engine v2.4.6 • Real Native APK"
+                android:text="Engine v2.5.0 • Real Native APK"
                 android:textColor="@color/primary_teal"
                 android:textSize="11sp"
                 android:textStyle="bold" />
@@ -167,7 +167,7 @@
                 </LinearLayout>
             </HorizontalScrollView>
 
-            <!-- SwipeRefresh & Song List -->
+            <!-- SwipeRefresh & Song List with Tactile Loading State -->
             <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
                 android:id="@+id/swipeRefreshHome"
                 android:layout_width="match_parent"
@@ -184,12 +184,53 @@
                         android:clipToPadding="false"
                         android:paddingBottom="16dp" />
 
+                    <!-- Tactile Shimmer Skeleton Loading State -->
+                    <LinearLayout
+                        android:id="@+id/layoutHomeLoading"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:paddingTop="8dp">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginBottom="10dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@drawable/ic_waveform"
+                                app:tint="@color/primary_teal" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:text="Memuat Tangga Lagu Hi-Fi..."
+                                android:textColor="@color/primary_teal"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <include layout="@layout/item_song_skeleton" />
+                        <include layout="@layout/item_song_skeleton" />
+                        <include layout="@layout/item_song_skeleton" />
+                        <include layout="@layout/item_song_skeleton" />
+                        <include layout="@layout/item_song_skeleton" />
+                    </LinearLayout>
+
+                    <!-- Hidden default indicator kept for fallback compatibility -->
                     <ProgressBar
                         android:id="@+id/pbHomeLoading"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerInParent="true"
-                        android:indeterminateTint="@color/primary_teal" />
+                        android:indeterminateTint="@color/primary_teal"
+                        android:visibility="gone" />
                 </RelativeLayout>
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
         </LinearLayout>
@@ -243,13 +284,227 @@
                     android:visibility="gone" />
             </LinearLayout>
 
+            <!-- Search History & Trending Container -->
+            <ScrollView
+                android:id="@+id/scrollSearchHistory"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="12dp"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/layoutSearchHistory"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- History Header Row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_history"
+                            app:tint="@color/primary_teal" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:text="Riwayat Pencarian"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvClearAllHistory"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="?attr/selectableItemBackground"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="4dp"
+                            android:text="Hapus Semua"
+                            android:textColor="@color/accent_red"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- History Items Container -->
+                    <LinearLayout
+                        android:id="@+id/layoutHistoryItems"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="vertical" />
+
+                    <TextView
+                        android:id="@+id/tvNoHistory"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:layout_marginBottom="12dp"
+                        android:text="Belum ada riwayat pencarian"
+                        android:textColor="@color/text_muted"
+                        android:textSize="12sp"
+                        android:visibility="gone" />
+
+                    <!-- Trending Searches Header -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_waveform"
+                            app:tint="@color/accent_orange" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="Pencarian Populer &amp; Tren"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Trending Horizontal Chips -->
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:scrollbars="none">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/chipTrend1"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/neu_history_chip"
+                                android:paddingHorizontal="14dp"
+                                android:paddingVertical="8dp"
+                                android:text="🔥 TikTok Viral"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/chipTrend2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/neu_history_chip"
+                                android:paddingHorizontal="14dp"
+                                android:paddingVertical="8dp"
+                                android:text="🎵 Bernadya"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/chipTrend3"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/neu_history_chip"
+                                android:paddingHorizontal="14dp"
+                                android:paddingVertical="8dp"
+                                android:text="🇮🇩 Pop Indo 2026"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/chipTrend4"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/neu_history_chip"
+                                android:paddingHorizontal="14dp"
+                                android:paddingVertical="8dp"
+                                android:text="⚡ DJ Jedag Jedug"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/chipTrend5"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/neu_history_chip"
+                                android:paddingHorizontal="14dp"
+                                android:paddingVertical="8dp"
+                                android:text="☕ Lofi Chill"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </HorizontalScrollView>
+
+                </LinearLayout>
+            </ScrollView>
+
+            <!-- Tactile Search Loading Skeleton -->
+            <LinearLayout
+                android:id="@+id/layoutSearchLoading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:src="@drawable/ic_waveform"
+                        app:tint="@color/primary_teal" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="Mencari audio Hi-Fi terbaik..."
+                        android:textColor="@color/primary_teal"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <include layout="@layout/item_song_skeleton" />
+                <include layout="@layout/item_song_skeleton" />
+                <include layout="@layout/item_song_skeleton" />
+            </LinearLayout>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvSearchResults"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="6dp"
                 android:clipToPadding="false"
-                android:paddingBottom="16dp" />
+                android:paddingBottom="16dp"
+                android:visibility="gone" />
 
             <ProgressBar
                 android:id="@+id/pbSearchLoading"
@@ -284,7 +539,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="UNDUH MUSIC DISINI"
+                        android:text="UNDUH MUSIK HI-FI"
                         android:textColor="@color/primary_teal"
                         android:textSize="16sp"
                         android:textStyle="bold" />
@@ -293,11 +548,11 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="Tempelkan link Spotify, YouTube, TikTok, atau SoundCloud untuk mengunduh lagu penuh kualitas 320 kbps."
+                        android:text="Tempelkan tautan Spotify, YouTube, TikTok, atau SoundCloud untuk mengunduh lagu kualitas penuh 320 kbps ke penyimpanan HP."
                         android:textColor="@color/text_secondary"
                         android:textSize="13sp" />
 
-                    <!-- Sunken Paste Input Bar (Enlarged with Paste Icon on Right) -->
+                    <!-- Sunken Paste Input Bar -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
@@ -338,7 +593,7 @@
                         android:layout_height="50dp"
                         android:layout_marginTop="16dp"
                         android:background="@drawable/neu_button_primary"
-                        android:text="Unduh"
+                        android:text="Unduh Audio Sekarang"
                         android:textColor="@color/white"
                         android:textSize="15sp"
                         android:textStyle="bold" />
@@ -365,7 +620,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="ℹ️ Lokasi Penyimpanan"
+                        android:text="Manajemen Pengunduhan Asli (Native)"
                         android:textColor="@color/text_primary"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -374,7 +629,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="Lagu langsung tersimpan di folder Download perangkat Android Anda secara native dengan metadata judul, artis, dan cover art lengkap."
+                        android:text="Unduhan langsung ditangani oleh Android DownloadManager native dengan notifikasi proses dan tersimpan di folder Unduhan (Download) perangkat Anda."
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
                 </LinearLayout>
@@ -382,81 +637,118 @@
             </LinearLayout>
         </ScrollView>
 
-        <!-- TAB 3: SETTINGS / PENGATURAN -->
+        <!-- TAB 3: SETTINGS / PENGATURAN LENGKAP -->
         <ScrollView
             android:id="@+id/pageSettings"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fillViewport="true"
-            android:padding="16dp">
+            android:padding="14dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:paddingBottom="24dp">
 
-                <!-- In-App Version Card -->
+                <!-- 1. APK Status Card -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/neu_card_extruded"
                     android:orientation="vertical"
-                    android:padding="18dp">
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <FrameLayout
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/neu_button_circle">
+
+                            <ImageView
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_music_note"
+                                app:tint="@color/primary_teal" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="PlayMusic Pro Native"
+                                android:textColor="@color/text_primary"
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tvSettingsVersionInfo"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Versi APK: v2.5.0 Pro Native Edition"
+                                android:textColor="@color/accent_green"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </LinearLayout>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Aplikasi Android (APK)"
-                        android:textColor="@color/primary_teal"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tvSettingsVersionInfo"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Versi Terpasang: v2.4.6 (Build Produksi Resmi)"
-                        android:textColor="@color/text_primary"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Aplikasi ditandatangani dengan keystore produksi tetap. Pembaruan versi dapat langsung ditimpa (update in-place) tanpa perlu uninstal."
+                        android:layout_marginTop="10dp"
+                        android:text="100% Real Native Android APK dengan foreground audio service, media session hardware lockscreen, dan background play tanpa WebView."
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
 
-                    <Button
-                        android:id="@+id/btnCheckAppUpdate"
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:layout_marginTop="14dp"
-                        android:background="@drawable/neu_button_extruded"
-                        android:text="Periksa Pembaruan Versi"
-                        android:textColor="@color/primary_teal"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="horizontal">
 
-                    <Button
-                        android:id="@+id/btnDownloadLatestApk"
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:layout_marginTop="8dp"
-                        android:background="@drawable/neu_button_primary"
-                        android:text="Unduh APK Terbaru"
-                        android:textColor="@color/white"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                        <Button
+                            android:id="@+id/btnCheckAppUpdate"
+                            android:layout_width="0dp"
+                            android:layout_height="46dp"
+                            android:layout_marginEnd="6dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/neu_button_extruded"
+                            android:text="Cek Update"
+                            android:textColor="@color/primary_teal"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <Button
+                            android:id="@+id/btnDownloadLatestApk"
+                            android:layout_width="0dp"
+                            android:layout_height="46dp"
+                            android:layout_marginStart="6dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/neu_button_primary"
+                            android:text="Unduh APK"
+                            android:textColor="@color/white"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
                 </LinearLayout>
 
-                <!-- Audio Quality Setting -->
+                <!-- 2. Audio Quality & Bitrate Setting -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
+                    android:layout_marginTop="12dp"
                     android:background="@drawable/neu_card_flat"
                     android:orientation="vertical"
                     android:padding="16dp">
@@ -464,18 +756,347 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Kualitas Audio Mesin"
+                        android:text="Kualitas Audio Streaming"
                         android:textColor="@color/text_primary"
                         android:textSize="14sp"
                         android:textStyle="bold" />
 
                     <TextView
+                        android:id="@+id/tvActiveQualityDesc"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Mode Default: 320 kbps Ultra Hi-Fi (JioSaavn, SoundCloud Full, &amp; YouTube Direct)"
+                        android:layout_marginTop="2dp"
+                        android:text="Aktif: 320 kbps Ultra Hi-Fi (Bitrate Penuh)"
                         android:textColor="@color/primary_teal"
                         android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:scrollbars="none">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/chipQuality320"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/neu_chip_active"
+                                android:paddingHorizontal="14dp"
+                                android:paddingVertical="7dp"
+                                android:text="320 kbps Hi-Fi"
+                                android:textColor="@color/white"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/chipQuality256"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/neu_chip_inactive"
+                                android:paddingHorizontal="14dp"
+                                android:paddingVertical="7dp"
+                                android:text="256 kbps Studio"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp" />
+
+                            <TextView
+                                android:id="@+id/chipQuality128"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/neu_chip_inactive"
+                                android:paddingHorizontal="14dp"
+                                android:paddingVertical="7dp"
+                                android:text="128 kbps Standard"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp" />
+
+                            <TextView
+                                android:id="@+id/chipQualitySaver"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/neu_chip_inactive"
+                                android:paddingHorizontal="14dp"
+                                android:paddingVertical="7dp"
+                                android:text="Data Saver"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+                    </HorizontalScrollView>
+                </LinearLayout>
+
+                <!-- 3. Equalizer & Audio Profile -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/neu_card_flat"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_equalizer"
+                            app:tint="@color/primary_teal" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="Equalizer Suara"
+                            android:textColor="@color/text_primary"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvActiveEqDesc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Preset: Dynamic Bass Boost"
+                        android:textColor="@color/primary_teal"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:scrollbars="none">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/chipEqBass"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/neu_chip_active"
+                                android:paddingHorizontal="14dp"
+                                android:paddingVertical="7dp"
+                                android:text="Bass Boost"
+                                android:textColor="@color/white"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/chipEqVocal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/neu_chip_inactive"
+                                android:paddingHorizontal="14dp"
+                                android:paddingVertical="7dp"
+                                android:text="Vocal Clarity"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp" />
+
+                            <TextView
+                                android:id="@+id/chipEqTreble"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/neu_chip_inactive"
+                                android:paddingHorizontal="14dp"
+                                android:paddingVertical="7dp"
+                                android:text="Treble Booster"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp" />
+
+                            <TextView
+                                android:id="@+id/chipEqSpatial"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/neu_chip_inactive"
+                                android:paddingHorizontal="14dp"
+                                android:paddingVertical="7dp"
+                                android:text="3D Spatial"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp" />
+
+                            <TextView
+                                android:id="@+id/chipEqFlat"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/neu_chip_inactive"
+                                android:paddingHorizontal="14dp"
+                                android:paddingVertical="7dp"
+                                android:text="Flat Studio"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+                    </HorizontalScrollView>
+                </LinearLayout>
+
+                <!-- 4. Sleep Timer (Mati Otomatis) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/neu_card_flat"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_timer"
+                            app:tint="@color/primary_teal" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="Timer Tidur (Sleep Timer)"
+                            android:textColor="@color/text_primary"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvSleepTimerStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Status: Nonaktif"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:scrollbars="none">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/chipTimerOff"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/neu_chip_active"
+                                android:paddingHorizontal="14dp"
+                                android:paddingVertical="7dp"
+                                android:text="Mati"
+                                android:textColor="@color/white"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/chipTimer15"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/neu_chip_inactive"
+                                android:paddingHorizontal="14dp"
+                                android:paddingVertical="7dp"
+                                android:text="15 Menit"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp" />
+
+                            <TextView
+                                android:id="@+id/chipTimer30"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/neu_chip_inactive"
+                                android:paddingHorizontal="14dp"
+                                android:paddingVertical="7dp"
+                                android:text="30 Menit"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp" />
+
+                            <TextView
+                                android:id="@+id/chipTimer45"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/neu_chip_inactive"
+                                android:paddingHorizontal="14dp"
+                                android:paddingVertical="7dp"
+                                android:text="45 Menit"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp" />
+
+                            <TextView
+                                android:id="@+id/chipTimer60"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/neu_chip_inactive"
+                                android:paddingHorizontal="14dp"
+                                android:paddingVertical="7dp"
+                                android:text="60 Menit"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+                    </HorizontalScrollView>
+                </LinearLayout>
+
+                <!-- 5. Cache & Storage Management -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/neu_card_flat"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Penyimpanan &amp; Cache Audio"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvAudioCacheSize"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Cache Sementara: ~14.2 MB"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+
+                    <Button
+                        android:id="@+id/btnClearAudioCache"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"
+                        android:layout_marginTop="10dp"
+                        android:background="@drawable/neu_button_extruded"
+                        android:text="Bersihkan Cache Audio"
+                        android:textColor="@color/text_primary"
+                        android:textSize="13sp"
                         android:textStyle="bold" />
                 </LinearLayout>
 
@@ -484,15 +1105,17 @@
 
     </ViewFlipper>
 
-    <!-- Bottom Area: Mini Player + Bottom Navigation Bar -->
+    <!-- Bottom Area: Mini Player + Tactile Curved Dock Bar with Raised Center Feature -->
     <LinearLayout
         android:id="@+id/layoutBottomArea"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         android:orientation="vertical">
 
-        <!-- Sticky Bottom Mini Player -->
+        <!-- Sticky Bottom Mini Player (Equipped with Close 'X' Button) -->
         <LinearLayout
             android:id="@+id/miniPlayerLayout"
             android:layout_width="match_parent"
@@ -501,7 +1124,7 @@
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingHorizontal="14dp"
-            android:layout_marginHorizontal="10dp"
+            android:layout_marginHorizontal="12dp"
             android:layout_marginBottom="6dp"
             android:visibility="gone">
 
@@ -563,22 +1186,38 @@
                 android:id="@+id/btnMiniNext"
                 android:layout_width="38dp"
                 android:layout_height="38dp"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="6dp"
                 android:background="@drawable/neu_button_circle"
                 android:contentDescription="Next"
                 android:padding="10dp"
                 android:src="@drawable/ic_skip_next" />
+
+            <!-- Close 'X' Button on Mini Player -->
+            <ImageButton
+                android:id="@+id/btnMiniClose"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="6dp"
+                android:background="@drawable/neu_button_circle"
+                android:contentDescription="Tutup Pemutar"
+                android:padding="9dp"
+                android:src="@drawable/ic_close" />
         </LinearLayout>
 
-        <!-- Tactile Bottom Navigation Bar -->
+        <!-- Tactile Curved Floating Bottom Dock with Raised Center Feature -->
         <LinearLayout
             android:id="@+id/bottomNavBar"
             android:layout_width="match_parent"
-            android:layout_height="62dp"
-            android:background="@drawable/neu_bottom_bar"
+            android:layout_height="64dp"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/neu_bottom_dock"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
+            <!-- Tab 1: Beranda -->
             <LinearLayout
                 android:id="@+id/navTabHome"
                 android:layout_width="0dp"
@@ -605,6 +1244,7 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
+            <!-- Tab 2: Cari -->
             <LinearLayout
                 android:id="@+id/navTabSearch"
                 android:layout_width="0dp"
@@ -630,6 +1270,44 @@
                     android:textSize="11sp" />
             </LinearLayout>
 
+            <!-- CENTER FEATURE: Raised Tactile Floating Button (Naik ke Atas Dikit) -->
+            <LinearLayout
+                android:id="@+id/navTabCenter"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.1"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <FrameLayout
+                    android:layout_width="54dp"
+                    android:layout_height="54dp"
+                    android:layout_marginTop="-22dp"
+                    android:background="@drawable/neu_fab_raised">
+
+                    <ImageView
+                        android:id="@+id/imgNavCenter"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_waveform"
+                        app:tint="@color/white" />
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/tvNavCenter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text="Now Playing"
+                    android:textColor="@color/primary_teal"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Tab 4: Unduh -->
             <LinearLayout
                 android:id="@+id/navTabDownload"
                 android:layout_width="0dp"
@@ -655,6 +1333,7 @@
                     android:textSize="11sp" />
             </LinearLayout>
 
+            <!-- Tab 5: Pengaturan -->
             <LinearLayout
                 android:id="@+id/navTabSettings"
                 android:layout_width="0dp"
