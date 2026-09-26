@@ -79,7 +79,7 @@
       height: 76px;
       background-color: var(--bg-surface);
       box-shadow: 0 4px 14px var(--shadow-dark);
-      z-index: 2000;
+      z-index: 5000;
       display: flex;
       align-items: center;
       justify-content: space-between;

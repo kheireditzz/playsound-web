@@ -422,6 +422,7 @@
     };
 
     window.openLovedView = function() {
+      if (window.toggleSettingsMenu) window.toggleSettingsMenu(false);
       const dlView = document.getElementById('downloadViewContainer');
       if (dlView) dlView.style.display = 'none';
       const headerDlBtn = document.getElementById('headerDownloadBtn');

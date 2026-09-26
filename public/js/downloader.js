@@ -206,6 +206,7 @@ export const DownloadCenter = {
   },
 
   open(prefillUrl = '') {
+    if (window.toggleSettingsMenu) window.toggleSettingsMenu(false);
     if (!this.viewContainer) this.init();
 
     // Sembunyikan Tombol Unduh Musik di Header saat sudah masuk ke dalam

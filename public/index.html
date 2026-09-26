@@ -34,7 +34,7 @@
 
   <!-- Top Fixed Header -->
   <header class="neu-header">
-    <a href="#" class="header-logo" id="headerLogo" onclick="event.preventDefault(); window.exitDownloadCenter && window.exitDownloadCenter(); exitLovedView();">
+    <a href="#" class="header-logo" id="headerLogo" onclick="event.preventDefault(); window.exitDownloadCenter && window.exitDownloadCenter(); exitLovedView(); window.toggleSettingsMenu && window.toggleSettingsMenu(false);">
       <div class="logo-badge" title="Play Music by Kheireditz">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M9 18V5l12-2v13"></path>
@@ -743,8 +743,8 @@
             </svg>
           </div>
           <div>
-            <div class="settings-header-title" id="settingsModalTitle">Pengaturan & Preferensi</div>
-            <div class="settings-header-sub">Play Music Engine • Konfigurasi Lengkap</div>
+            <div class="settings-header-title" id="settingsModalTitle">Menu & Pengaturan</div>
+            <div class="settings-header-sub">Play Music • Navigasi & Konfigurasi</div>
           </div>
         </div>
         <button type="button" class="settings-close-btn" onclick="window.toggleSettingsMenu(false)" title="Tutup Pengaturan" aria-label="Tutup">
@@ -1039,12 +1039,6 @@
             </button>
           </div>
         </div>
-      </div>
-
-      <!-- Settings Footer -->
-      <div class="settings-footer">
-        <span>PLAY MUSIC ENGINE v2.4.0</span>
-        <span>NEUMORPHISM TACTILE UI</span>
       </div>
     </div>
   </div>
