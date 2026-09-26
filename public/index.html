@@ -1623,26 +1623,29 @@
       border-color: rgba(0, 102, 102, 0.35);
     }
 
-    /* Kontainer Lirik */
+    /* Kontainer Lirik Teleprompter Karaoke */
     .full-lyrics-container {
       width: 100%;
-      height: min(72vw, 320px);
+      height: min(72vw, 330px);
       max-width: 380px;
-      max-height: 320px;
+      max-height: 330px;
       border-radius: 20px;
       background: var(--bg-surface);
       box-shadow: var(--neu-inset);
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      padding: 20px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      padding: 70px 16px 80px 16px;
       overflow-y: auto;
       display: none;
       flex-direction: column;
-      gap: 14px;
+      gap: 16px;
       text-align: center;
       box-sizing: border-box;
       scroll-behavior: smooth;
       -webkit-overflow-scrolling: touch;
       user-select: none;
+      position: relative;
+      mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.85) 18%, rgba(0,0,0,1) 35%, rgba(0,0,0,1) 65%, rgba(0,0,0,0.85) 82%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.85) 18%, rgba(0,0,0,1) 35%, rgba(0,0,0,1) 65%, rgba(0,0,0,0.85) 82%, transparent 100%);
     }
 
     .full-lyrics-container.show {
@@ -1650,29 +1653,38 @@
     }
 
     .lyric-line {
-      font-size: 0.92rem;
+      font-size: 0.94rem;
       font-weight: 600;
       color: var(--color-text-muted);
-      opacity: 0.45;
-      transition: all 0.25s ease;
+      opacity: 0.25;
+      transform: scale(0.92);
+      transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
       cursor: pointer;
-      line-height: 1.5;
-      padding: 4px 8px;
-      border-radius: 8px;
+      line-height: 1.55;
+      padding: 6px 12px;
+      border-radius: 10px;
+      flex-shrink: 0;
     }
 
     .lyric-line:hover {
-      opacity: 0.8;
+      opacity: 0.6;
+    }
+
+    .lyric-line.near-active {
+      opacity: 0.52;
+      transform: scale(0.97);
+      color: var(--color-text);
     }
 
     .lyric-line.active {
       opacity: 1;
       color: var(--color-primary);
-      font-size: 1.08rem;
+      font-size: 1.2rem;
       font-weight: 800;
-      text-shadow: 0 0 16px rgba(0, 102, 102, 0.22);
-      background: rgba(0, 102, 102, 0.06);
-      transform: scale(1.02);
+      text-shadow: 0 0 18px rgba(0, 102, 102, 0.32);
+      background: rgba(0, 102, 102, 0.08);
+      transform: scale(1.06);
+      box-shadow: var(--neu-extruded-sm);
     }
 
     .lyric-empty {
@@ -1680,6 +1692,10 @@
       font-size: 0.82rem;
       font-family: 'Space Mono', monospace;
       margin: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
     }
 
     /* Button LED & Repeat Indicator */
@@ -4961,6 +4977,22 @@
 
         if (state.currentTrack) {
           loadLyricsForTrack(state.currentTrack);
+          // Pastikan audio sejalur dengan full stream 320kbps dari detik 0:00
+          if (!state.currentTrack.fullStreamUrl) {
+            fetch('/api/stream?artist=' + encodeURIComponent(state.currentTrack.artist) + '&title=' + encodeURIComponent(state.currentTrack.title))
+              .then(r => r.json())
+              .then(streamData => {
+                if (streamData.found && streamData.streamUrl && state.currentTrack) {
+                  const wasPlaying = !audioEngine.paused;
+                  const cur = audioEngine.currentTime || 0;
+                  state.currentTrack.fullStreamUrl = streamData.streamUrl;
+                  audioEngine.src = streamData.streamUrl;
+                  if (cur > 0) audioEngine.currentTime = cur;
+                  if (wasPlaying) audioEngine.play().catch(() => {});
+                  if (fullPlayerQualityBadge) fullPlayerQualityBadge.textContent = '320 KBPS HI-FI';
+                }
+              }).catch(() => {});
+          }
         }
       } else {
         if (tabLyricsBtn) tabLyricsBtn.classList.remove('active');
@@ -4989,6 +5021,12 @@
         }
       }
       parsed.sort((a, b) => a.time - b.time);
+
+      // Tambahkan intro jika baris pertama dimulai di atas 3 detik
+      if (parsed.length > 0 && parsed[0].time > 3) {
+        parsed.unshift({ time: 0, text: '♪ ... Instrumental Intro ... ♪' });
+      }
+
       return parsed;
     }
 
@@ -5008,7 +5046,7 @@
       lyricsContainer.innerHTML = `
         <div class="lyric-empty" id="lyricsStatus">
           <div class="skeleton-shimmer-box" style="width: 140px; height: 16px; border-radius: 6px; margin: 0 auto 10px;"></div>
-          <span>Mencari lirik karaoke...</span>
+          <span>Menyelaraskan lirik karaoke...</span>
         </div>`;
 
       try {
@@ -5034,8 +5072,8 @@
         // Fallback plain lyrics jika ada
         if (data && data.found && data.plainLyrics) {
           const rawLines = data.plainLyrics.split(/\r?\n/).filter(l => l.trim().length > 0);
-          lyricsContainer.innerHTML = rawLines.map(line => `
-            <div class="lyric-line" style="cursor: default; opacity: 0.85;">
+          lyricsContainer.innerHTML = rawLines.map((line, idx) => `
+            <div class="lyric-line ${idx === 0 ? 'active' : ''}" style="cursor: default;">
               ${escapeHtml(line)}
             </div>
           `).join('');
@@ -5062,7 +5100,7 @@
 
       let currentIdx = -1;
       for (let i = 0; i < lyricsData.length; i++) {
-        if (currentTime >= lyricsData[i].time - 0.25) {
+        if (currentTime >= lyricsData[i].time - 0.2) {
           currentIdx = i;
         } else {
           break;
@@ -5070,25 +5108,28 @@
       }
 
       if (currentIdx !== activeLyricIndex || forceScroll) {
-        if (activeLyricIndex >= 0) {
-          const oldLine = document.getElementById(`lyric-line-${activeLyricIndex}`);
-          if (oldLine) oldLine.classList.remove('active');
-        }
+        // Reset kelas pada semua baris yang pernah aktif
+        lyricsContainer.querySelectorAll('.lyric-line.active, .lyric-line.near-active').forEach(el => {
+          el.classList.remove('active', 'near-active');
+        });
 
         activeLyricIndex = currentIdx;
 
         if (currentIdx >= 0) {
-          const newLine = document.getElementById(`lyric-line-${currentIdx}`);
-          if (newLine) {
-            newLine.classList.add('active');
+          const activeEl = document.getElementById(`lyric-line-${currentIdx}`);
+          const prevEl = document.getElementById(`lyric-line-${currentIdx - 1}`);
+          const nextEl = document.getElementById(`lyric-line-${currentIdx + 1}`);
 
-            if (!isUserScrollingLyrics || forceScroll) {
-              const targetTop = newLine.offsetTop - (lyricsContainer.clientHeight / 2) + (newLine.clientHeight / 2);
-              lyricsContainer.scrollTo({
-                top: Math.max(0, targetTop),
-                behavior: 'smooth'
-              });
-            }
+          if (activeEl) activeEl.classList.add('active');
+          if (prevEl) prevEl.classList.add('near-active');
+          if (nextEl) nextEl.classList.add('near-active');
+
+          if (activeEl && (!isUserScrollingLyrics || forceScroll)) {
+            const targetTop = activeEl.offsetTop - (lyricsContainer.clientHeight / 2) + (activeEl.clientHeight / 2);
+            lyricsContainer.scrollTo({
+              top: Math.max(0, targetTop),
+              behavior: 'smooth'
+            });
           }
         }
       }

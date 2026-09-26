@@ -1134,40 +1134,66 @@ export async function handleRequest(req, res) {
         return;
       }
 
-      // 1. Try LRCLIB for Time-Synced Lyrics
+      // 1. Try LRCLIB for Time-Synced Lyrics (Direct Get -> Smart Search)
       try {
         const cleanArtist = artist.replace(/\s*(feat\.|ft\.|with|,|\/).*$/i, '').trim();
         const cleanTitle = title.replace(/\s*(\(.*\)|\[.*\]).*$/i, '').trim();
         
+        let lrcData = null;
+
+        // Step 1a: Exact match query
         let lrcRes = await fetch(
           `https://lrclib.net/api/get?artist_name=${encodeURIComponent(cleanArtist)}&track_name=${encodeURIComponent(cleanTitle)}`,
-          { headers: { 'User-Agent': 'PlaySoundWeb/1.0' }, signal: AbortSignal.timeout(4500) }
-        );
+          { headers: { 'User-Agent': 'PlaySoundWeb/1.0' }, signal: AbortSignal.timeout(4000) }
+        ).catch(() => null);
         
-        if (!lrcRes.ok) {
-          lrcRes = await fetch(
-            `https://lrclib.net/api/get?artist_name=${encodeURIComponent(artist)}&track_name=${encodeURIComponent(title)}`,
-            { headers: { 'User-Agent': 'PlaySoundWeb/1.0' }, signal: AbortSignal.timeout(4500) }
-          );
+        if (lrcRes && lrcRes.ok) {
+          lrcData = await lrcRes.json().catch(() => null);
         }
 
-        if (lrcRes.ok) {
-          const lrcData = await lrcRes.json();
-          if (lrcData.syncedLyrics || lrcData.plainLyrics) {
-            const result = {
-              artist,
-              title,
-              synced: !!lrcData.syncedLyrics,
-              syncedLyrics: lrcData.syncedLyrics || '',
-              lyrics: lrcData.plainLyrics || lrcData.syncedLyrics || '',
-              found: true
-            };
-            cache.data[lKey] = result;
-            cache.timestamps[lKey] = Date.now() - cache.TTL_MS + 60 * 60 * 1000;
-            res.writeHead(200);
-            res.end(JSON.stringify(result));
-            return;
+        // Step 1b: Search fallback if direct match missing synced lyrics
+        if (!lrcData || !lrcData.syncedLyrics) {
+          const searchQueries = [
+            `${cleanArtist} ${cleanTitle}`,
+            `${artist} ${title}`,
+            cleanTitle
+          ];
+
+          for (const sQuery of searchQueries) {
+            const sRes = await fetch(
+              `https://lrclib.net/api/search?q=${encodeURIComponent(sQuery)}`,
+              { headers: { 'User-Agent': 'PlaySoundWeb/1.0' }, signal: AbortSignal.timeout(4000) }
+            ).catch(() => null);
+
+            if (sRes && sRes.ok) {
+              const list = await sRes.json().catch(() => []);
+              if (Array.isArray(list) && list.length > 0) {
+                const bestSynced = list.find(item => item.syncedLyrics && item.syncedLyrics.trim().length > 10);
+                if (bestSynced) {
+                  lrcData = bestSynced;
+                  break;
+                } else if (!lrcData && list[0].plainLyrics) {
+                  lrcData = list[0];
+                }
+              }
+            }
           }
+        }
+
+        if (lrcData && (lrcData.syncedLyrics || lrcData.plainLyrics)) {
+          const result = {
+            artist,
+            title,
+            synced: !!lrcData.syncedLyrics,
+            syncedLyrics: lrcData.syncedLyrics || '',
+            lyrics: lrcData.plainLyrics || lrcData.syncedLyrics || '',
+            found: true
+          };
+          cache.data[lKey] = result;
+          cache.timestamps[lKey] = Date.now() - cache.TTL_MS + 60 * 60 * 1000;
+          res.writeHead(200);
+          res.end(JSON.stringify(result));
+          return;
         }
       } catch (err) {
         console.warn('LRCLIB fetch error:', err.message);
