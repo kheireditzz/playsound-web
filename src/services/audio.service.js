@@ -1,6 +1,38 @@
+import https from 'node:https';
 import CryptoJS from 'crypto-js';
 import { BAD_TRACK_KEYWORDS } from '../config/constants.js';
 import { getSpotifyToken } from './spotify.service.js';
+import { searchYouTubeVideo } from './youtube-audio.service.js';
+
+// ── Native HTTPS JSON Requester (Bypass undici TLS alerts di Node 26) ──
+export function httpsGetJson(urlStr, timeoutMs = 5000) {
+  return new Promise((resolve) => {
+    try {
+      const parsed = new URL(urlStr);
+      const req = https.get(parsed, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+          'Accept': 'application/json, text/plain, */*'
+        },
+        timeout: timeoutMs
+      }, (res) => {
+        let body = '';
+        res.on('data', chunk => { body += chunk; });
+        res.on('end', () => {
+          try {
+            resolve(JSON.parse(body));
+          } catch {
+            resolve(null);
+          }
+        });
+      });
+      req.on('timeout', () => { req.destroy(); resolve(null); });
+      req.on('error', () => { resolve(null); });
+    } catch {
+      resolve(null);
+    }
+  });
+}
 
 // ── Free Music Scraper (JioSaavn 320kbps Stream Decryptor) ──
 export function decryptSaavnMedia(enc) {
@@ -39,23 +71,83 @@ export function isArtistMatching(expected, candidate) {
   return candNorm.includes(expPrimary) || expNorm.includes(candNorm) || candNorm.includes(expNorm);
 }
 
+// ── SoundCloud Dynamic Client ID & Stream Scraper ──
+let scClientId = 'pmagYZKQF6mRtNmtRzPkXSQJ76jYHLN8';
+
+async function refreshSoundCloudClientId() {
+  try {
+    const page = await fetch('https://soundcloud.com', { signal: AbortSignal.timeout(4000) });
+    const html = await page.text();
+    const scriptUrls = [...html.matchAll(/src="([^"]*?sndcdn\.com\/assets\/[^"]*?\.js)"/g)].map(m => m[1]);
+    for (const u of scriptUrls.slice(-4)) {
+      try {
+        const js = await (await fetch(u, { signal: AbortSignal.timeout(3000) })).text();
+        const m = js.match(/client_id:"([a-zA-Z0-9]{32})"/);
+        if (m) {
+          scClientId = m[1];
+          return scClientId;
+        }
+      } catch {}
+    }
+  } catch {}
+  return scClientId;
+}
+
+export async function searchSoundCloudStream(query, expectedArtist = '') {
+  try {
+    const q = (query || '').trim();
+    if (!q) return null;
+    let url = `https://api-v2.soundcloud.com/search/tracks?q=${encodeURIComponent(q)}&client_id=${scClientId}&limit=6`;
+    let res = await fetch(url, { signal: AbortSignal.timeout(4000) });
+    if (res.status === 401) {
+      await refreshSoundCloudClientId();
+      url = `https://api-v2.soundcloud.com/search/tracks?q=${encodeURIComponent(q)}&client_id=${scClientId}&limit=6`;
+      res = await fetch(url, { signal: AbortSignal.timeout(4000) });
+    }
+    if (!res.ok) return null;
+    const data = await res.json();
+    for (const t of (data.collection || [])) {
+      const durSec = Math.round((t.duration || 0) / 1000);
+      if (durSec < 60 || durSec > 480) continue; // Lewati cuplikan < 1 menit dan kompilasi/loop > 8 menit
+      const lowTitle = (t.title || '').toLowerCase();
+      if (lowTitle.includes('1 hour') || lowTitle.includes('1hour') || lowTitle.includes('loop')) continue;
+      if (isForbiddenTrack(t.title, t.user?.username || '', '')) continue;
+      const progressive = t.media?.transcodings?.find(tc => tc.format?.protocol === 'progressive');
+      if (!progressive) continue;
+      const streamRes = await fetch(`${progressive.url}?client_id=${scClientId}`, { signal: AbortSignal.timeout(3000) });
+      if (!streamRes.ok) continue;
+      const sData = await streamRes.json();
+      if (sData.url) {
+        return {
+          found: true,
+          isVerifiedOriginal: true,
+          isFullTrack: true,
+          source: 'soundcloud_full',
+          title: t.title,
+          artist: t.user?.username || expectedArtist,
+          album: 'SoundCloud Original',
+          duration: durSec,
+          cover: t.artwork_url ? t.artwork_url.replace('large.jpg', 't300x300.jpg') : '',
+          streamUrl: sData.url,
+          bitrate: '128kbps HQ'
+        };
+      }
+    }
+  } catch {}
+  return null;
+}
+
 export async function scrapeFullAudio(query, expectedArtist = '', expectedTitle = '') {
   try {
     const cleanQ = (query || '').replace(/[^\w\s]/gi, ' ').trim();
     if (!cleanQ) return null;
 
-    // 1. Coba JioSaavn HANYA jika lagu asli (bukan karaoke/piano/cover dan artis cocok)
+    // 1. Coba JioSaavn HANYA jika lagu asli (320kbps CD Quality)
     const searchSaavn = async (term) => {
       try {
         const url = `https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&_marker=0&api_version=4&ctx=web6dot0&q=${encodeURIComponent(term)}&n=8&p=1`;
-        const res = await fetch(url, {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-          },
-          signal: AbortSignal.timeout(4500)
-        });
-        if (!res.ok) return null;
-        const data = await res.json();
+        const data = await httpsGetJson(url, 4500);
+        if (!data || !data.results) return null;
         const results = data.results || [];
         for (const item of results) {
           const itemTitle = (item.title || '').replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&');
@@ -65,15 +157,17 @@ export async function scrapeFullAudio(query, expectedArtist = '', expectedTitle 
 
           const enc = item.more_info?.encrypted_media_url;
           const streamUrl = decryptSaavnMedia(enc);
-          if (streamUrl) {
+          const dur = Number(item.more_info?.duration) || 0;
+          if (streamUrl && dur > 60) {
             return {
               found: true,
               isVerifiedOriginal: true,
+              isFullTrack: true,
               source: 'jiosaavn_320kbps',
               title: itemTitle,
               artist: itemArtist,
               album: item.more_info?.album || '',
-              duration: Number(item.more_info?.duration) || 0,
+              duration: dur,
               cover: item.image ? item.image.replace('150x150', '250x250') : '',
               streamUrl,
               bitrate: '320kbps HD'
@@ -85,20 +179,50 @@ export async function scrapeFullAudio(query, expectedArtist = '', expectedTitle 
     };
 
     let found = await searchSaavn(cleanQ);
-    if (found) return found;
-
-    if (query.includes(',')) {
+    if (!found && query.includes(',')) {
       const parts = query.split(',');
       const primaryArtist = parts[0].trim();
       const afterLastComma = parts[parts.length - 1].trim();
       const subQuery = `${primaryArtist} ${afterLastComma}`.replace(/[^\w\s]/gi, ' ').trim();
       if (subQuery && subQuery !== cleanQ) {
         found = await searchSaavn(subQuery);
-        if (found) return found;
       }
     }
+    if (found && found.duration > 60) {
+      return found;
+    }
 
-    // 2. Fallback: Cari iTunes Audio Preview Resmi
+    // 2. Coba SoundCloud Stream (Full-length progressive MP3, durasi > 60s)
+    let scFound = await searchSoundCloudStream(`${cleanQ}`, expectedArtist);
+    if (!scFound && expectedArtist && expectedTitle) {
+      scFound = await searchSoundCloudStream(`${expectedArtist} ${expectedTitle}`, expectedArtist);
+    }
+    if (!scFound && expectedTitle) {
+      scFound = await searchSoundCloudStream(`${expectedTitle}`, expectedArtist);
+    }
+    if (scFound && scFound.duration > 60) {
+      return scFound;
+    }
+
+    // 3. Coba YouTube Audio Engine (100% lagu lengkap dengan streaming proxy /api/stream-audio)
+    const ytVideo = await searchYouTubeVideo(`${expectedArtist} ${expectedTitle || cleanQ}`);
+    if (ytVideo && ytVideo.videoId) {
+      return {
+        found: true,
+        isVerifiedOriginal: true,
+        isFullTrack: true,
+        source: 'youtube_hifi',
+        title: expectedTitle || query,
+        artist: expectedArtist || 'Artist',
+        album: 'YouTube Music Original',
+        duration: 210, // Default durasi placeholder; disinkronkan otomatis saat audio dimuat
+        cover: ytVideo.cover,
+        streamUrl: `/api/stream-audio?id=${ytVideo.videoId}`,
+        bitrate: '320kbps HD'
+      };
+    }
+
+    // 4. Fallback Terakhir: Cari iTunes Audio Preview Resmi
     try {
       const itUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(cleanQ)}&entity=song&limit=6`;
       const itRes = await fetch(itUrl, { signal: AbortSignal.timeout(5000) });
@@ -110,21 +234,22 @@ export async function scrapeFullAudio(query, expectedArtist = '', expectedTitle 
           if (expectedArtist && !isArtistMatching(expectedArtist, item.artistName || '')) continue;
           return {
             found: true,
-            isVerifiedOriginal: true,
+            isVerifiedOriginal: false,
+            isFullTrack: false,
             source: 'itunes_official',
             title: item.trackName,
             artist: item.artistName || expectedArtist,
             album: item.collectionName || '',
-            duration: Math.round((item.trackTimeMillis || 30000) / 1000),
+            duration: 30, // Realistis durasi preview 30 detik
             cover: (item.artworkUrl100 || '').replace('100x100bb', '250x250bb'),
             streamUrl: item.previewUrl,
-            bitrate: 'Original Studio Audio'
+            bitrate: 'Audio Preview 30s'
           };
         }
       }
     } catch {}
 
-    // 3. Fallback: Cari Audio Asli Studio Rekaman via Deezer Official
+    // 5. Fallback: Deezer Preview
     try {
       const dzUrl = `https://api.deezer.com/search?q=${encodeURIComponent(cleanQ)}&limit=6`;
       const dzRes = await fetch(dzUrl, { signal: AbortSignal.timeout(5000) });
@@ -136,15 +261,16 @@ export async function scrapeFullAudio(query, expectedArtist = '', expectedTitle 
           if (expectedArtist && !isArtistMatching(expectedArtist, item.artist?.name || '')) continue;
           return {
             found: true,
-            isVerifiedOriginal: true,
+            isVerifiedOriginal: false,
+            isFullTrack: false,
             source: 'deezer_official',
             title: item.title,
             artist: item.artist?.name || expectedArtist,
             album: item.album?.title || '',
-            duration: item.duration || 30,
+            duration: 30, // Realistis durasi preview 30 detik
             cover: item.album?.cover_medium || '',
             streamUrl: item.preview,
-            bitrate: 'Original Studio Audio'
+            bitrate: 'Audio Preview 30s'
           };
         }
       }
@@ -253,12 +379,8 @@ export async function searchSongs(query) {
   const saavnPromise = (async () => {
     try {
       const sUrl = `https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&_marker=0&api_version=4&ctx=web6dot0&q=${encodeURIComponent(cleanQ)}&n=20&p=1`;
-      const res = await fetch(sUrl, {
-        headers: { 'User-Agent': 'Mozilla/5.0' },
-        signal: AbortSignal.timeout(4500)
-      });
-      if (!res.ok) return [];
-      const json = await res.json();
+      const json = await httpsGetJson(sUrl, 4500);
+      if (!json || !json.results) return [];
       return (json.results || []).map(item => {
         const streamUrl = decryptSaavnMedia(item.more_info?.encrypted_media_url);
         const title = (item.title || 'Track').replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&');

@@ -2,6 +2,7 @@ import { fetchLyrics } from '../services/lyrics.service.js';
 import { scrapeFullAudio, searchSongs } from '../services/audio.service.js';
 import { fetchTopAlbums, fetchAlbumDetail } from '../services/album.service.js';
 import { resolveSpotiFlyerLink } from '../services/spotiflyer.service.js';
+import { getDirectYouTubeAudioUrl } from '../services/youtube-audio.service.js';
 import {
   fetchSpotifyPlaylist,
   fetchDeezerGlobal,
@@ -131,16 +132,38 @@ export async function handleApiRoute(req, res, pathname, parsedUrl) {
 
   // 3. ── SPOTIFLYER / AUDIO DOWNLOAD ENDPOINT ──
   if (pathname === '/api/spotiflyer/download' || pathname === '/api/download') {
-    let audioUrl = parsedUrl.searchParams.get('url');
+    let audioUrl = parsedUrl.searchParams.get('url') || '';
     const artist = parsedUrl.searchParams.get('artist') || '';
     const title = parsedUrl.searchParams.get('title') || '';
+    const videoIdParam = parsedUrl.searchParams.get('id') || '';
     let filename = parsedUrl.searchParams.get('name') || `${artist} - ${title}`.trim() || 'playmusic_track';
+
+    if (videoIdParam) {
+      const ytInfo = await getDirectYouTubeAudioUrl(videoIdParam);
+      if (ytInfo && ytInfo.directUrl) audioUrl = ytInfo.directUrl;
+    }
+
+    if (audioUrl && audioUrl.includes('/api/stream-audio')) {
+      const match = audioUrl.match(/id=([a-zA-Z0-9_-]{11})/);
+      if (match) {
+        const ytInfo = await getDirectYouTubeAudioUrl(match[1]);
+        if (ytInfo && ytInfo.directUrl) audioUrl = ytInfo.directUrl;
+      }
+    }
 
     if (!audioUrl && (artist || title)) {
       try {
         const scraped = await scrapeFullAudio(`${artist} ${title}`, artist, title);
         if (scraped && scraped.streamUrl) {
-          audioUrl = scraped.streamUrl;
+          if (scraped.streamUrl.includes('/api/stream-audio')) {
+            const match = scraped.streamUrl.match(/id=([a-zA-Z0-9_-]{11})/);
+            if (match) {
+              const ytInfo = await getDirectYouTubeAudioUrl(match[1]);
+              if (ytInfo && ytInfo.directUrl) audioUrl = ytInfo.directUrl;
+            }
+          } else {
+            audioUrl = scraped.streamUrl;
+          }
         }
       } catch (e) {
         console.warn('Auto scrape download stream failed:', e.message);
@@ -183,6 +206,63 @@ export async function handleApiRoute(req, res, pathname, parsedUrl) {
     } catch (err) {
       console.error('Download proxy error, redirecting:', err.message);
       res.writeHead(302, { 'Location': audioUrl });
+      res.end();
+    }
+    return;
+  }
+
+  // 3B. ── YOUTUBE AUDIO PROXY STREAM (Full Duration & Seeking Range Support) ──
+  if (pathname === '/api/stream-audio') {
+    const videoId = parsedUrl.searchParams.get('id') || parsedUrl.searchParams.get('v') || '';
+    if (!videoId) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'id required' }));
+      return;
+    }
+
+    try {
+      const audioInfo = await getDirectYouTubeAudioUrl(videoId);
+      if (!audioInfo || !audioInfo.directUrl) {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Audio stream not found' }));
+        return;
+      }
+
+      const reqHeaders = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      };
+      if (req.headers.range) {
+        reqHeaders['range'] = req.headers.range;
+      }
+
+      const audioStreamRes = await fetch(audioInfo.directUrl, { headers: reqHeaders });
+      const statusCode = audioStreamRes.status;
+      const resHeaders = {
+        'Content-Type': audioStreamRes.headers.get('content-type') || 'audio/mp4',
+        'Accept-Ranges': 'bytes',
+        'Access-Control-Allow-Origin': '*',
+        'Cache-Control': 'public, max-age=18000'
+      };
+      if (audioStreamRes.headers.has('content-length')) {
+        resHeaders['Content-Length'] = audioStreamRes.headers.get('content-length');
+      }
+      if (audioStreamRes.headers.has('content-range')) {
+        resHeaders['Content-Range'] = audioStreamRes.headers.get('content-range');
+      }
+
+      res.writeHead(statusCode, resHeaders);
+      const reader = audioStreamRes.body.getReader();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        res.write(value);
+      }
+      res.end();
+    } catch (err) {
+      console.error('Audio streaming proxy error:', err.message);
+      if (!res.headersSent) {
+        res.writeHead(500);
+      }
       res.end();
     }
     return;
