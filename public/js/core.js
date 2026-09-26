@@ -987,8 +987,8 @@
             console.log('Clipboard permission prompt:', clipErr);
           }
         }
-        if (window.openSpotiFlyer) {
-          window.openSpotiFlyer(text ? text.trim() : '');
+        if (window.openDownloadCenter) {
+          window.openDownloadCenter(text ? text.trim() : '');
         } else {
           if (!text) {
             text = prompt('Tempel link musik (Spotify / YouTube / JioSaavn) di sini:');
@@ -1000,8 +1000,8 @@
           }
         }
       } catch (err) {
-        if (window.openSpotiFlyer) {
-          window.openSpotiFlyer('');
+        if (window.openDownloadCenter) {
+          window.openDownloadCenter('');
         }
       }
     };

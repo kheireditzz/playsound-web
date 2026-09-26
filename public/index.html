@@ -27,7 +27,7 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <!-- Modular Tactile Neumorphic Stylesheets -->
   <link rel="stylesheet" href="/css/neumorphic.css">
-  <link rel="stylesheet" href="/css/spotiflyer.css">
+  <link rel="stylesheet" href="/css/download-center.css">
 </head>
 <body>
 
@@ -49,7 +49,7 @@
 
     <!-- Header Actions: Riwayat Love / Disukai -->
     <div class="header-actions">
-      <button type="button" class="header-loved-btn header-spotiflyer-btn" id="headerSpotiFlyerBtn" onclick="window.openSpotiFlyer()" title="Buka SpotiFlyer Link Downloader Hub" style="margin-right: 8px;">
+      <button type="button" class="header-loved-btn header-download-btn" id="headerDownloadBtn" onclick="window.openDownloadCenter()" title="Buka Pusat Unduhan Musik" style="margin-right: 8px;">
         <div class="header-loved-icon-wrap" style="color: var(--color-primary);">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -57,7 +57,7 @@
             <line x1="12" y1="15" x2="12" y2="3"></line>
           </svg>
         </div>
-        <span class="header-loved-text">SpotiFlyer</span>
+        <span class="header-loved-text">Unduh Musik</span>
       </button>
       <button type="button" class="header-loved-btn" id="headerLovedBtn" onclick="openLovedView()" title="Buka Riwayat Lagu Disukai">
         <div class="header-loved-icon-wrap">
@@ -124,23 +124,23 @@
     <!-- Controls: Search & Categories -->
     <div class="controls-wrapper">
 
-      <!-- SpotiFlyer Quick Access Banner -->
-      <div class="spotiflyer-quick-banner" onclick="window.openSpotiFlyer()" title="Klik untuk Buka SpotiFlyer Hub">
-        <div class="spotiflyer-quick-left">
-          <div class="spotiflyer-quick-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+      <!-- Quick Access Download Banner -->
+      <div class="download-quick-banner" onclick="window.openDownloadCenter()" title="Buka Pusat Unduhan Musik">
+        <div class="download-quick-left">
+          <div class="download-quick-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
               <polyline points="7 10 12 15 17 10"></polyline>
               <line x1="12" y1="15" x2="12" y2="3"></line>
             </svg>
           </div>
-          <div class="spotiflyer-quick-info">
-            <div class="spotiflyer-quick-title">⚡ SpotiFlyer Downloader Hub</div>
-            <div class="spotiflyer-quick-desc">Download Lagu / Album / Playlist dari Spotify, YouTube, JioSaavn, SoundCloud, Gaana</div>
+          <div class="download-quick-info">
+            <div class="download-quick-title">📥 Pusat Unduhan Musik (High Quality)</div>
+            <div class="download-quick-desc">Download Lagu, Album & Playlist dari Spotify, YouTube, JioSaavn, SoundCloud, Gaana</div>
           </div>
         </div>
-        <button type="button" class="tactile-btn spotiflyer-quick-btn" onclick="event.stopPropagation(); window.openSpotiFlyer();">
-          BUKA HUB
+        <button type="button" class="tactile-btn download-quick-btn" onclick="event.stopPropagation(); window.openDownloadCenter();">
+          BUKA UNDUHAN
         </button>
       </div>
 
@@ -151,7 +151,7 @@
           class="neu-input" 
           placeholder="Cari lagu, artis, atau tempel link Spotify / YouTube / JioSaavn..."
         >
-        <button type="button" id="pasteLinkBtn" class="paste-link-btn" title="Tempel Link & Buka SpotiFlyer Hub" onclick="handlePasteMusicLink()">
+        <button type="button" id="pasteLinkBtn" class="paste-link-btn" title="Tempel Link & Buka Unduhan" onclick="handlePasteMusicLink()">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
             <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
@@ -167,12 +167,12 @@
 
       <!-- Categories Tabs -->
       <div class="filter-tabs" id="filterTabs">
-        <button type="button" class="neu-tab-btn" onclick="window.openSpotiFlyer()" style="color: var(--color-primary); font-weight: 700; border: 1.5px solid rgba(0, 102, 102, 0.3); background: rgba(0, 102, 102, 0.05);">
+        <button type="button" class="neu-tab-btn" onclick="window.openDownloadCenter()" style="color: var(--color-primary); font-weight: 700; border: 1.5px solid rgba(0, 102, 102, 0.3); background: rgba(0, 102, 102, 0.05);">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: -2px; margin-right: 4px;">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
             <polyline points="7 10 12 15 17 10"></polyline>
             <line x1="12" y1="15" x2="12" y2="3"></line>
-          </svg>SpotiFlyer Hub
+          </svg>Unduh Musik
         </button>
         <button type="button" class="neu-tab-btn active" data-cat="global">Global Viral</button>
         <button type="button" class="neu-tab-btn" data-cat="albums">Top Album</button>
@@ -187,6 +187,104 @@
     </div>
 
     <!-- Dedicated Loved View Header (Hanya muncul saat di Riwayat Love) -->
+    
+    <!-- Dedicated Full-Page Download Center View -->
+    <div class="download-view-container" id="downloadViewContainer" style="display: none;">
+      <!-- Nav Bar Back to Dashboard -->
+      <div class="download-view-nav-bar">
+        <button type="button" class="tactile-btn download-back-btn" onclick="window.exitDownloadCenter()" title="Kembali ke Dashboard Utama">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+          <span>KEMBALI KE DASHBOARD</span>
+        </button>
+        <span class="download-nav-badge">PUSAT UNDUH MUSIK • HI-FI 320KBPS</span>
+      </div>
+
+      <!-- Hero Input Card -->
+      <div class="download-hero-card">
+        <div class="download-hero-header">
+          <div class="download-hero-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+          </div>
+          <div class="download-hero-title-group">
+            <h1>Pusat Unduhan Musik</h1>
+            <p>Download Lagu, Album, dan Playlist berkualitas tinggi dari Spotify, YouTube, JioSaavn, SoundCloud, dan Gaana</p>
+          </div>
+        </div>
+
+        <div class="download-platforms-row">
+          <button type="button" class="download-platform-chip active" data-platform="spotify"><span class="platform-indicator-dot spotify"></span> Spotify</button>
+          <button type="button" class="download-platform-chip" data-platform="youtube"><span class="platform-indicator-dot youtube"></span> YouTube</button>
+          <button type="button" class="download-platform-chip" data-platform="saavn"><span class="platform-indicator-dot saavn"></span> JioSaavn 320k</button>
+          <button type="button" class="download-platform-chip" data-platform="soundcloud"><span class="platform-indicator-dot soundcloud"></span> SoundCloud</button>
+          <button type="button" class="download-platform-chip" data-platform="gaana"><span class="platform-indicator-dot gaana"></span> Gaana</button>
+        </div>
+
+        <div class="download-input-container">
+          <input type="text" id="downloadMainInput" class="download-main-input" placeholder="Tempel link Spotify (Lagu, Album, atau Playlist)...">
+          <button type="button" class="download-paste-btn" onclick="window.pasteAndAnalyzeDownload()" title="Tempel dari Clipboard">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+            Tempel
+          </button>
+          <button type="button" id="downloadSubmitBtn" class="download-submit-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+            </svg>
+            Analisa & Ambil Lagu
+          </button>
+        </div>
+
+        <div class="download-progress-wrap" id="downloadProgressWrap">
+          <div class="download-progress-bar" id="downloadProgressBar"></div>
+        </div>
+      </div>
+
+      <!-- Result Card -->
+      <div class="download-result-card" id="downloadResultCard">
+        <div class="download-result-meta-row">
+          <img src="/favicon.svg" alt="Cover" class="download-result-cover" id="downloadResultCover">
+          <div class="download-result-info">
+            <div class="download-result-badge" id="downloadResultBadge">AUDIO • TRACK</div>
+            <h2 class="download-result-title" id="downloadResultTitle">Judul Musik</h2>
+            <p class="download-result-artist" id="downloadResultArtist">Artis</p>
+          </div>
+        </div>
+
+        <div class="download-actions-row" id="downloadActionsRow"></div>
+
+        <div class="download-tracklist-container" id="downloadTracklistContainer"></div>
+      </div>
+
+      <!-- Riwayat Download di Bawah (Realtime) -->
+      <div class="download-history-card">
+        <div class="download-history-header">
+          <div class="download-history-title-wrap">
+            <div class="download-history-icon-badge">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </div>
+            <h3>RIWAYAT UNDUHAN MUSIK</h3>
+            <span class="download-history-count-badge" id="downloadHistoryCountBadge">0 Lagu</span>
+          </div>
+          <button type="button" class="download-history-clear-btn" onclick="window.clearAllDownloadHistory()" title="Bersihkan Riwayat Unduhan">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            BERSIHKAN
+          </button>
+        </div>
+
+        <div class="download-history-list" id="downloadHistoryList">
+          <!-- Realtime rendered from localStorage -->
+        </div>
+      </div>
+    </div>
+
     <div class="loved-page-bar" id="lovedPageBar" style="display: none;">
       <div class="loved-page-top">
         <button type="button" class="tactile-btn loved-bar-back-btn" onclick="exitLovedView()" title="Kembali ke Dashboard Utama">
@@ -643,73 +741,8 @@
   <audio id="audioEngine" preload="auto"></audio>
 
 
-  <!-- SpotiFlyer Modal Backdrop -->
-  <div class="spotiflyer-modal-backdrop" id="spotiflyerModalBackdrop" onclick="if(event.target === this) window.closeSpotiFlyer()">
-    <div class="spotiflyer-modal">
-      <div class="spotiflyer-modal-header">
-        <div class="spotiflyer-title-wrap">
-          <div class="spotiflyer-logo-badge">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="7 10 12 15 17 10"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-          </div>
-          <div>
-            <h2>SpotiFlyer Hub</h2>
-            <p>Music Downloader • Spotify • YouTube • JioSaavn • SoundCloud • Gaana</p>
-          </div>
-        </div>
-        <button type="button" class="spotiflyer-close-btn" onclick="window.closeSpotiFlyer()" title="Tutup">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-        </button>
-      </div>
-
-      <div class="spotiflyer-modal-body">
-        <div class="spotiflyer-platforms">
-          <button type="button" class="platform-pill active" data-platform="spotify"><span class="platform-dot spotify"></span> Spotify</button>
-          <button type="button" class="platform-pill" data-platform="youtube"><span class="platform-dot youtube"></span> YouTube</button>
-          <button type="button" class="platform-pill" data-platform="saavn"><span class="platform-dot saavn"></span> JioSaavn 320k</button>
-          <button type="button" class="platform-pill" data-platform="soundcloud"><span class="platform-dot soundcloud"></span> SoundCloud</button>
-          <button type="button" class="platform-pill" data-platform="gaana"><span class="platform-dot gaana"></span> Gaana</button>
-        </div>
-
-        <div class="spotiflyer-input-card">
-          <div class="spotiflyer-input-wrap">
-            <input type="text" id="spotiflyerInput" class="spotiflyer-input" placeholder="Tempel link Spotify (Track, Album, atau Playlist)...">
-            <button type="button" id="spotiflyerAnalyzeBtn" class="spotiflyer-btn primary">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-              </svg> Analisa & Download
-            </button>
-          </div>
-          <div class="spotiflyer-progress-bar-wrap" id="spotiflyerProgressBarWrap">
-            <div class="spotiflyer-progress-bar-fill" id="spotiflyerProgressBarFill"></div>
-          </div>
-        </div>
-
-        <!-- Result Overview Card -->
-        <div class="spotiflyer-result-card" id="spotiflyerResultCard">
-          <div class="spotiflyer-meta-row">
-            <img src="/favicon.svg" alt="Art" class="spotiflyer-album-art" id="spotiflyerAlbumArt">
-            <div class="spotiflyer-meta-info">
-              <div class="spotiflyer-meta-badge" id="spotiflyerMetaBadge">SPOTIFY • TRACK</div>
-              <h3 class="spotiflyer-meta-title" id="spotiflyerMetaTitle">Judul Musik</h3>
-              <p class="spotiflyer-meta-subtitle" id="spotiflyerMetaSubtitle">Artis</p>
-            </div>
-          </div>
-
-          <div class="spotiflyer-batch-actions" id="spotiflyerBatchActions"></div>
-
-          <div class="spotiflyer-tracklist" id="spotiflyerTracklist"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
   <!-- Modular Scripts -->
   <script src="/js/core.js"></script>
-  <script type="module" src="/js/spotiflyer.js"></script>
+  <script type="module" src="/js/downloader.js"></script>
 </body>
 </html>

@@ -17,8 +17,8 @@ export const API = {
     return await res.json();
   },
 
-  // 3. SpotiFlyer Universal Link Resolver (Spotify, JioSaavn, YouTube, SoundCloud, Gaana)
-  async resolveSpotiFlyerLink(linkUrl) {
+  // 3. Universal Music Link Resolver (Spotify, JioSaavn, YouTube, SoundCloud, Gaana)
+  async resolveLink(linkUrl) {
     const url = `/api/spotiflyer/resolve?url=${encodeURIComponent(linkUrl)}`;
     const res = await fetch(url);
     if (!res.ok) {
@@ -26,6 +26,9 @@ export const API = {
       throw new Error(errData.error || `Link Resolver HTTP ${res.status}`);
     }
     return await res.json();
+  },
+  async resolveSpotiFlyerLink(linkUrl) {
+    return this.resolveLink(linkUrl);
   },
 
   // 4. Download Audio MP3 (320kbps)
