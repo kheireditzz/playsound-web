@@ -26,9 +26,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <!-- Modular Tactile Neumorphic Stylesheets -->
-  <link rel="stylesheet" href="/css/neumorphic.css">
-  <link rel="stylesheet" href="/css/download-center.css">
-  <link rel="stylesheet" href="/css/settings.css">
+  <link rel="stylesheet" href="/css/neumorphic.css?v=2.4.1">
+  <link rel="stylesheet" href="/css/download-center.css?v=2.4.1">
+  <link rel="stylesheet" href="/css/settings.css?v=2.4.1">
 </head>
 <body>
 
@@ -810,23 +810,84 @@
         </div>
       </div>
 
-      <!-- Settings Nav Tabs -->
-      <div class="settings-tabs">
-        <button type="button" class="settings-tab-btn active" data-tab="notifications" onclick="window.switchSettingsTab('notifications')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-          Notifikasi
+      <!-- Category Title Bar -->
+      <div class="settings-category-title-bar">
+        <div class="settings-category-headline">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          Kategori Pengaturan
+        </div>
+      </div>
+
+      <!-- Settings Category Grid (Besar, Mewah, Taktil, Responsif) -->
+      <div class="settings-category-grid">
+        <button type="button" class="settings-category-card active" data-tab="notifications" onclick="window.switchSettingsTab('notifications')" title="Pengaturan Notifikasi Realtime">
+          <div class="cat-card-icon cat-notif">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+          </div>
+          <div class="cat-card-text">
+            <div class="cat-card-title">Notifikasi</div>
+            <div class="cat-card-desc">Pop-up & Alert Realtime</div>
+          </div>
+          <div class="cat-card-active-dot"></div>
         </button>
-        <button type="button" class="settings-tab-btn" data-tab="audio" onclick="window.switchSettingsTab('audio')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
-          Audio & Pemutar
+
+        <button type="button" class="settings-category-card" data-tab="audio" onclick="window.switchSettingsTab('audio')" title="Pengaturan Audio & Pemutar">
+          <div class="cat-card-icon cat-audio">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 18V5l12-2v13"></path>
+              <circle cx="6" cy="18" r="3"></circle>
+              <circle cx="18" cy="16" r="3"></circle>
+            </svg>
+          </div>
+          <div class="cat-card-text">
+            <div class="cat-card-title">Audio & Pemutar</div>
+            <div class="cat-card-desc">Hi-Fi 320k & Autoplay</div>
+          </div>
+          <div class="cat-card-active-dot"></div>
         </button>
-        <button type="button" class="settings-tab-btn" data-tab="display" onclick="window.switchSettingsTab('display')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-          Tampilan
+
+        <button type="button" class="settings-category-card" data-tab="display" onclick="window.switchSettingsTab('display')" title="Pengaturan Tampilan & Tema">
+          <div class="cat-card-icon cat-display">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+          </div>
+          <div class="cat-card-text">
+            <div class="cat-card-title">Tampilan & Tema</div>
+            <div class="cat-card-desc">Skin Taktil & Haptic</div>
+          </div>
+          <div class="cat-card-active-dot"></div>
         </button>
-        <button type="button" class="settings-tab-btn" data-tab="storage" onclick="window.switchSettingsTab('storage')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
-          Penyimpanan
+
+        <button type="button" class="settings-category-card" data-tab="storage" onclick="window.switchSettingsTab('storage')" title="Pengaturan Penyimpanan & Cache">
+          <div class="cat-card-icon cat-storage">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+              <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+              <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+            </svg>
+          </div>
+          <div class="cat-card-text">
+            <div class="cat-card-title">Penyimpanan</div>
+            <div class="cat-card-desc">Cache & Riwayat Data</div>
+          </div>
+          <div class="cat-card-active-dot"></div>
         </button>
       </div>
 
@@ -1044,8 +1105,8 @@
   </div>
 
   <!-- Modular Scripts -->
-  <script src="/js/settings.js"></script>
-  <script src="/js/core.js"></script>
-  <script type="module" src="/js/downloader.js"></script>
+  <script src="/js/settings.js?v=2.4.1"></script>
+  <script src="/js/core.js?v=2.4.1"></script>
+  <script type="module" src="/js/downloader.js?v=2.4.1"></script>
 </body>
 </html>

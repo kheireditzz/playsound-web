@@ -203,7 +203,7 @@
 
   window.switchSettingsTab = function(tabName) {
     Settings.triggerHaptic();
-    document.querySelectorAll('.settings-tab-btn').forEach(btn => {
+    document.querySelectorAll('.settings-tab-btn, .settings-category-card').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.tab === tabName);
     });
     document.querySelectorAll('.settings-section').forEach(sec => {

@@ -1,15 +1,24 @@
 /* ── Neumorphic Full-Screen Menu & Comprehensive Settings Styles ── */
 
-/* Sembunyikan Dashboard saat Menu Hamburger terbuka agar TIDAK TEMBUS ke belakang */
-body.menu-open main.container,
-body.menu-open #historySection,
-body.menu-open #trendingBanner,
-body.menu-open #downloadViewContainer,
-body.menu-open #lovedPageBar {
-  visibility: hidden !important;
+/* ── 1. BODY MENU OPEN STATE: Sembunyikan TOTAL Seluruh Dashboard Agar Tidak Tembus ── */
+body.menu-open {
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+  touch-action: none;
 }
 
-/* Header Hamburger Button (Sebelah Kanan Atas Header) */
+body.menu-open main.container,
+body.menu-open #playerDock,
+body.menu-open .neu-player-dock,
+body.menu-open #downloadViewContainer,
+body.menu-open #lovedPageBar,
+body.menu-open #historySection,
+body.menu-open #trendingBanner,
+body.menu-open .controls-wrapper {
+  display: none !important;
+}
+
+/* ── 2. HEADER HAMBURGER BUTTON (Kanan Atas Header) ── */
 .header-menu-btn {
   width: 44px;
   height: 44px;
@@ -82,39 +91,41 @@ body.menu-open #lovedPageBar {
   background-color: var(--color-primary);
 }
 
-/* Full-Screen Hamburger Menu Backdrop (100% Solid Opaque di Bawah Header) */
+/* ── 3. FULL-SCREEN HAMBURGER MENU BACKDROP (100% Solid Opaque di Bawah Header) ── */
 .settings-backdrop {
   position: fixed;
-  top: 76px; /* Mulai tepat di bawah bar header 76px sehingga HEADER ATAS TETAP TAMPAK */
+  top: var(--header-height, 76px);
   left: 0;
   right: 0;
   bottom: 0;
   width: 100%;
-  height: calc(100vh - 76px);
+  height: calc(100% - var(--header-height, 76px));
+  height: calc(100dvh - var(--header-height, 76px));
+  background: var(--bg-surface) !important;
   background-color: var(--bg-surface) !important;
-  z-index: 4990;
+  z-index: 5500;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.26s cubic-bezier(0.16, 1, 0.3, 1), transform 0.26s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.26s ease;
-  transform: translateY(-8px);
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.22s ease;
+  transform: translateY(-6px);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
 }
 
 .settings-backdrop.is-open {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-  transform: translateY(0);
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transform: translateY(0) !important;
 }
 
-/* Container Menu Full Page */
+/* ── 4. CONTAINER MENU FULL PAGE ── */
 .settings-modal {
   position: relative;
   width: 100%;
-  max-width: 860px;
+  max-width: 900px;
   margin: 0 auto;
   min-height: 100%;
   background: var(--bg-surface) !important;
@@ -123,14 +134,13 @@ body.menu-open #lovedPageBar {
   border: none !important;
   display: flex;
   flex-direction: column;
-  padding: 20px 24px 140px;
-  opacity: 1 !important;
-  pointer-events: auto !important;
+  padding: 22px 24px 80px;
+  box-sizing: border-box;
 }
 
-/* Header Panel Menu */
+/* ── 5. HEADER PANEL MENU ── */
 .settings-header {
-  padding: 14px 0 20px;
+  padding: 8px 0 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -204,7 +214,7 @@ body.menu-open #lovedPageBar {
   transform: translateY(1px);
 }
 
-/* ── Menu Hero Featured Navigation Cards ── */
+/* ── 6. MENU HERO FEATURED NAVIGATION CARDS ── */
 .menu-hero-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -223,7 +233,7 @@ body.menu-open #lovedPageBar {
   gap: 14px;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  border: 1px solid rgba(255, 255, 255, 0.7);
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
   user-select: none;
   -webkit-user-select: none;
 }
@@ -280,58 +290,137 @@ body.menu-open #lovedPageBar {
   flex-shrink: 0;
 }
 
-/* ── Kategori Pengaturan (Besar, Jelas, & Taktil) ── */
-.settings-tabs {
+/* ── 7. KATEGORI PENGATURAN (BESAR, MEWAH, TAKTIL, & RESPONSIF) ── */
+.settings-category-title-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.settings-category-headline {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-category-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
-  padding: 10px 0 22px;
-  background: transparent;
-  border-bottom: none;
+  margin-bottom: 22px;
 }
 
-.settings-tab-btn {
+.settings-category-card {
+  position: relative;
   background: var(--bg-surface);
-  border: 1.5px solid transparent;
-  border-radius: 14px;
-  padding: 14px 12px;
-  min-height: 52px;
-  font-family: 'Space Mono', monospace;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--color-text-muted);
+  border: 2px solid transparent;
+  border-radius: 16px;
+  padding: 16px 14px;
+  min-height: 82px;
   box-shadow: var(--neu-extruded-sm);
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 9px;
+  gap: 12px;
   user-select: none;
   -webkit-user-select: none;
-  white-space: nowrap;
+  text-align: left;
+  outline: none;
 }
 
-.settings-tab-btn svg {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
+.settings-category-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--neu-extruded);
 }
 
-.settings-tab-btn:hover {
-  color: var(--color-primary);
-  transform: translateY(-1px);
-}
-
-.settings-tab-btn.active {
-  color: var(--color-primary);
+.settings-category-card:active {
   box-shadow: var(--neu-inset);
-  background: rgba(0, 102, 102, 0.06);
-  border-color: rgba(0, 102, 102, 0.3);
   transform: translateY(1px);
 }
 
-/* ── Settings Content Sections ── */
+.settings-category-card.active {
+  box-shadow: var(--neu-inset);
+  border-color: var(--color-primary);
+  background: rgba(0, 102, 102, 0.05);
+  transform: translateY(1px);
+}
+
+.cat-card-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--bg-surface);
+  box-shadow: var(--neu-extruded-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.settings-category-card.active .cat-card-icon {
+  box-shadow: var(--neu-inset);
+}
+
+.cat-notif { color: var(--color-primary); }
+.cat-audio { color: var(--color-success); }
+.cat-display { color: var(--color-warning); }
+.cat-storage { color: var(--color-danger); }
+
+.cat-card-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.cat-card-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.2;
+  transition: color 0.18s ease;
+}
+
+.settings-category-card.active .cat-card-title {
+  color: var(--color-primary);
+}
+
+.cat-card-desc {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cat-card-active-dot {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  opacity: 0;
+  transform: scale(0);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.settings-category-card.active .cat-card-active-dot {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ── 8. SETTINGS CONTENT SECTIONS ── */
 .settings-body {
   padding: 4px 0 0;
 }
@@ -352,7 +441,7 @@ body.menu-open #lovedPageBar {
 
 .settings-group-title {
   font-family: 'Space Mono', monospace;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -375,7 +464,7 @@ body.menu-open #lovedPageBar {
   justify-content: space-between;
   gap: 18px;
   transition: all 0.15s ease;
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
 }
 
 .settings-card-info {
@@ -384,7 +473,7 @@ body.menu-open #lovedPageBar {
 
 .settings-card-label {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 0.92rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: var(--color-text);
   display: flex;
@@ -394,8 +483,8 @@ body.menu-open #lovedPageBar {
 
 .settings-badge-pill {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.68rem;
-  padding: 3px 8px;
+  font-size: 0.7rem;
+  padding: 3px 9px;
   border-radius: 6px;
   background: rgba(0, 102, 102, 0.12);
   color: var(--color-primary);
@@ -408,7 +497,7 @@ body.menu-open #lovedPageBar {
 }
 
 .settings-card-desc {
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   color: var(--color-text-muted);
   margin-top: 5px;
   line-height: 1.45;
@@ -418,7 +507,7 @@ body.menu-open #lovedPageBar {
 .neu-switch {
   position: relative;
   display: inline-block;
-  width: 56px;
+  width: 58px;
   height: 32px;
   flex-shrink: 0;
 }
@@ -458,7 +547,7 @@ body.menu-open #lovedPageBar {
 }
 
 .neu-switch input:checked + .neu-slider:before {
-  transform: translateX(24px);
+  transform: translateX(26px);
   background: #ffffff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
@@ -517,7 +606,7 @@ body.menu-open #lovedPageBar {
 
 .neu-range-val {
   font-family: 'Space Mono', monospace;
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   font-weight: 700;
   color: var(--color-primary);
   min-width: 48px;
@@ -617,26 +706,45 @@ html.theme-midnight {
   --color-secondary: #020617;
 }
 
-/* ── Responsive Mobile & Tablet Rules ── */
+/* ── 9. RESPONSIVE MOBILE & TABLET RULES ── */
 @media (max-width: 768px) {
   .menu-hero-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .settings-category-grid {
+    grid-template-columns: repeat(2, 1fr);
     gap: 10px;
   }
 
-  .settings-tabs {
-    grid-template-columns: repeat(2, 1fr);
+  .settings-category-card {
+    min-height: 74px;
+    padding: 14px 12px;
     gap: 10px;
+  }
+
+  .cat-card-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .cat-card-title {
+    font-size: 0.86rem;
+  }
+
+  .cat-card-desc {
+    font-size: 0.68rem;
   }
 }
 
 @media (max-width: 480px) {
   .settings-modal {
-    padding: 16px 14px 140px;
+    padding: 16px 14px 70px;
   }
 
   .settings-header-title {
-    font-size: 1rem;
+    font-size: 1.05rem;
   }
 
   .settings-header-icon {
@@ -644,20 +752,47 @@ html.theme-midnight {
     height: 38px;
   }
 
-  .settings-tab-btn {
-    font-size: 0.78rem;
-    padding: 10px 8px;
-    min-height: 46px;
-    gap: 6px;
+  .settings-category-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .settings-category-card {
+    min-height: 70px;
+    padding: 12px 10px;
+    gap: 8px;
+    border-radius: 14px;
+  }
+
+  .cat-card-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+  }
+
+  .cat-card-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .cat-card-title {
+    font-size: 0.82rem;
+  }
+
+  .cat-card-desc {
+    font-size: 0.65rem;
   }
 
   .settings-card {
-    padding: 14px 14px;
+    padding: 15px 14px;
     gap: 12px;
+    border-radius: 14px;
   }
 
   .settings-card-label {
-    font-size: 0.86rem;
+    font-size: 0.88rem;
+    flex-wrap: wrap;
+    gap: 6px;
   }
 
   .settings-card-desc {
