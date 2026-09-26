@@ -2522,7 +2522,6 @@
         margin-bottom: 22px;
         width: 100%;
         max-width: 100%;
-        contain: paint;
         box-sizing: border-box;
       }
     }

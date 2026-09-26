@@ -249,32 +249,39 @@ public class MainActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                // Evaluasi apakah modal lirik layar penuh atau drawer pengaturan terbuka
+                // Evaluasi apakah modal lirik layar penuh, drawer, atau sub-halaman terbuka
                 webView.evaluateJavascript(
                         "(function() { " +
+                        "  if (typeof window.handleAndroidBack === 'function') { " +
+                        "    try { " +
+                        "      var handled = window.handleAndroidBack(); " +
+                        "      if (handled) return true; " +
+                        "    } catch (e) {} " +
+                        "  } " +
                         "  var fullPlayer = document.getElementById('spotifyFullPlayer'); " +
-                        "  if (fullPlayer && fullPlayer.classList.contains('active')) { " +
+                        "  if (fullPlayer && (fullPlayer.classList.contains('is-open') || document.body.classList.contains('full-player-active'))) { " +
                         "    if (typeof window.closeFullPlayer === 'function') window.closeFullPlayer(); " +
                         "    return true; " +
                         "  } " +
-                        "  var drawer = document.getElementById('settingsDrawer'); " +
-                        "  if (drawer && drawer.classList.contains('active')) { " +
+                        "  var backdrop = document.getElementById('settingsBackdrop'); " +
+                        "  if (backdrop && (backdrop.classList.contains('is-open') || document.body.classList.contains('menu-open'))) { " +
                         "    if (typeof window.toggleSettingsMenu === 'function') window.toggleSettingsMenu(false); " +
                         "    return true; " +
                         "  } " +
-                        "  var dlModal = document.getElementById('downloadModal'); " +
-                        "  if (dlModal && dlModal.classList.contains('show')) { " +
-                        "    if (typeof window.closeDownloadModal === 'function') window.closeDownloadModal(); " +
+                        "  var dlView = document.getElementById('downloadViewContainer'); " +
+                        "  if (dlView && dlView.style.display !== 'none') { " +
+                        "    if (typeof window.exitDownloadCenter === 'function') window.exitDownloadCenter(); " +
+                        "    return true; " +
+                        "  } " +
+                        "  var albView = document.getElementById('albumViewContainer'); " +
+                        "  if (albView && albView.style.display !== 'none') { " +
+                        "    if (typeof window.closeAlbumDetailView === 'function') window.closeAlbumDetailView(); " +
                         "    return true; " +
                         "  } " +
                         "  return false; " +
                         "})();",
                         result -> {
                             if ("true".equals(result)) {
-                                return;
-                            }
-                            if (webView.canGoBack()) {
-                                webView.goBack();
                                 return;
                             }
                             if (doubleBackToExitPressedOnce) {

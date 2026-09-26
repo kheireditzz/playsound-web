@@ -144,6 +144,7 @@
         return;
       }
 
+      const prevScroll = historyScrollRow.scrollLeft;
       historySection.style.display = 'block';
       historyScrollRow.innerHTML = historyTracks.map((t, idx) => {
         const isPlaying = state.currentTrack && (state.currentTrack.id === t.id || (state.currentTrack.title === t.title && state.currentTrack.artist === t.artist)) && state.isPlaying;
@@ -176,6 +177,9 @@
           </div>
         `;
       }).join('');
+      if (prevScroll > 0) {
+        historyScrollRow.scrollLeft = prevScroll;
+      }
     }
 
     window.playHistoryTrack = function(idx) {
@@ -1260,9 +1264,83 @@
       closeAllDropdowns();
     });
 
+    // ── Android Hardware / Gesture Back Navigation Handler ──
+    window.handleAndroidBack = function() {
+      // 1. Jika video modal terbuka
+      if (typeof videoModal !== 'undefined' && videoModal && videoModal.style.display !== 'none') {
+        if (typeof window.closeVideoModal === 'function') {
+          window.closeVideoModal();
+          return true;
+        }
+      }
+      // 2. Jika equalizer modal terbuka
+      const eqModal = document.getElementById('eqModal');
+      if (eqModal && (eqModal.classList.contains('show') || eqModal.classList.contains('active') || eqModal.style.display === 'flex')) {
+        if (typeof window.closeEqualizerModal === 'function') {
+          window.closeEqualizerModal();
+          return true;
+        }
+      }
+      // 3. Jika sleep timer modal terbuka
+      const timerModal = document.getElementById('sleepTimerModal');
+      if (timerModal && (timerModal.classList.contains('show') || timerModal.classList.contains('active') || timerModal.style.display === 'flex')) {
+        if (typeof window.closeSleepTimerModal === 'function') {
+          window.closeSleepTimerModal();
+          return true;
+        }
+      }
+      // 4. Jika Fullscreen Now Playing Player terbuka
+      if (spotifyFullPlayer && (spotifyFullPlayer.classList.contains('is-open') || document.body.classList.contains('full-player-active'))) {
+        window.closeFullPlayer();
+        return true;
+      }
+      // 5. Jika Settings Drawer/Modal terbuka
+      const settingsBackdrop = document.getElementById('settingsBackdrop');
+      if (settingsBackdrop && (settingsBackdrop.classList.contains('is-open') || document.body.classList.contains('menu-open'))) {
+        if (typeof window.toggleSettingsMenu === 'function') {
+          window.toggleSettingsMenu(false);
+          return true;
+        }
+      }
+      // 6. Jika Pusat Unduh Musik (Download Center) terbuka
+      const dlView = document.getElementById('downloadViewContainer');
+      if (dlView && dlView.style.display !== 'none') {
+        if (typeof window.exitDownloadCenter === 'function') {
+          window.exitDownloadCenter();
+          return true;
+        }
+      }
+      // 7. Jika Detail Album terbuka
+      const albView = document.getElementById('albumViewContainer');
+      if (albView && albView.style.display !== 'none') {
+        if (typeof window.closeAlbumDetailView === 'function') {
+          window.closeAlbumDetailView();
+          return true;
+        }
+      }
+      // 8. Jika panel riwayat pencarian terbuka
+      const searchPanel = document.getElementById('searchHistoryPanel');
+      if (searchPanel && searchPanel.style.display !== 'none') {
+        searchPanel.style.display = 'none';
+        return true;
+      }
+      // 9. Jika dropdown menu lagu terbuka
+      const openDropdown = document.querySelector('.neu-dropdown-menu.show');
+      if (openDropdown) {
+        window.closeAllDropdowns();
+        return true;
+      }
+      return false;
+    };
+
     // ── Spotify-Style Fullscreen Player Logic ──
     window.openFullPlayer = function() {
       if (!spotifyFullPlayer) return;
+      // Pause banner autoplay di background saat user masuk ke pemutar layar penuh
+      if (typeof bannerTimer !== 'undefined' && bannerTimer) {
+        clearInterval(bannerTimer);
+        bannerTimer = null;
+      }
       updateFullPlayerDetails();
       const playerDock = document.getElementById('playerDock');
       if (playerDock) playerDock.classList.add('is-rising');
@@ -1276,6 +1354,11 @@
       if (playerDock) playerDock.classList.remove('is-rising');
       spotifyFullPlayer.classList.remove('is-open');
       document.body.classList.remove('full-player-active');
+
+      // Jaga posisi banner tetap pada slide aktif dan mulai kembali autoplay
+      if (typeof goToSlide === 'function' && typeof bannerCurrent !== 'undefined' && typeof bannerSlides !== 'undefined' && bannerSlides.length) {
+        goToSlide(bannerCurrent, true);
+      }
     };
 
     function updateFullPlayerDetails() {
@@ -3051,11 +3134,14 @@
 
 
     function goToSlide(idx, resetTimer) {
+      if (!bannerSlides || !bannerSlides.length || !bannerStrip) return;
       bannerCurrent = (idx + bannerSlides.length) % bannerSlides.length;
       bannerStrip.style.transform = `translateX(-${bannerCurrent * 100}%)`;
-      bannerDots.querySelectorAll('.banner-dot').forEach((d, i) => {
-        d.classList.toggle('active', i === bannerCurrent);
-      });
+      if (bannerDots) {
+        bannerDots.querySelectorAll('.banner-dot').forEach((d, i) => {
+          d.classList.toggle('active', i === bannerCurrent);
+        });
+      }
       if (resetTimer) {
         clearInterval(bannerTimer);
         startBannerAutoplay();
@@ -3063,6 +3149,11 @@
     }
 
     function startBannerAutoplay() {
+      if (bannerTimer) clearInterval(bannerTimer);
+      // Jangan jalankan timer jika sedang di Full Player
+      if (spotifyFullPlayer && (spotifyFullPlayer.classList.contains('is-open') || document.body.classList.contains('full-player-active'))) {
+        return;
+      }
       bannerTimer = setInterval(() => goToSlide(bannerCurrent + 1, false), BANNER_DELAY);
     }
 
