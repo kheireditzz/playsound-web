@@ -1,7 +1,12 @@
 {
-  "name": "play-music-by-kheireditz",
-  "version": "1.0.0",
-  "description": "Play Music by Kheireditz - Global Viral Music Platform",
+  "name": "playmusic-web",
+  "version": "1.2.0",
+  "description": "PlayMusic - Next-Gen Tactile Music Player & Real-Time Global Music Radar with Synced Karaoke Lyrics and Hi-Fi Audio",
+  "homepage": "https://playmusic.kheireditz.my.id",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kheireditzz/playsound-web.git"
+  },
   "type": "module",
   "main": "server.js",
   "scripts": {
@@ -9,5 +14,15 @@
   },
   "dependencies": {
     "crypto-js": "^4.2.0"
-  }
+  },
+  "keywords": [
+    "music-player",
+    "karaoke",
+    "lyrics-sync",
+    "neumorphism",
+    "tactile-ui",
+    "audio-streaming",
+    "spotify-charts",
+    "tiktok-viral"
+  ]
 }
