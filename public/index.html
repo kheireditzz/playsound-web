@@ -1591,6 +1591,314 @@
       color: #CC0000;
     }
 
+    /* ── Full Player View Switcher (Artwork vs Lirik) ── */
+    .full-player-tabs {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 4px 0 8px 0;
+    }
+
+    .full-tab-btn {
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: var(--bg-surface);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      box-shadow: var(--neu-extruded-sm);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .full-tab-btn.active {
+      box-shadow: var(--neu-inset-sm);
+      color: var(--color-primary);
+      border-color: rgba(0, 102, 102, 0.35);
+    }
+
+    /* Kontainer Lirik */
+    .full-lyrics-container {
+      width: 100%;
+      height: min(72vw, 320px);
+      max-width: 380px;
+      max-height: 320px;
+      border-radius: 20px;
+      background: var(--bg-surface);
+      box-shadow: var(--neu-inset);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      padding: 20px 16px;
+      overflow-y: auto;
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+      text-align: center;
+      box-sizing: border-box;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      user-select: none;
+    }
+
+    .full-lyrics-container.show {
+      display: flex;
+    }
+
+    .lyric-line {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      opacity: 0.45;
+      transition: all 0.25s ease;
+      cursor: pointer;
+      line-height: 1.5;
+      padding: 4px 8px;
+      border-radius: 8px;
+    }
+
+    .lyric-line:hover {
+      opacity: 0.8;
+    }
+
+    .lyric-line.active {
+      opacity: 1;
+      color: var(--color-primary);
+      font-size: 1.08rem;
+      font-weight: 800;
+      text-shadow: 0 0 16px rgba(0, 102, 102, 0.22);
+      background: rgba(0, 102, 102, 0.06);
+      transform: scale(1.02);
+    }
+
+    .lyric-empty {
+      color: var(--color-text-muted);
+      font-size: 0.82rem;
+      font-family: 'Space Mono', monospace;
+      margin: auto;
+    }
+
+    /* Button LED & Repeat Indicator */
+    .full-btn-secondary {
+      position: relative;
+    }
+
+    .btn-led-dot {
+      position: absolute;
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: transparent;
+      transition: all 0.2s ease;
+    }
+
+    .full-btn-secondary.is-active .btn-led-dot {
+      background: var(--color-primary);
+      box-shadow: 0 0 6px var(--color-primary);
+    }
+
+    .repeat-one-badge {
+      position: absolute;
+      top: 5px;
+      right: 6px;
+      font-size: 0.55rem;
+      font-weight: 800;
+      font-family: 'Space Mono', monospace;
+      color: var(--color-primary);
+      display: none;
+    }
+
+    .full-btn-secondary.repeat-one .repeat-one-badge {
+      display: block;
+    }
+
+    /* Full Player Tools Row (Equalizer & Sleep Timer) */
+    .full-player-tools-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .full-tool-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: var(--bg-surface);
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      box-shadow: var(--neu-extruded-sm);
+      color: var(--color-text-muted);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .full-tool-btn:hover {
+      color: var(--color-primary);
+    }
+
+    .full-tool-btn:active {
+      transform: scale(0.95);
+      box-shadow: var(--neu-inset-sm);
+    }
+
+    .full-tool-btn.active {
+      color: var(--color-primary);
+      box-shadow: var(--neu-inset-sm);
+      border-color: rgba(0, 102, 102, 0.35);
+    }
+
+    /* Neumorphic Dialog (EQ & Sleep Timer) */
+    .neu-dialog-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(30, 41, 56, 0.62);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 3500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      touch-action: none;
+    }
+
+    .neu-dialog-backdrop.open {
+      display: flex;
+    }
+
+    .neu-dialog-box {
+      background: var(--bg-surface);
+      border-radius: 22px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.28), var(--neu-extruded-card);
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      width: 100%;
+      max-width: 420px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      touch-action: auto;
+    }
+
+    .eq-band-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .eq-band-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      width: 72px;
+      color: var(--color-text);
+    }
+
+    .eq-slider {
+      flex: 1;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--bg-surface);
+      box-shadow: var(--neu-inset-sm);
+      appearance: none;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .eq-slider::-webkit-slider-thumb {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--bg-surface);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow: var(--neu-extruded-sm);
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+
+    .eq-slider::-webkit-slider-thumb:active {
+      transform: scale(1.18);
+      background: var(--color-primary);
+    }
+
+    .eq-band-val {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      width: 44px;
+      text-align: right;
+      color: var(--color-primary);
+      font-weight: 700;
+    }
+
+    .eq-presets-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .eq-preset-btn {
+      padding: 6px 12px;
+      border-radius: 10px;
+      background: var(--bg-surface);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      box-shadow: var(--neu-extruded-sm);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--color-text);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .eq-preset-btn.active {
+      box-shadow: var(--neu-inset-sm);
+      color: var(--color-primary);
+      border-color: rgba(0, 102, 102, 0.35);
+    }
+
+    .timer-options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .timer-option-btn {
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: var(--bg-surface);
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      box-shadow: var(--neu-extruded-sm);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--color-text);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+
+    .timer-option-btn.active {
+      box-shadow: var(--neu-inset-sm);
+      color: var(--color-primary);
+      border-color: rgba(0, 102, 102, 0.35);
+    }
+
     @media (max-height: 720px) {
       .full-player-cover-wrap {
         width: min(50vw, 220px);
@@ -3161,11 +3469,28 @@
         </button>
       </div>
 
+      <!-- Switcher Tabs: Artwork vs Lirik Karaoke -->
+      <div class="full-player-tabs">
+        <button type="button" class="full-tab-btn active" id="tabArtworkBtn" onclick="switchPlayerTab('artwork')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+          <span>ARTWORK</span>
+        </button>
+        <button type="button" class="full-tab-btn" id="tabLyricsBtn" onclick="switchPlayerTab('lyrics')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+          <span>LIRIK KARAOKE</span>
+        </button>
+      </div>
+
       <!-- Center Big Artwork Box -->
-      <div class="full-player-artwork-box">
+      <div class="full-player-artwork-box" id="fullArtworkBox">
         <div class="full-player-cover-wrap">
           <img id="fullPlayerCover" draggable="false" oncontextmenu="return false;" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='50' height='50'%3E%3Crect width='100' height='100' fill='%23DCDAD7' rx='14'/%3E%3Cpath d='M38 68a8 8 0 1 1-8-8 8 8 0 0 1 8 8zm30-7a8 8 0 1 1-8-8 8 8 0 0 1 8 8z' fill='%23006666'/%3E%3Cpath d='M38 68V34l30-7v34' fill='none' stroke='%23006666' stroke-width='4.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" alt="Cover Lagu" class="full-player-cover" onerror="this.src=DEFAULT_NEU_COVER;">
         </div>
+      </div>
+
+      <!-- Center Synced Karaoke Lyrics Container -->
+      <div class="full-lyrics-container" id="fullLyricsContainer">
+        <div class="lyric-empty" id="lyricsStatus">Memuat lirik karaoke...</div>
       </div>
 
       <!-- Track Metadata & Bitrate Badge -->
@@ -3201,6 +3526,7 @@
             <line x1="15" y1="15" x2="21" y2="21"></line>
             <line x1="4" y1="4" x2="9" y2="9"></line>
           </svg>
+          <span class="btn-led-dot"></span>
         </button>
 
         <button type="button" id="fullPrevBtn" class="full-btn-step" title="Sebelumnya" onclick="playPrevTrack()">
@@ -3227,13 +3553,27 @@
           </svg>
         </button>
 
-        <button type="button" id="fullRepeatBtn" class="full-btn-secondary" title="Ulangi Lagu (Repeat)" onclick="toggleRepeat()">
+        <button type="button" id="fullRepeatBtn" class="full-btn-secondary" title="Ulangi Lagu (Repeat: Off / All / One)" onclick="toggleRepeat()">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="17 1 21 5 17 9"></polyline>
             <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
             <polyline points="7 23 3 19 7 15"></polyline>
             <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
           </svg>
+          <span class="btn-led-dot"></span>
+          <span class="repeat-one-badge" id="repeatOneBadge">1</span>
+        </button>
+      </div>
+
+      <!-- Tool Buttons (Equalizer & Sleep Timer) -->
+      <div class="full-player-tools-row">
+        <button type="button" class="full-tool-btn" id="openEqBtn" onclick="openEqualizerModal()" title="Pengaturan Audio & Bass Boost">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
+          <span id="eqActiveLabel">EQUALIZER</span>
+        </button>
+        <button type="button" class="full-tool-btn" id="openTimerBtn" onclick="openSleepTimerModal()" title="Pengatur Waktu Tidur Musik">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <span id="timerStatusLabel">SLEEP TIMER</span>
         </button>
       </div>
 
@@ -3257,6 +3597,64 @@
       </div>
     </div>
   </section>
+
+  <!-- Modal Equalizer & Bass Boost -->
+  <div class="neu-dialog-backdrop" id="eqModal">
+    <div class="neu-dialog-box">
+      <div class="modal-header">
+        <div class="modal-title" style="font-family: 'Space Mono'; font-size: 0.95rem;">EQUALIZER & BASS BOOST</div>
+        <button class="modal-close-btn" onclick="closeEqualizerModal()">&times;</button>
+      </div>
+      <div class="eq-presets-wrap">
+        <button class="eq-preset-btn active" id="preset-flat" onclick="applyEqPreset('flat', this)">Flat (Normal)</button>
+        <button class="eq-preset-btn" id="preset-bass" onclick="applyEqPreset('bass', this)">Bass Booster 🔥</button>
+        <button class="eq-preset-btn" id="preset-vocal" onclick="applyEqPreset('vocal', this)">Vocal Pop 🎤</button>
+        <button class="eq-preset-btn" id="preset-acoustic" onclick="applyEqPreset('acoustic', this)">Acoustic Warm</button>
+        <button class="eq-preset-btn" id="preset-lofi" onclick="applyEqPreset('lofi', this)">Lo-Fi Chill ☕</button>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 6px;">
+        <div class="eq-band-row">
+          <span class="eq-band-label">BASS (100Hz)</span>
+          <input type="range" class="eq-slider" id="eqBass" min="-12" max="12" step="1" value="0" oninput="updateEqSlider('bass', this.value)">
+          <span class="eq-band-val" id="eqBassVal">0 dB</span>
+        </div>
+        <div class="eq-band-row">
+          <span class="eq-band-label">MID (1kHz)</span>
+          <input type="range" class="eq-slider" id="eqMid" min="-12" max="12" step="1" value="0" oninput="updateEqSlider('mid', this.value)">
+          <span class="eq-band-val" id="eqMidVal">0 dB</span>
+        </div>
+        <div class="eq-band-row">
+          <span class="eq-band-label">TREBLE (3kHz)</span>
+          <input type="range" class="eq-slider" id="eqTreble" min="-12" max="12" step="1" value="0" oninput="updateEqSlider('treble', this.value)">
+          <span class="eq-band-val" id="eqTrebleVal">0 dB</span>
+        </div>
+      </div>
+      <button type="button" class="tactile-btn play-btn-primary" onclick="closeEqualizerModal()" style="padding: 10px; width: 100%; font-family: 'Space Mono'; font-size: 0.8rem; margin-top: 4px;">
+        SIMPAN PENGATURAN
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal Sleep Timer -->
+  <div class="neu-dialog-backdrop" id="sleepTimerModal">
+    <div class="neu-dialog-box">
+      <div class="modal-header">
+        <div class="modal-title" style="font-family: 'Space Mono'; font-size: 0.95rem;">SLEEP TIMER (WAKTU TIDUR)</div>
+        <button class="modal-close-btn" onclick="closeSleepTimerModal()">&times;</button>
+      </div>
+      <div style="font-size: 0.8rem; color: var(--color-text-muted); font-family: 'Plus Jakarta Sans', sans-serif;">
+        Musik akan mengecil perlahan (*fade-out*) dan berhenti saat waktu tidur berakhir.
+      </div>
+      <div class="timer-options-grid">
+        <button class="timer-option-btn" id="timer-15" onclick="setSleepTimer(15, this)">15 Menit</button>
+        <button class="timer-option-btn" id="timer-30" onclick="setSleepTimer(30, this)">30 Menit</button>
+        <button class="timer-option-btn" id="timer-45" onclick="setSleepTimer(45, this)">45 Menit</button>
+        <button class="timer-option-btn" id="timer-60" onclick="setSleepTimer(60, this)">1 Jam</button>
+        <button class="timer-option-btn" id="timer-end" onclick="setSleepTimer('end', this)" style="grid-column: span 2;">Selesai Lagu Ini (End of Track)</button>
+        <button class="timer-option-btn active" id="timer-0" onclick="setSleepTimer(0, this)" style="grid-column: span 2; color: #FF2157;">Matikan Timer</button>
+      </div>
+    </div>
+  </div>
 
 
 
@@ -3302,7 +3700,10 @@
       isPlaying: false,
       currentTrack: null,
       isShuffle: false,
-      isRepeat: false
+      repeatMode: 'off', // 'off' | 'all' | 'one'
+      isRepeat: false,
+      activePlayerTab: 'artwork',
+      sleepOnTrackEnd: false
     };
 
     // DOM Elements
@@ -4479,6 +4880,15 @@
         }
       }
       updateFullPlayerLoveState();
+
+      // Sinkronisasi status LED dan badge
+      if (fullShuffleBtn) fullShuffleBtn.classList.toggle('is-active', !!state.isShuffle);
+      updateRepeatUI();
+
+      // Jika tab lirik sedang aktif, muat lirik untuk lagu ini
+      if (state.activePlayerTab === 'lyrics') {
+        loadLyricsForTrack(track);
+      }
     }
 
     function updateFullPlayerLoveState() {
@@ -4520,14 +4930,461 @@
       }
     };
 
+    // ── FITUR 1: LIRIK KARAOKE REAL-TIME (SYNCED LYRICS) ──
+    let lyricsData = []; // Array of { time: number, text: string }
+    let activeLyricIndex = -1;
+    let currentLyricsTrackKey = '';
+    let isUserScrollingLyrics = false;
+    let lyricsScrollTimeout = null;
+
+    const lyricsContainer = document.getElementById('fullLyricsContainer');
+    if (lyricsContainer) {
+      lyricsContainer.addEventListener('scroll', () => {
+        isUserScrollingLyrics = true;
+        clearTimeout(lyricsScrollTimeout);
+        lyricsScrollTimeout = setTimeout(() => {
+          isUserScrollingLyrics = false;
+        }, 2500);
+      }, { passive: true });
+    }
+
+    window.switchPlayerTab = function(tab) {
+      state.activePlayerTab = tab;
+      const tabArtworkBtn = document.getElementById('tabArtworkBtn');
+      const tabLyricsBtn = document.getElementById('tabLyricsBtn');
+      const artworkBox = document.getElementById('fullArtworkBox');
+      const lyricsBox = document.getElementById('fullLyricsContainer');
+
+      if (tab === 'lyrics') {
+        if (tabArtworkBtn) tabArtworkBtn.classList.remove('active');
+        if (tabLyricsBtn) tabLyricsBtn.classList.add('active');
+        if (artworkBox) artworkBox.style.display = 'none';
+        if (lyricsBox) lyricsBox.style.display = 'flex';
+
+        if (state.currentTrack) {
+          loadLyricsForTrack(state.currentTrack);
+        }
+      } else {
+        if (tabLyricsBtn) tabLyricsBtn.classList.remove('active');
+        if (tabArtworkBtn) tabArtworkBtn.classList.add('active');
+        if (lyricsBox) lyricsBox.style.display = 'none';
+        if (artworkBox) artworkBox.style.display = 'flex';
+      }
+    };
+
+    function parseLrc(lrcText) {
+      if (!lrcText || typeof lrcText !== 'string') return [];
+      const lines = lrcText.split(/\r?\n/);
+      const parsed = [];
+      const timeRegex = /\[(\d{2}):(\d{2}(?:\.\d+)?)\](.*)/;
+
+      for (const line of lines) {
+        const match = timeRegex.exec(line.trim());
+        if (match) {
+          const min = parseInt(match[1], 10);
+          const sec = parseFloat(match[2]);
+          const text = match[3] ? match[3].trim() : '';
+          const totalSec = min * 60 + sec;
+          if (text) {
+            parsed.push({ time: totalSec, text });
+          }
+        }
+      }
+      parsed.sort((a, b) => a.time - b.time);
+      return parsed;
+    }
+
+    async function loadLyricsForTrack(track) {
+      if (!track || !track.title) return;
+      const trackKey = (track.artist || '') + ' - ' + track.title;
+      if (currentLyricsTrackKey === trackKey && lyricsData.length > 0) {
+        syncKaraokeLyrics(audioEngine.currentTime || 0, true);
+        return;
+      }
+
+      currentLyricsTrackKey = trackKey;
+      lyricsData = [];
+      activeLyricIndex = -1;
+
+      if (!lyricsContainer) return;
+      lyricsContainer.innerHTML = `
+        <div class="lyric-empty" id="lyricsStatus">
+          <div class="skeleton-shimmer-box" style="width: 140px; height: 16px; border-radius: 6px; margin: 0 auto 10px;"></div>
+          <span>Mencari lirik karaoke...</span>
+        </div>`;
+
+      try {
+        const query = '/api/lyrics?artist=' + encodeURIComponent(track.artist || '') + '&title=' + encodeURIComponent(track.title);
+        const res = await fetch(query);
+        const data = await res.json();
+
+        if (currentLyricsTrackKey !== trackKey) return; // Lagu sudah diganti user
+
+        if (data && data.found && data.syncedLyrics) {
+          lyricsData = parseLrc(data.syncedLyrics);
+          if (lyricsData.length > 0) {
+            lyricsContainer.innerHTML = lyricsData.map((item, idx) => `
+              <div class="lyric-line" id="lyric-line-${idx}" data-idx="${idx}" onclick="seekToLyricTime(${item.time})">
+                ${escapeHtml(item.text)}
+              </div>
+            `).join('');
+            syncKaraokeLyrics(audioEngine.currentTime || 0, true);
+            return;
+          }
+        }
+
+        // Fallback plain lyrics jika ada
+        if (data && data.found && data.plainLyrics) {
+          const rawLines = data.plainLyrics.split(/\r?\n/).filter(l => l.trim().length > 0);
+          lyricsContainer.innerHTML = rawLines.map(line => `
+            <div class="lyric-line" style="cursor: default; opacity: 0.85;">
+              ${escapeHtml(line)}
+            </div>
+          `).join('');
+          return;
+        }
+
+        lyricsContainer.innerHTML = `
+          <div class="lyric-empty">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="opacity: 0.45; margin-bottom: 8px;"><circle cx="12" cy="12" r="10"></circle><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+            <div>Lirik karaoke belum tersedia untuk lagu ini.</div>
+          </div>`;
+      } catch (err) {
+        console.warn('Lyrics fetch error:', err);
+        lyricsContainer.innerHTML = `
+          <div class="lyric-empty">
+            <div>Gagal memuat lirik. Silakan periksa koneksi internet.</div>
+          </div>`;
+      }
+    }
+
+    function syncKaraokeLyrics(currentTime, forceScroll = false) {
+      if (!lyricsData || lyricsData.length === 0 || !lyricsContainer) return;
+      if (lyricsContainer.style.display === 'none') return;
+
+      let currentIdx = -1;
+      for (let i = 0; i < lyricsData.length; i++) {
+        if (currentTime >= lyricsData[i].time - 0.25) {
+          currentIdx = i;
+        } else {
+          break;
+        }
+      }
+
+      if (currentIdx !== activeLyricIndex || forceScroll) {
+        if (activeLyricIndex >= 0) {
+          const oldLine = document.getElementById(`lyric-line-${activeLyricIndex}`);
+          if (oldLine) oldLine.classList.remove('active');
+        }
+
+        activeLyricIndex = currentIdx;
+
+        if (currentIdx >= 0) {
+          const newLine = document.getElementById(`lyric-line-${currentIdx}`);
+          if (newLine) {
+            newLine.classList.add('active');
+
+            if (!isUserScrollingLyrics || forceScroll) {
+              const targetTop = newLine.offsetTop - (lyricsContainer.clientHeight / 2) + (newLine.clientHeight / 2);
+              lyricsContainer.scrollTo({
+                top: Math.max(0, targetTop),
+                behavior: 'smooth'
+              });
+            }
+          }
+        }
+      }
+    }
+
+    window.seekToLyricTime = function(time) {
+      if (typeof time !== 'number' || isNaN(time)) return;
+      if (audioEngine) {
+        audioEngine.currentTime = time;
+        if (audioEngine.paused) {
+          audioEngine.play().catch(() => {});
+        }
+        syncKaraokeLyrics(time, true);
+      }
+    };
+
+    // ── FITUR 2: WEB AUDIO API EQUALIZER & BASS BOOST ──
+    let audioCtx = null;
+    let audioSourceNode = null;
+    let eqBassNode = null;
+    let eqMidNode = null;
+    let eqTrebleNode = null;
+    let isEqInitialized = false;
+
+    const EQ_PRESETS = {
+      flat: { bass: 0, mid: 0, treble: 0, name: 'Flat (Normal)' },
+      bass: { bass: 8, mid: 1, treble: 3, name: 'Bass Booster 🔥' },
+      vocal: { bass: -2, mid: 6, treble: 4, name: 'Vocal Pop 🎤' },
+      acoustic: { bass: 4, mid: 2, treble: 5, name: 'Acoustic Warm' },
+      lofi: { bass: 6, mid: -3, treble: -6, name: 'Lo-Fi Chill ☕' }
+    };
+
+    function initAudioEqualizer() {
+      if (isEqInitialized) return;
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+
+        audioCtx = new AudioContextClass();
+        audioSourceNode = audioCtx.createMediaElementSource(audioEngine);
+
+        // Low-shelf filter for Bass (100 Hz)
+        eqBassNode = audioCtx.createBiquadFilter();
+        eqBassNode.type = 'lowshelf';
+        eqBassNode.frequency.value = 100;
+        eqBassNode.gain.value = 0;
+
+        // Peaking filter for Mids (1 kHz)
+        eqMidNode = audioCtx.createBiquadFilter();
+        eqMidNode.type = 'peaking';
+        eqMidNode.frequency.value = 1000;
+        eqMidNode.Q.value = 1.0;
+        eqMidNode.gain.value = 0;
+
+        // High-shelf filter for Treble (3 kHz)
+        eqTrebleNode = audioCtx.createBiquadFilter();
+        eqTrebleNode.type = 'highshelf';
+        eqTrebleNode.frequency.value = 3000;
+        eqTrebleNode.gain.value = 0;
+
+        // Chain nodes: source -> bass -> mid -> treble -> destination
+        audioSourceNode.connect(eqBassNode);
+        eqBassNode.connect(eqMidNode);
+        eqMidNode.connect(eqTrebleNode);
+        eqTrebleNode.connect(audioCtx.destination);
+
+        isEqInitialized = true;
+
+        // Pulihkan saved EQ settings dari localStorage
+        try {
+          const savedEq = localStorage.getItem('playsound_eq_settings');
+          if (savedEq) {
+            const parsed = JSON.parse(savedEq);
+            setEqBands(parsed.bass || 0, parsed.mid || 0, parsed.treble || 0);
+            if (parsed.preset) {
+              highlightEqPresetBtn(parsed.preset);
+            }
+          }
+        } catch (e) {}
+      } catch (err) {
+        console.warn('Web Audio Equalizer initialization:', err);
+      }
+    }
+
+    function setEqBands(bass, mid, treble) {
+      if (eqBassNode) eqBassNode.gain.value = bass;
+      if (eqMidNode) eqMidNode.gain.value = mid;
+      if (eqTrebleNode) eqTrebleNode.gain.value = treble;
+
+      const bInput = document.getElementById('eqBass');
+      const mInput = document.getElementById('eqMid');
+      const tInput = document.getElementById('eqTreble');
+      const bVal = document.getElementById('eqBassVal');
+      const mVal = document.getElementById('eqMidVal');
+      const tVal = document.getElementById('eqTrebleVal');
+
+      if (bInput) bInput.value = bass;
+      if (mInput) mInput.value = mid;
+      if (tInput) tInput.value = treble;
+      if (bVal) bVal.textContent = (bass > 0 ? '+' : '') + bass + ' dB';
+      if (mVal) mVal.textContent = (mid > 0 ? '+' : '') + mid + ' dB';
+      if (tVal) tVal.textContent = (treble > 0 ? '+' : '') + treble + ' dB';
+
+      const eqActiveLabel = document.getElementById('eqActiveLabel');
+      if (eqActiveLabel) {
+        const isCustom = bass !== 0 || mid !== 0 || treble !== 0;
+        eqActiveLabel.textContent = isCustom ? 'EQ ON' : 'EQUALIZER';
+      }
+    }
+
+    function highlightEqPresetBtn(presetKey) {
+      document.querySelectorAll('.eq-preset-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.id === `preset-${presetKey}`);
+      });
+    }
+
+    window.openEqualizerModal = function() {
+      initAudioEqualizer();
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      const modal = document.getElementById('eqModal');
+      if (modal) modal.classList.add('open');
+    };
+
+    window.closeEqualizerModal = function() {
+      const modal = document.getElementById('eqModal');
+      if (modal) modal.classList.remove('open');
+    };
+
+    window.updateEqSlider = function(band, val) {
+      initAudioEqualizer();
+      const numVal = parseFloat(val);
+      if (band === 'bass' && eqBassNode) eqBassNode.gain.value = numVal;
+      if (band === 'mid' && eqMidNode) eqMidNode.gain.value = numVal;
+      if (band === 'treble' && eqTrebleNode) eqTrebleNode.gain.value = numVal;
+
+      const labelEl = document.getElementById('eq' + band.charAt(0).toUpperCase() + band.slice(1) + 'Val');
+      if (labelEl) labelEl.textContent = (numVal > 0 ? '+' : '') + numVal + ' dB';
+
+      document.querySelectorAll('.eq-preset-btn').forEach(b => b.classList.remove('active'));
+
+      const currentBass = eqBassNode ? eqBassNode.gain.value : 0;
+      const currentMid = eqMidNode ? eqMidNode.gain.value : 0;
+      const currentTreble = eqTrebleNode ? eqTrebleNode.gain.value : 0;
+
+      const eqActiveLabel = document.getElementById('eqActiveLabel');
+      if (eqActiveLabel) {
+        const isCustom = currentBass !== 0 || currentMid !== 0 || currentTreble !== 0;
+        eqActiveLabel.textContent = isCustom ? 'EQ ON' : 'EQUALIZER';
+      }
+
+      try {
+        localStorage.setItem('playsound_eq_settings', JSON.stringify({
+          bass: currentBass,
+          mid: currentMid,
+          treble: currentTreble,
+          preset: 'custom'
+        }));
+      } catch(e) {}
+    };
+
+    window.applyEqPreset = function(presetKey, btnEl) {
+      initAudioEqualizer();
+      const preset = EQ_PRESETS[presetKey];
+      if (!preset) return;
+
+      setEqBands(preset.bass, preset.mid, preset.treble);
+      highlightEqPresetBtn(presetKey);
+
+      try {
+        localStorage.setItem('playsound_eq_settings', JSON.stringify({
+          bass: preset.bass,
+          mid: preset.mid,
+          treble: preset.treble,
+          preset: presetKey
+        }));
+      } catch(e) {}
+    };
+
+    // ── FITUR 3: SLEEP TIMER TAKTIL DENGAN VOLUME FADE-OUT ──
+    let sleepTimerInterval = null;
+    let sleepTimerRemainingSec = 0;
+    let isFadingOut = false;
+
+    window.openSleepTimerModal = function() {
+      const modal = document.getElementById('sleepTimerModal');
+      if (modal) modal.classList.add('open');
+    };
+
+    window.closeSleepTimerModal = function() {
+      const modal = document.getElementById('sleepTimerModal');
+      if (modal) modal.classList.remove('open');
+    };
+
+    function formatTimerDisplay(seconds) {
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      return `${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
+    window.setSleepTimer = function(minutesOrMode, btnEl) {
+      clearInterval(sleepTimerInterval);
+      sleepTimerInterval = null;
+      state.sleepOnTrackEnd = false;
+      isFadingOut = false;
+      audioEngine.volume = 1;
+
+      document.querySelectorAll('.timer-option-btn').forEach(b => b.classList.remove('active'));
+      if (btnEl) btnEl.classList.add('active');
+
+      const timerStatusLabel = document.getElementById('timerStatusLabel');
+
+      if (minutesOrMode === 0) {
+        if (timerStatusLabel) timerStatusLabel.textContent = 'SLEEP TIMER';
+        window.closeSleepTimerModal();
+        return;
+      }
+
+      if (minutesOrMode === 'end') {
+        state.sleepOnTrackEnd = true;
+        if (timerStatusLabel) timerStatusLabel.textContent = 'TIMER: AKHIR LAGU';
+        window.closeSleepTimerModal();
+        return;
+      }
+
+      const minutes = parseInt(minutesOrMode, 10);
+      if (isNaN(minutes) || minutes <= 0) return;
+
+      sleepTimerRemainingSec = minutes * 60;
+      if (timerStatusLabel) timerStatusLabel.textContent = `TIMER: ${formatTimerDisplay(sleepTimerRemainingSec)}`;
+      window.closeSleepTimerModal();
+
+      sleepTimerInterval = setInterval(() => {
+        sleepTimerRemainingSec--;
+
+        if (sleepTimerRemainingSec <= 15 && sleepTimerRemainingSec > 0) {
+          // Smooth volume fade-out dalam 15 detik terakhir
+          isFadingOut = true;
+          const fadeRatio = sleepTimerRemainingSec / 15;
+          audioEngine.volume = Math.max(0.05, Math.min(1, fadeRatio));
+        }
+
+        if (sleepTimerRemainingSec <= 0) {
+          clearInterval(sleepTimerInterval);
+          sleepTimerInterval = null;
+          audioEngine.pause();
+          audioEngine.volume = 1;
+          isFadingOut = false;
+          if (timerStatusLabel) timerStatusLabel.textContent = 'SLEEP TIMER';
+          document.querySelectorAll('.timer-option-btn').forEach(b => {
+            b.classList.toggle('active', b.id === 'timer-0');
+          });
+          return;
+        }
+
+        if (timerStatusLabel) {
+          timerStatusLabel.textContent = `TIMER: ${formatTimerDisplay(sleepTimerRemainingSec)}`;
+        }
+      }, 1000);
+    };
+
+    // ── FITUR 4: SHUFFLE & REPEAT (OFF, ALL, ONE) ENGINE ──
+    function updateRepeatUI() {
+      const badge = document.getElementById('repeatOneBadge');
+      if (state.repeatMode === 'off') {
+        if (fullRepeatBtn) fullRepeatBtn.classList.remove('is-active');
+        if (badge) badge.style.display = 'none';
+      } else if (state.repeatMode === 'all') {
+        if (fullRepeatBtn) fullRepeatBtn.classList.add('is-active');
+        if (badge) badge.style.display = 'none';
+      } else if (state.repeatMode === 'one') {
+        if (fullRepeatBtn) fullRepeatBtn.classList.add('is-active');
+        if (badge) badge.style.display = 'inline-block';
+      }
+    }
+
     window.toggleShuffle = function() {
       state.isShuffle = !state.isShuffle;
       if (fullShuffleBtn) fullShuffleBtn.classList.toggle('is-active', state.isShuffle);
     };
 
     window.toggleRepeat = function() {
-      state.isRepeat = !state.isRepeat;
-      if (fullRepeatBtn) fullRepeatBtn.classList.toggle('is-active', state.isRepeat);
+      if (state.repeatMode === 'off') {
+        state.repeatMode = 'all';
+        state.isRepeat = true;
+      } else if (state.repeatMode === 'all') {
+        state.repeatMode = 'one';
+        state.isRepeat = true;
+      } else {
+        state.repeatMode = 'off';
+        state.isRepeat = false;
+      }
+      updateRepeatUI();
     };
 
     window.playPrevTrack = function() {
@@ -4539,7 +5396,7 @@
       }
     };
 
-    window.playNextTrack = function() {
+    window.playNextTrack = function(forceLoop = false) {
       if (state.tracks.length === 0) return;
       if (state.isShuffle) {
         let randIdx = Math.floor(Math.random() * state.tracks.length);
@@ -4550,13 +5407,77 @@
       } else {
         if (state.currentIndex + 1 < state.tracks.length) {
           playTrackByIndex(state.currentIndex + 1);
+        } else if (forceLoop || state.repeatMode === 'all') {
+          playTrackByIndex(0);
         } else {
+          // Manual next klik saat di akhir playlist: ulangi dari awal
           playTrackByIndex(0);
         }
       }
     };
 
+    // ── FITUR 5: MEDIASESSION API (LOCKSCREEN & NOTIFIKASI OS) ──
+    function updateMediaSession(track) {
+      if (!('mediaSession' in navigator) || !track) return;
+
+      const coverSrc = track.cover || DEFAULT_NEU_COVER;
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: track.title || 'Lagu',
+        artist: track.artist || 'Artis',
+        album: track.origin ? `Viral Music (${track.origin})` : 'Viral Music Web',
+        artwork: [
+          { src: coverSrc, sizes: '96x96', type: 'image/jpeg' },
+          { src: coverSrc, sizes: '128x128', type: 'image/jpeg' },
+          { src: coverSrc, sizes: '192x192', type: 'image/jpeg' },
+          { src: coverSrc, sizes: '256x256', type: 'image/jpeg' },
+          { src: coverSrc, sizes: '384x384', type: 'image/jpeg' },
+          { src: coverSrc, sizes: '512x512', type: 'image/jpeg' }
+        ]
+      });
+
+      try {
+        navigator.mediaSession.setActionHandler('play', () => togglePlayPause());
+        navigator.mediaSession.setActionHandler('pause', () => togglePlayPause());
+        navigator.mediaSession.setActionHandler('previoustrack', () => playPrevTrack());
+        navigator.mediaSession.setActionHandler('nexttrack', () => playNextTrack(true));
+        navigator.mediaSession.setActionHandler('seekto', (details) => {
+          if (details && typeof details.seekTime === 'number' && !isNaN(details.seekTime)) {
+            audioEngine.currentTime = details.seekTime;
+            updateMediaSessionPosition();
+          }
+        });
+        navigator.mediaSession.setActionHandler('seekbackward', (details) => {
+          seekRelative(-(details?.seekOffset || 10));
+        });
+        navigator.mediaSession.setActionHandler('seekforward', (details) => {
+          seekRelative(details?.seekOffset || 10);
+        });
+      } catch (err) {
+        console.warn('MediaSession action handler error:', err);
+      }
+
+      navigator.mediaSession.playbackState = state.isPlaying ? 'playing' : 'paused';
+      updateMediaSessionPosition();
+    }
+
+    function updateMediaSessionPosition() {
+      if (!('mediaSession' in navigator) || !navigator.mediaSession.setPositionState) return;
+      try {
+        if (audioEngine.duration && !isNaN(audioEngine.duration) && audioEngine.duration > 0) {
+          navigator.mediaSession.setPositionState({
+            duration: audioEngine.duration,
+            playbackRate: audioEngine.playbackRate || 1,
+            position: Math.min(audioEngine.currentTime || 0, audioEngine.duration)
+          });
+        }
+      } catch (e) {}
+    }
+
     window.togglePlayPause = function() {
+      initAudioEqualizer();
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
       if (!state.currentTrack && state.tracks.length > 0) {
         playTrackByIndex(0);
         return;
@@ -4708,6 +5629,18 @@
       const initialAudio = track.fullStreamUrl || track.preview;
       setDownloadLink(initialAudio);
 
+      // Web Audio API Equalizer & MediaSession Init
+      initAudioEqualizer();
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => {});
+      }
+      updateMediaSession(track);
+
+      // Sinkronisasi Lirik Karaoke jika tab lirik sedang terbuka
+      if (state.activePlayerTab === 'lyrics') {
+        loadLyricsForTrack(track);
+      }
+
       if (initialAudio) {
         audioEngine.src = initialAudio;
         audioEngine.play().catch(err => {
@@ -4731,6 +5664,7 @@
                 audioEngine.play().catch(() => {});
               }
               if (fullPlayerQualityBadge) fullPlayerQualityBadge.textContent = '320 KBPS HI-FI';
+              updateMediaSession(track);
             }
           })
           .catch(e => console.warn('Stream scraper lookup:', e));
@@ -4970,6 +5904,9 @@
       setPlayerBuffering(false);
       updatePlayerUI();
       savePlaybackSession();
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = 'playing';
+      }
       if (state.currentCategory === 'album-detail') {
         updateAlbumTrackListView();
       } else {
@@ -4982,6 +5919,9 @@
       setPlayerBuffering(false);
       updatePlayerUI();
       savePlaybackSession();
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = 'paused';
+      }
       if (state.currentCategory === 'album-detail') {
         updateAlbumTrackListView();
       } else {
@@ -5058,16 +5998,53 @@
         if (fullDur) fullDur.textContent = durFormatted;
       }
 
+      // Sinkronisasi Lirik Karaoke Real-Time
+      syncKaraokeLyrics(audioEngine.currentTime);
+
+      // Sinkronisasi status posisi MediaSession OS
+      updateMediaSessionPosition();
+
       throttleSaveSession();
     });
 
     audioEngine.addEventListener('ended', () => {
-      if (state.isRepeat) {
+      // 1. Cek Sleep Timer: Selesai Lagu Ini
+      if (state.sleepOnTrackEnd) {
+        state.sleepOnTrackEnd = false;
+        audioEngine.pause();
+        const timerLbl = document.getElementById('timerStatusLabel');
+        if (timerLbl) timerLbl.textContent = 'SLEEP TIMER';
+        document.querySelectorAll('.timer-option-btn').forEach(b => {
+          b.classList.toggle('active', b.id === 'timer-0');
+        });
+        clearPlaybackSession();
+        return;
+      }
+
+      // 2. Mode Repeat One: ulangi lagu yang sama
+      if (state.repeatMode === 'one') {
         audioEngine.currentTime = 0;
         audioEngine.play().catch(() => {});
-      } else {
+        return;
+      }
+
+      // 3. Mode Repeat All: loop seluruh daftar lagu
+      if (state.repeatMode === 'all') {
+        clearPlaybackSession();
+        playNextTrack(true);
+        return;
+      }
+
+      // 4. Mode Normal / Shuffle
+      if (state.isShuffle || state.currentIndex + 1 < state.tracks.length) {
         clearPlaybackSession();
         playNextTrack();
+      } else {
+        audioEngine.pause();
+        audioEngine.currentTime = 0;
+        state.isPlaying = false;
+        updatePlayerUI();
+        clearPlaybackSession();
       }
     });
 
@@ -5466,13 +6443,30 @@
     }
 
 
-    // Keydown listener untuk ESC (Tutup modal album & video)
+    // Keydown listener untuk ESC (Tutup modal album, video, equalizer, sleep timer)
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         if (typeof closeAlbumModal === 'function') closeAlbumModal();
         if (typeof window.closeYouTubeModal === 'function') window.closeYouTubeModal();
+        if (typeof window.closeEqualizerModal === 'function') window.closeEqualizerModal();
+        if (typeof window.closeSleepTimerModal === 'function') window.closeSleepTimerModal();
       }
     });
+
+    // Backdrop click handlers untuk menutup modal saat klik di area luar kotak
+    const eqModalEl = document.getElementById('eqModal');
+    if (eqModalEl) {
+      eqModalEl.addEventListener('click', (e) => {
+        if (e.target === eqModalEl) window.closeEqualizerModal();
+      });
+    }
+
+    const sleepTimerModalEl = document.getElementById('sleepTimerModal');
+    if (sleepTimerModalEl) {
+      sleepTimerModalEl.addEventListener('click', (e) => {
+        if (e.target === sleepTimerModalEl) window.closeSleepTimerModal();
+      });
+    }
 
     // ── Proteksi Gambar Komprehensif: Cegah Klik Kanan / Tahan Lama (Long-Press Download), Drag & Drop, dan Salin Gambar ──
     function isImageTarget(t) {
