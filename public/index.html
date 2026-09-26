@@ -6264,11 +6264,28 @@
       videoFrameContainer.innerHTML = '';
     };
 
-    modalCloseBtn.addEventListener('click', window.closeYouTubeModal);
+    modalCloseBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      window.closeYouTubeModal();
+    });
 
+    // Proteksi Modal: Layar melayang YouTube TIDAK BISA ditutup jika mengklik area luar/backdrop.
+    // Modal HANYA keluar jika menekan tombol [X].
     videoModal.addEventListener('click', (e) => {
       if (e.target === videoModal) {
-        window.closeYouTubeModal();
+        e.preventDefault();
+        e.stopPropagation();
+        // Berikan feedback taktil pada tombol X agar pengguna tahu tombol keluar
+        if (modalCloseBtn) {
+          modalCloseBtn.style.transform = 'scale(1.2)';
+          modalCloseBtn.style.color = '#FF2157';
+          modalCloseBtn.style.boxShadow = '0 0 14px rgba(255, 33, 87, 0.6)';
+          setTimeout(() => {
+            modalCloseBtn.style.transform = '';
+            modalCloseBtn.style.color = '';
+            modalCloseBtn.style.boxShadow = '';
+          }, 350);
+        }
       }
     });
 
