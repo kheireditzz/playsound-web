@@ -164,44 +164,84 @@
 .platform-indicator-dot.soundcloud { background: #FF5500; }
 .platform-indicator-dot.gaana { background: #E72C30; }
 
-/* Input Bar */
+/* Input Bar (Diperbesar & Taktil dengan Ikon Paste Otomatis di Kanan) */
 .download-input-container {
   display: flex;
-  gap: 12px;
+  gap: 14px;
   position: relative;
-  flex-wrap: wrap;
+  align-items: center;
+}
+
+.download-input-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 280px;
+  display: flex;
+  align-items: center;
 }
 
 .download-main-input {
-  flex: 1;
-  min-width: 260px;
-  height: 52px;
-  border-radius: 14px;
+  width: 100%;
+  height: 60px;
+  border-radius: 16px;
   border: none;
   background: var(--bg-surface);
   box-shadow: var(--neu-inset);
-  padding: 0 18px;
+  padding: 0 62px 0 20px;
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 0.92rem;
+  font-size: 0.98rem;
+  font-weight: 500;
   color: var(--color-text);
   outline: none;
-  transition: box-shadow 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .download-main-input:focus {
   box-shadow: var(--neu-inset-deep);
 }
 
+.download-paste-icon-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: none;
+  background: var(--bg-surface);
+  box-shadow: var(--neu-extruded-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-primary);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.download-paste-icon-btn:hover {
+  color: var(--color-primary-light);
+  transform: translateY(calc(-50% - 1px));
+}
+
+.download-paste-icon-btn:active {
+  box-shadow: var(--neu-inset);
+  transform: translateY(calc(-50% + 1px));
+}
+
 .download-submit-btn {
-  height: 52px;
-  padding: 0 24px;
-  border-radius: 14px;
+  height: 60px;
+  padding: 0 26px;
+  border-radius: 16px;
   border: none;
   background: var(--color-primary);
   color: #FFFFFF;
   box-shadow: 4px 4px 12px var(--shadow-dark), -2px -2px 8px var(--shadow-light);
   font-family: 'Space Mono', monospace;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
   display: inline-flex;
@@ -209,38 +249,16 @@
   gap: 10px;
   white-space: nowrap;
   transition: all 0.15s ease;
+  flex-shrink: 0;
 }
 
 .download-submit-btn:hover {
   background: var(--color-primary-light);
+  transform: translateY(-1px);
 }
 
 .download-submit-btn:active {
   box-shadow: inset 2px 2px 6px rgba(0, 0, 0, 0.4);
-  transform: translateY(1px);
-}
-
-.download-paste-btn {
-  height: 52px;
-  padding: 0 16px;
-  border-radius: 14px;
-  border: none;
-  background: var(--bg-surface);
-  box-shadow: var(--neu-extruded);
-  font-family: 'Space Mono', monospace;
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--color-primary);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  white-space: nowrap;
-  transition: all 0.15s ease;
-}
-
-.download-paste-btn:active {
-  box-shadow: var(--neu-inset);
   transform: translateY(1px);
 }
 
@@ -725,9 +743,25 @@
   }
   .download-input-container {
     flex-direction: column;
+    gap: 12px;
   }
-  .download-submit-btn, .download-paste-btn {
+  .download-input-wrapper {
     width: 100%;
+    min-width: 100%;
+  }
+  .download-main-input {
+    height: 56px;
+    font-size: 0.94rem;
+    padding: 0 54px 0 16px;
+  }
+  .download-paste-icon-btn {
+    width: 40px;
+    height: 40px;
+    right: 8px;
+  }
+  .download-submit-btn {
+    width: 100%;
+    height: 54px;
     justify-content: center;
   }
   .download-quick-desc {

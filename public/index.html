@@ -26,9 +26,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <!-- Modular Tactile Neumorphic Stylesheets -->
-  <link rel="stylesheet" href="/css/neumorphic.css?v=2.4.3">
-  <link rel="stylesheet" href="/css/download-center.css?v=2.4.3">
-  <link rel="stylesheet" href="/css/settings.css?v=2.4.3">
+  <link rel="stylesheet" href="/css/neumorphic.css?v=2.4.4">
+  <link rel="stylesheet" href="/css/download-center.css?v=2.4.4">
+  <link rel="stylesheet" href="/css/settings.css?v=2.4.4">
 </head>
 <body>
 
@@ -215,13 +215,19 @@
         </div>
 
         <div class="download-input-container">
-          <input type="text" id="downloadMainInput" class="download-main-input" placeholder="Tempel link Spotify (Lagu, Album, atau Playlist)...">
-          <button type="button" class="download-paste-btn" onclick="window.pasteAndAnalyzeDownload()" title="Tempel dari Clipboard">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-            Tempel
-          </button>
+          <div class="download-input-wrapper">
+            <input type="text" id="downloadMainInput" class="download-main-input" placeholder="Tempel link Spotify (Lagu, Album, atau Playlist)...">
+            <button type="button" class="download-paste-icon-btn" onclick="window.pasteAndAnalyzeDownload()" title="Paste Otomatis dari Clipboard" aria-label="Paste Otomatis">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                <polyline points="9 13 12 16 15 13"></polyline>
+                <line x1="12" y1="9" x2="12" y2="16"></line>
+              </svg>
+            </button>
+          </div>
           <button type="button" id="downloadSubmitBtn" class="download-submit-btn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
             </svg>
             Analisa & Ambil Lagu
@@ -1099,8 +1105,8 @@
   </div>
 
   <!-- Modular Scripts -->
-  <script src="/js/settings.js?v=2.4.3"></script>
-  <script src="/js/core.js?v=2.4.3"></script>
-  <script type="module" src="/js/downloader.js?v=2.4.3"></script>
+  <script src="/js/settings.js?v=2.4.4"></script>
+  <script src="/js/core.js?v=2.4.4"></script>
+  <script type="module" src="/js/downloader.js?v=2.4.4"></script>
 </body>
 </html>

@@ -290,19 +290,30 @@ export const DownloadCenter = {
   },
 
   async pasteAndAnalyze() {
+    if (window.Settings && window.Settings.triggerHaptic) {
+      window.Settings.triggerHaptic();
+    }
+    if (!this.input) this.input = document.getElementById('downloadMainInput');
+
     let text = '';
     try {
       if (navigator.clipboard && navigator.clipboard.readText) {
         text = await navigator.clipboard.readText();
       }
-    } catch {}
+    } catch (e) {
+      console.warn('Clipboard read error:', e);
+    }
 
     if (!text) {
       text = prompt('Tempel link musik (Spotify / YouTube / JioSaavn / SoundCloud / Gaana) di sini:');
     }
 
     if (text && text.trim()) {
-      if (this.input) this.input.value = text.trim();
+      if (!this.input) this.input = document.getElementById('downloadMainInput');
+      if (this.input) {
+        this.input.value = text.trim();
+        this.input.focus();
+      }
       this.analyzeCurrentInput();
     }
   },
