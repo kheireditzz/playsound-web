@@ -54,6 +54,18 @@
       -webkit-tap-highlight-color: transparent;
     }
 
+    /* Proteksi Gambar: Nonaktifkan Unduh Tahan Lama (Callout Mobile), Drag & Drop, dan Salin */
+    img {
+      -webkit-touch-callout: none !important;
+      -webkit-user-select: none !important;
+      -khtml-user-select: none !important;
+      -moz-user-select: none !important;
+      -ms-user-select: none !important;
+      user-select: none !important;
+      -webkit-user-drag: none !important;
+      user-drag: none !important;
+    }
+
     html {
       width: 100%;
       margin: 0;
@@ -624,7 +636,10 @@
     .cover-img,
     .history-cover,
     .banner-cover-img,
-    .dock-cover {
+    .dock-cover,
+    .album-cover-img,
+    .full-player-cover,
+    .album-hero-cover {
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -633,6 +648,11 @@
       image-rendering: auto;
       transform: translateZ(0);
       backface-visibility: hidden;
+      -webkit-touch-callout: none !important;
+      -webkit-user-select: none !important;
+      user-select: none !important;
+      -webkit-user-drag: none !important;
+      user-drag: none !important;
     }
 
     .rank-pill {
@@ -3010,7 +3030,7 @@
   <!-- Bottom Tactile Audio Player Dock -->
   <footer class="neu-player-dock" id="playerDock">
     <div class="dock-track-info" id="dockTrackInfo" style="cursor: pointer;" title="Buka Layar Penuh (^)" onclick="openFullPlayer()">
-      <img id="dockCover" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='50' height='50'%3E%3Crect width='100' height='100' fill='%23DCDAD7' rx='14'/%3E%3Cpath d='M38 68a8 8 0 1 1-8-8 8 8 0 0 1 8 8zm30-7a8 8 0 1 1-8-8 8 8 0 0 1 8 8z' fill='%23006666'/%3E%3Cpath d='M38 68V34l30-7v34' fill='none' stroke='%23006666' stroke-width='4.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" alt="Cover" class="dock-cover" loading="eager" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\' width=\'50\' height=\'50\'%3E%3Crect width=\'100\' height=\'100\' fill=\'%23DCDAD7\' rx=\'14\'/%3E%3Cpath d=\'M38 68a8 8 0 1 1-8-8 8 8 0 0 1 8 8zm30-7a8 8 0 1 1-8-8 8 8 0 0 1 8 8z\' fill=\'%23006666\'/%3E%3Cpath d=\'M38 68V34l30-7v34\' fill=\'none\' stroke=\'%23006666\' stroke-width=\'4.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E';">
+      <img id="dockCover" draggable="false" oncontextmenu="return false;" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='50' height='50'%3E%3Crect width='100' height='100' fill='%23DCDAD7' rx='14'/%3E%3Cpath d='M38 68a8 8 0 1 1-8-8 8 8 0 0 1 8 8zm30-7a8 8 0 1 1-8-8 8 8 0 0 1 8 8z' fill='%23006666'/%3E%3Cpath d='M38 68V34l30-7v34' fill='none' stroke='%23006666' stroke-width='4.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" alt="Cover" class="dock-cover" loading="eager" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\' width=\'50\' height=\'50\'%3E%3Crect width=\'100\' height=\'100\' fill=\'%23DCDAD7\' rx=\'14\'/%3E%3Cpath d=\'M38 68a8 8 0 1 1-8-8 8 8 0 0 1 8 8zm30-7a8 8 0 1 1-8-8 8 8 0 0 1 8 8z\' fill=\'%23006666\'/%3E%3Cpath d=\'M38 68V34l30-7v34\' fill=\'none\' stroke=\'%23006666\' stroke-width=\'4.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E';">
       <div class="dock-text">
         <div id="dockTitle" class="dock-title"></div>
         <div id="dockArtist" class="dock-artist"></div>
@@ -3127,7 +3147,7 @@
       <!-- Center Big Artwork Box -->
       <div class="full-player-artwork-box">
         <div class="full-player-cover-wrap">
-          <img id="fullPlayerCover" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='50' height='50'%3E%3Crect width='100' height='100' fill='%23DCDAD7' rx='14'/%3E%3Cpath d='M38 68a8 8 0 1 1-8-8 8 8 0 0 1 8 8zm30-7a8 8 0 1 1-8-8 8 8 0 0 1 8 8z' fill='%23006666'/%3E%3Cpath d='M38 68V34l30-7v34' fill='none' stroke='%23006666' stroke-width='4.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" alt="Cover Lagu" class="full-player-cover" onerror="this.src=DEFAULT_NEU_COVER;">
+          <img id="fullPlayerCover" draggable="false" oncontextmenu="return false;" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='50' height='50'%3E%3Crect width='100' height='100' fill='%23DCDAD7' rx='14'/%3E%3Cpath d='M38 68a8 8 0 1 1-8-8 8 8 0 0 1 8 8zm30-7a8 8 0 1 1-8-8 8 8 0 0 1 8 8z' fill='%23006666'/%3E%3Cpath d='M38 68V34l30-7v34' fill='none' stroke='%23006666' stroke-width='4.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" alt="Cover Lagu" class="full-player-cover" onerror="this.src=DEFAULT_NEU_COVER;">
         </div>
       </div>
 
@@ -3394,7 +3414,7 @@
         return `
           <div class="history-card ${isPlaying ? 'is-playing' : ''}" onclick="playHistoryTrack(${idx})" title="${safeTitle} - ${safeArtist}">
             <div class="history-cover-wrap">
-              <img src="${coverUrl}" alt="${safeTitle}" class="history-cover" loading="eager" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src=DEFAULT_NEU_COVER;">
+              <img src="${coverUrl}" alt="${safeTitle}" class="history-cover" draggable="false" oncontextmenu="return false;" loading="eager" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src=DEFAULT_NEU_COVER;">
               <div class="history-wave-mini">
                 <div class="history-mini-bar"></div>
                 <div class="history-mini-bar"></div>
@@ -3852,7 +3872,7 @@
             return `
               <div class="album-card" onclick="window.openAlbumDetail('${safeId}')" title="Klik untuk lihat isi album ${safeTitle}">
                 <div class="album-cover-box">
-                  <img src="${coverUrl}" alt="${safeTitle}" class="album-cover-img" loading="eager" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src=DEFAULT_NEU_COVER;">
+                  <img src="${coverUrl}" alt="${safeTitle}" class="album-cover-img" draggable="false" oncontextmenu="return false;" loading="eager" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src=DEFAULT_NEU_COVER;">
                   <span class="album-badge-overlay">${alb.trackCount || 10} LAGU</span>
                 </div>
                 <div class="album-details">
@@ -3994,7 +4014,7 @@
           </div>
 
           <div class="album-hero-card">
-            <img src="${album.cover || DEFAULT_NEU_COVER}" alt="${escapeHtml(album.title)}" class="album-hero-cover" loading="eager" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src=DEFAULT_NEU_COVER;">
+            <img src="${album.cover || DEFAULT_NEU_COVER}" alt="${escapeHtml(album.title)}" class="album-hero-cover" draggable="false" oncontextmenu="return false;" loading="eager" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src=DEFAULT_NEU_COVER;">
             <div class="album-hero-info">
               <div class="album-hero-meta-badge">ALBUM LENGKAP • ${trackCount} LAGU</div>
               <h2 class="album-hero-title">${escapeHtml(album.title)}</h2>
@@ -4300,7 +4320,7 @@
           <div class="song-card ${isPlayingThis ? 'is-playing' : ''}" id="card-${safeId}">
             <div class="card-top">
               <div class="cover-wrapper">
-                <img src="${coverUrl}" alt="${safeTitle}" class="cover-img" loading="eager" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src=DEFAULT_NEU_COVER;">
+                <img src="${coverUrl}" alt="${safeTitle}" class="cover-img" draggable="false" oncontextmenu="return false;" loading="eager" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src=DEFAULT_NEU_COVER;">
               </div>
               <div class="card-info">
                 <div class="song-title" title="${safeTitle}">${safeTitle}</div>
@@ -5301,7 +5321,7 @@
         return `
           <div class="banner-slide" data-idx="${i}">
             <div class="banner-cover-wrap">
-              <img src="${cover}" alt="${escapeHtml(t.title)}" class="banner-cover-img" loading="eager" decoding="async" fetchpriority="high" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src=DEFAULT_NEU_COVER;">
+              <img src="${cover}" alt="${escapeHtml(t.title)}" class="banner-cover-img" draggable="false" oncontextmenu="return false;" loading="eager" decoding="async" fetchpriority="high" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src=DEFAULT_NEU_COVER;">
             </div>
             <div class="banner-info">
               <div class="banner-top-badges">
@@ -5386,6 +5406,35 @@
         }
       }
     });
+
+    // ── Proteksi Gambar Komprehensif: Cegah Klik Kanan / Tahan Lama (Long-Press Download), Drag & Drop, dan Salin Gambar ──
+    function isImageTarget(t) {
+      return t && (
+        t.tagName === 'IMG' ||
+        (typeof t.closest === 'function' && t.closest('img, .cover-img, .history-cover, .banner-cover-img, .dock-cover, .album-cover-img, .full-player-cover, .album-hero-cover'))
+      );
+    }
+
+    document.addEventListener('contextmenu', (e) => {
+      if (isImageTarget(e.target)) {
+        e.preventDefault();
+        return false;
+      }
+    }, { capture: true });
+
+    document.addEventListener('dragstart', (e) => {
+      if (isImageTarget(e.target)) {
+        e.preventDefault();
+        return false;
+      }
+    }, { capture: true });
+
+    document.addEventListener('copy', (e) => {
+      if (isImageTarget(e.target)) {
+        e.preventDefault();
+        return false;
+      }
+    }, { capture: true });
 
     // Init: muat history, loved tracks, dan pulihkan sesi pemutaran audio
     loadLovedTracks();
