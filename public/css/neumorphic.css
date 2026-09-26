@@ -997,6 +997,17 @@
       border-color: transparent;
     }
 
+    .search-cat-chip .search-chip-icon {
+      flex-shrink: 0;
+      display: inline-block;
+      vertical-align: middle;
+      transition: filter 0.16s ease, transform 0.16s ease;
+    }
+
+    .search-cat-chip.active .search-chip-icon {
+      filter: brightness(0) invert(1);
+    }
+
     /* Card Actions */
     .card-actions {
       display: flex;
