@@ -782,12 +782,12 @@
       tracksGrid.innerHTML = `
         <div class="album-view-container">
           <div class="album-view-nav-bar">
-            <button type="button" class="album-back-btn" onclick="window.exitAlbumView()" title="Kembali ke Daftar Top Album">
+            <button type="button" class="album-back-btn" onclick="window.exitAlbumView()" title="Kembali">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="19" y1="12" x2="5" y2="12"></line>
                 <polyline points="12 19 5 12 12 5"></polyline>
               </svg>
-              <span>KEMBALI KE TOP ALBUM</span>
+              <span>Kembali</span>
             </button>
             <div class="album-hero-meta-badge">
               <span>${escapeHtml(album.genre || 'Music')}</span>

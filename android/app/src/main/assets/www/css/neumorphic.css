@@ -56,7 +56,7 @@
       min-height: 100vh;
       width: 100%;
       margin: 0;
-      padding-top: 86px;
+      padding-top: calc(var(--header-height, 76px) + 16px);
       padding-bottom: 28px;
       position: relative;
       overflow-x: clip;
@@ -2309,7 +2309,7 @@
         --header-height: 68px;
       }
       body {
-        padding-top: calc(var(--header-height, 68px) + 8px);
+        padding-top: calc(var(--header-height, 68px) + 18px);
         padding-bottom: 24px;
         width: 100%;
         overflow-x: clip;

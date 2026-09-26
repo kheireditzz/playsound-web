@@ -240,8 +240,10 @@ export const DownloadCenter = {
     // 3. Render Riwayat Unduhan Realtime
     DownloadHistory.render();
 
-    // 4. Scroll ke Atas
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // 4. Scroll ke Atas secara instan agar tidak terpotong
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
 
     if (prefillUrl && this.input) {
       this.input.value = prefillUrl;
@@ -286,7 +288,9 @@ export const DownloadCenter = {
       window.loadTracks('global');
     }
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   },
 
   async pasteAndAnalyze() {
