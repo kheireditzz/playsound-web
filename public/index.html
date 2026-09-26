@@ -5105,14 +5105,7 @@
       }
     };
 
-    // ── FITUR 2: WEB AUDIO API EQUALIZER & BASS BOOST ──
-    let audioCtx = null;
-    let audioSourceNode = null;
-    let eqBassNode = null;
-    let eqMidNode = null;
-    let eqTrebleNode = null;
-    let isEqInitialized = false;
-
+    // ── FITUR 2: EQUALIZER & BASS BOOST PRESETS ──
     const EQ_PRESETS = {
       flat: { bass: 0, mid: 0, treble: 0, name: 'Flat (Normal)' },
       bass: { bass: 8, mid: 1, treble: 3, name: 'Bass Booster 🔥' },
@@ -5121,62 +5114,25 @@
       lofi: { bass: 6, mid: -3, treble: -6, name: 'Lo-Fi Chill ☕' }
     };
 
+    let currentEqState = { bass: 0, mid: 0, treble: 0, preset: 'flat' };
+
     function initAudioEqualizer() {
-      if (isEqInitialized) return;
       try {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContextClass) return;
-
-        audioCtx = new AudioContextClass();
-        audioSourceNode = audioCtx.createMediaElementSource(audioEngine);
-
-        // Low-shelf filter for Bass (100 Hz)
-        eqBassNode = audioCtx.createBiquadFilter();
-        eqBassNode.type = 'lowshelf';
-        eqBassNode.frequency.value = 100;
-        eqBassNode.gain.value = 0;
-
-        // Peaking filter for Mids (1 kHz)
-        eqMidNode = audioCtx.createBiquadFilter();
-        eqMidNode.type = 'peaking';
-        eqMidNode.frequency.value = 1000;
-        eqMidNode.Q.value = 1.0;
-        eqMidNode.gain.value = 0;
-
-        // High-shelf filter for Treble (3 kHz)
-        eqTrebleNode = audioCtx.createBiquadFilter();
-        eqTrebleNode.type = 'highshelf';
-        eqTrebleNode.frequency.value = 3000;
-        eqTrebleNode.gain.value = 0;
-
-        // Chain nodes: source -> bass -> mid -> treble -> destination
-        audioSourceNode.connect(eqBassNode);
-        eqBassNode.connect(eqMidNode);
-        eqMidNode.connect(eqTrebleNode);
-        eqTrebleNode.connect(audioCtx.destination);
-
-        isEqInitialized = true;
-
-        // Pulihkan saved EQ settings dari localStorage
-        try {
-          const savedEq = localStorage.getItem('playsound_eq_settings');
-          if (savedEq) {
-            const parsed = JSON.parse(savedEq);
-            setEqBands(parsed.bass || 0, parsed.mid || 0, parsed.treble || 0);
-            if (parsed.preset) {
-              highlightEqPresetBtn(parsed.preset);
-            }
+        const savedEq = localStorage.getItem('playsound_eq_settings');
+        if (savedEq) {
+          const parsed = JSON.parse(savedEq);
+          setEqBands(parsed.bass || 0, parsed.mid || 0, parsed.treble || 0);
+          if (parsed.preset) {
+            highlightEqPresetBtn(parsed.preset);
           }
-        } catch (e) {}
-      } catch (err) {
-        console.warn('Web Audio Equalizer initialization:', err);
-      }
+        }
+      } catch (e) {}
     }
 
     function setEqBands(bass, mid, treble) {
-      if (eqBassNode) eqBassNode.gain.value = bass;
-      if (eqMidNode) eqMidNode.gain.value = mid;
-      if (eqTrebleNode) eqTrebleNode.gain.value = treble;
+      currentEqState.bass = bass;
+      currentEqState.mid = mid;
+      currentEqState.treble = treble;
 
       const bInput = document.getElementById('eqBass');
       const mInput = document.getElementById('eqMid');
@@ -5207,9 +5163,6 @@
 
     window.openEqualizerModal = function() {
       initAudioEqualizer();
-      if (audioCtx && audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
       const modal = document.getElementById('eqModal');
       if (modal) modal.classList.add('open');
     };
@@ -5220,39 +5173,33 @@
     };
 
     window.updateEqSlider = function(band, val) {
-      initAudioEqualizer();
       const numVal = parseFloat(val);
-      if (band === 'bass' && eqBassNode) eqBassNode.gain.value = numVal;
-      if (band === 'mid' && eqMidNode) eqMidNode.gain.value = numVal;
-      if (band === 'treble' && eqTrebleNode) eqTrebleNode.gain.value = numVal;
+      if (band === 'bass') currentEqState.bass = numVal;
+      if (band === 'mid') currentEqState.mid = numVal;
+      if (band === 'treble') currentEqState.treble = numVal;
 
       const labelEl = document.getElementById('eq' + band.charAt(0).toUpperCase() + band.slice(1) + 'Val');
       if (labelEl) labelEl.textContent = (numVal > 0 ? '+' : '') + numVal + ' dB';
 
       document.querySelectorAll('.eq-preset-btn').forEach(b => b.classList.remove('active'));
 
-      const currentBass = eqBassNode ? eqBassNode.gain.value : 0;
-      const currentMid = eqMidNode ? eqMidNode.gain.value : 0;
-      const currentTreble = eqTrebleNode ? eqTrebleNode.gain.value : 0;
-
       const eqActiveLabel = document.getElementById('eqActiveLabel');
       if (eqActiveLabel) {
-        const isCustom = currentBass !== 0 || currentMid !== 0 || currentTreble !== 0;
+        const isCustom = currentEqState.bass !== 0 || currentEqState.mid !== 0 || currentEqState.treble !== 0;
         eqActiveLabel.textContent = isCustom ? 'EQ ON' : 'EQUALIZER';
       }
 
       try {
         localStorage.setItem('playsound_eq_settings', JSON.stringify({
-          bass: currentBass,
-          mid: currentMid,
-          treble: currentTreble,
+          bass: currentEqState.bass,
+          mid: currentEqState.mid,
+          treble: currentEqState.treble,
           preset: 'custom'
         }));
       } catch(e) {}
     };
 
     window.applyEqPreset = function(presetKey, btnEl) {
-      initAudioEqualizer();
       const preset = EQ_PRESETS[presetKey];
       if (!preset) return;
 
@@ -5472,14 +5419,14 @@
     }
 
     window.togglePlayPause = function() {
-      initAudioEqualizer();
-      if (audioCtx && audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
       if (!state.currentTrack && state.tracks.length > 0) {
         playTrackByIndex(0);
         return;
       }
+      try {
+        audioEngine.muted = false;
+        if (!audioEngine.volume || audioEngine.volume < 0.1) audioEngine.volume = 1;
+      } catch (e) {}
       if (state.isPlaying) {
         audioEngine.pause();
       } else {
@@ -5627,11 +5574,12 @@
       const initialAudio = track.fullStreamUrl || track.preview;
       setDownloadLink(initialAudio);
 
-      // Web Audio API Equalizer & MediaSession Init
-      initAudioEqualizer();
-      if (audioCtx && audioCtx.state === 'suspended') {
-        audioCtx.resume().catch(() => {});
-      }
+      // Pastikan audio native 100% aktif tanpa mute/fade
+      try {
+        audioEngine.muted = false;
+        audioEngine.volume = 1;
+      } catch (e) {}
+
       updateMediaSession(track);
 
       // Sinkronisasi Lirik Karaoke jika tab lirik sedang terbuka
