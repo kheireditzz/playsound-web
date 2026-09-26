@@ -124,6 +124,26 @@
     <!-- Controls: Search & Categories -->
     <div class="controls-wrapper">
 
+      <!-- SpotiFlyer Quick Access Banner -->
+      <div class="spotiflyer-quick-banner" onclick="window.openSpotiFlyer()" title="Klik untuk Buka SpotiFlyer Hub">
+        <div class="spotiflyer-quick-left">
+          <div class="spotiflyer-quick-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+          </div>
+          <div class="spotiflyer-quick-info">
+            <div class="spotiflyer-quick-title">⚡ SpotiFlyer Downloader Hub</div>
+            <div class="spotiflyer-quick-desc">Download Lagu / Album / Playlist dari Spotify, YouTube, JioSaavn, SoundCloud, Gaana</div>
+          </div>
+        </div>
+        <button type="button" class="tactile-btn spotiflyer-quick-btn" onclick="event.stopPropagation(); window.openSpotiFlyer();">
+          BUKA HUB
+        </button>
+      </div>
+
       <div class="search-container">
         <input 
           type="text" 
@@ -131,7 +151,7 @@
           class="neu-input" 
           placeholder="Cari lagu, artis, atau tempel link Spotify / YouTube / JioSaavn..."
         >
-        <button type="button" id="pasteLinkBtn" class="paste-link-btn" title="Tempel Link (Spotify / YouTube / JioSaavn)" onclick="handlePasteMusicLink()">
+        <button type="button" id="pasteLinkBtn" class="paste-link-btn" title="Tempel Link & Buka SpotiFlyer Hub" onclick="handlePasteMusicLink()">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
             <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
@@ -147,6 +167,13 @@
 
       <!-- Categories Tabs -->
       <div class="filter-tabs" id="filterTabs">
+        <button type="button" class="neu-tab-btn" onclick="window.openSpotiFlyer()" style="color: var(--color-primary); font-weight: 700; border: 1.5px solid rgba(0, 102, 102, 0.3); background: rgba(0, 102, 102, 0.05);">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: -2px; margin-right: 4px;">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>SpotiFlyer Hub
+        </button>
         <button type="button" class="neu-tab-btn active" data-cat="global">Global Viral</button>
         <button type="button" class="neu-tab-btn" data-cat="albums">Top Album</button>
         <button type="button" class="neu-tab-btn" data-cat="fresh">Rilis Terbaru</button>

@@ -987,20 +987,21 @@
             console.log('Clipboard permission prompt:', clipErr);
           }
         }
-        if (!text) {
-          text = prompt('Tempel link musik (Spotify / YouTube / JioSaavn) di sini:');
-        }
-        if (text && text.trim()) {
-          const cleanText = text.trim();
-          if (searchInput) searchInput.value = cleanText;
-          runSearch(cleanText);
+        if (window.openSpotiFlyer) {
+          window.openSpotiFlyer(text ? text.trim() : '');
+        } else {
+          if (!text) {
+            text = prompt('Tempel link musik (Spotify / YouTube / JioSaavn) di sini:');
+          }
+          if (text && text.trim()) {
+            const cleanText = text.trim();
+            if (searchInput) searchInput.value = cleanText;
+            runSearch(cleanText);
+          }
         }
       } catch (err) {
-        const text = prompt('Tempel link musik (Spotify / YouTube / JioSaavn) di sini:');
-        if (text && text.trim()) {
-          const cleanText = text.trim();
-          if (searchInput) searchInput.value = cleanText;
-          runSearch(cleanText);
+        if (window.openSpotiFlyer) {
+          window.openSpotiFlyer('');
         }
       }
     };

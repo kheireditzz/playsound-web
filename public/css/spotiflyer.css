@@ -415,3 +415,78 @@
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* Quick Banner for SpotiFlyer */
+.spotiflyer-quick-banner {
+  background: var(--bg-surface);
+  border-radius: 16px;
+  box-shadow: var(--neu-extruded);
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  border: 1px solid rgba(0, 102, 102, 0.15);
+  transition: all 0.2s ease;
+}
+
+.spotiflyer-quick-banner:active {
+  box-shadow: var(--neu-inset);
+  transform: translateY(1px);
+}
+
+.spotiflyer-quick-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.spotiflyer-quick-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--bg-surface);
+  box-shadow: var(--neu-extruded-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.spotiflyer-quick-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: -0.3px;
+}
+
+.spotiflyer-quick-desc {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spotiflyer-quick-btn {
+  padding: 8px 16px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-primary);
+  white-space: nowrap;
+}
+
+.header-spotiflyer-btn {
+  color: #006666 !important;
+  border: 1px solid rgba(0, 102, 102, 0.25) !important;
+}
+
+.header-spotiflyer-btn .header-loved-text {
+  display: inline-block !important;
+}
