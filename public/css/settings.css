@@ -1,0 +1,510 @@
+/* ── Neumorphic Settings Drawer / Modal & Hamburger Menu Styles ── */
+
+/* Header Hamburger Button */
+.header-menu-btn {
+  background: var(--bg-surface);
+  border: none;
+  border-radius: 12px;
+  padding: 8px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: var(--neu-extruded-sm);
+  cursor: pointer;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-text);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  -webkit-user-select: none;
+  text-decoration: none;
+}
+
+.header-menu-btn:hover {
+  color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+.header-menu-btn:active {
+  box-shadow: var(--neu-inset);
+  transform: translateY(1px);
+}
+
+/* Modal Overlay Backdrop */
+.settings-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 9990;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.28s ease;
+}
+
+.settings-backdrop.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Settings Modal Container */
+.settings-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.94);
+  width: 92%;
+  max-width: 580px;
+  max-height: 88vh;
+  background: var(--bg-surface);
+  border-radius: 24px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25), var(--neu-extruded-card);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.settings-backdrop.is-open .settings-modal {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Modal Header */
+.settings-header {
+  padding: 20px 24px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1.5px solid rgba(0, 0, 0, 0.05);
+  background: var(--bg-surface);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.settings-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.settings-header-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--bg-surface);
+  box-shadow: var(--neu-inset);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+}
+
+.settings-header-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+}
+
+.settings-header-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+}
+
+.settings-close-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: none;
+  background: var(--bg-surface);
+  box-shadow: var(--neu-extruded-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  transition: all 0.15s ease;
+}
+
+.settings-close-btn:hover {
+  color: var(--color-danger);
+}
+
+.settings-close-btn:active {
+  box-shadow: var(--neu-inset);
+  transform: scale(0.96);
+}
+
+/* Settings Nav Tabs */
+.settings-tabs {
+  display: flex;
+  padding: 12px 24px 4px;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: var(--bg-surface);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.settings-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.settings-tab-btn {
+  background: var(--bg-surface);
+  border: none;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  box-shadow: var(--neu-extruded-sm);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.18s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.settings-tab-btn.active {
+  color: var(--color-primary);
+  box-shadow: var(--neu-inset);
+  background: rgba(0, 102, 102, 0.04);
+}
+
+/* Modal Body Scrollable */
+.settings-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  max-height: calc(88vh - 140px);
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Settings Section */
+.settings-section {
+  display: none;
+  animation: fadeInSettings 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.settings-section.active {
+  display: block;
+}
+
+@keyframes fadeInSettings {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.settings-group-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-primary);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Settings Card Item */
+.settings-card {
+  background: var(--bg-surface);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: var(--neu-extruded-sm);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  transition: all 0.15s ease;
+}
+
+.settings-card-info {
+  flex: 1;
+}
+
+.settings-card-label {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-badge-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(0, 102, 102, 0.1);
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.settings-badge-pill.danger {
+  background: rgba(255, 33, 87, 0.1);
+  color: var(--color-danger);
+}
+
+.settings-card-desc {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+/* Tactile Neumorphic Switch Toggle */
+.neu-switch {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 30px;
+  flex-shrink: 0;
+}
+
+.neu-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.neu-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: var(--bg-surface);
+  box-shadow: var(--neu-inset);
+  border-radius: 30px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.neu-slider:before {
+  position: absolute;
+  content: "";
+  height: 22px;
+  width: 22px;
+  left: 4px;
+  bottom: 4px;
+  background: var(--bg-surface);
+  box-shadow: var(--neu-extruded-sm);
+  border-radius: 50%;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.neu-switch input:checked + .neu-slider {
+  background: var(--color-primary);
+  box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.3), inset -2px -2px 5px rgba(255, 255, 255, 0.2);
+}
+
+.neu-switch input:checked + .neu-slider:before {
+  transform: translateX(22px);
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+/* Dropdown / Select Option */
+.neu-select {
+  background: var(--bg-surface);
+  border: none;
+  box-shadow: var(--neu-inset);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--color-text);
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+}
+
+/* Range Slider */
+.neu-range-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.neu-range-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  border-radius: 6px;
+  background: var(--bg-surface);
+  box-shadow: var(--neu-inset);
+  outline: none;
+}
+
+.neu-range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  box-shadow: var(--neu-extruded-sm);
+  cursor: pointer;
+  border: 2px solid var(--color-primary);
+  transition: transform 0.1s ease;
+}
+
+.neu-range-slider::-webkit-slider-thumb:active {
+  transform: scale(1.15);
+}
+
+.neu-range-val {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  min-width: 42px;
+  text-align: right;
+}
+
+/* Theme Selector Grid */
+.theme-options-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.theme-option-card {
+  background: var(--bg-surface);
+  border-radius: 12px;
+  padding: 12px 10px;
+  box-shadow: var(--neu-extruded-sm);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.18s ease;
+  border: 1.5px solid transparent;
+}
+
+.theme-option-card.active {
+  box-shadow: var(--neu-inset);
+  border-color: var(--color-primary);
+}
+
+.theme-option-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin: 0 auto 6px;
+  box-shadow: var(--neu-extruded-sm);
+}
+
+.theme-option-name {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+/* Action Buttons inside Settings */
+.settings-action-btn {
+  background: var(--bg-surface);
+  border: none;
+  border-radius: 12px;
+  padding: 12px 16px;
+  box-shadow: var(--neu-extruded-sm);
+  cursor: pointer;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 10px;
+  transition: all 0.15s ease;
+}
+
+.settings-action-btn:hover {
+  transform: translateY(-1px);
+}
+
+.settings-action-btn:active {
+  box-shadow: var(--neu-inset);
+  transform: translateY(1px);
+}
+
+.settings-action-btn.danger {
+  color: var(--color-danger);
+}
+
+/* App Version Footer */
+.settings-footer {
+  padding: 14px 24px;
+  background: var(--bg-surface);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+}
+
+/* Dark Theme Variables Override */
+html.theme-dark {
+  --bg-surface: #1E293B;
+  --shadow-light: #293548;
+  --shadow-dark: #131b26;
+  --color-text: #F1F5F9;
+  --color-text-muted: #94A3B8;
+  --color-secondary: #0F172A;
+}
+
+html.theme-midnight {
+  --bg-surface: #0F172A;
+  --shadow-light: #1E293B;
+  --shadow-dark: #070B14;
+  --color-text: #F8FAFC;
+  --color-text-muted: #64748B;
+  --color-secondary: #020617;
+}
+
+@media (max-width: 480px) {
+  .settings-modal {
+    width: 95%;
+    max-height: 92vh;
+    border-radius: 20px;
+  }
+  .settings-header {
+    padding: 16px 18px 12px;
+  }
+  .settings-tabs {
+    padding: 8px 18px 2px;
+  }
+  .settings-body {
+    padding: 16px 18px;
+  }
+  .theme-options-grid {
+    grid-template-columns: 1fr;
+  }
+}

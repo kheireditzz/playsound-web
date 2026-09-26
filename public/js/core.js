@@ -500,19 +500,41 @@
     let isRefreshingApp = false;
     let toastTimer = null;
 
-    function showToast(msg) {
+    function showToast(msg, type = 'info', category = 'system') {
+      if (window.shouldShowNotification && !window.shouldShowNotification(category)) {
+        return;
+      }
+
       const toast = document.getElementById('neuToast');
       const toastMsg = document.getElementById('toastMsg');
+      const toastDot = document.querySelector('.neu-toast-dot');
       if (!toast || !toastMsg) return;
 
       toastMsg.textContent = msg;
-      toast.classList.add('show');
 
+      if (toastDot) {
+        if (category === 'music_play') {
+          toastDot.style.background = 'var(--color-primary)';
+          toastDot.style.boxShadow = '0 0 10px var(--color-primary)';
+        } else if (type === 'danger' || type === 'error') {
+          toastDot.style.background = 'var(--color-danger)';
+          toastDot.style.boxShadow = '0 0 10px var(--color-danger)';
+        } else if (type === 'warning') {
+          toastDot.style.background = 'var(--color-warning)';
+          toastDot.style.boxShadow = '0 0 10px var(--color-warning)';
+        } else {
+          toastDot.style.background = 'var(--color-success)';
+          toastDot.style.boxShadow = '0 0 10px var(--color-success)';
+        }
+      }
+
+      toast.classList.add('show');
       clearTimeout(toastTimer);
       toastTimer = setTimeout(() => {
         toast.classList.remove('show');
-      }, 2500);
+      }, 2800);
     }
+    window.showToast = showToast;
 
     window.refreshAppRealtime = async function() {
       if (isRefreshingApp) return;
@@ -2013,6 +2035,9 @@
       // 3. Update status UI seketika
       updatePlayerUI();
       renderTracks();
+
+      // Notifikasi Pemutaran Musik (Satu-satunya notifikasi aktif secara default)
+      showToast(`Memutar: ${track.title} • ${track.artist}`, 'info', 'music_play');
 
       function setDownloadLink(url) {
         if (!dockDownloadBtn) return;

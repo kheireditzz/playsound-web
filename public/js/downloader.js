@@ -60,7 +60,7 @@ export const DownloadHistory = {
     this.items = this.items.filter(it => it.id !== id);
     this.save();
     this.render();
-    window.showToast?.('Item riwayat unduhan dihapus.', 'info');
+    window.showToast?.('Item riwayat unduhan dihapus.', 'info', 'download');
   },
 
   clear() {
@@ -69,7 +69,7 @@ export const DownloadHistory = {
       this.items = [];
       this.save();
       this.render();
-      window.showToast?.('Riwayat unduhan berhasil dibersihkan.', 'success');
+      window.showToast?.('Riwayat unduhan berhasil dibersihkan.', 'success', 'download');
     }
   },
 
@@ -309,7 +309,7 @@ export const DownloadCenter = {
   async analyzeCurrentInput() {
     const url = (this.input?.value || '').trim();
     if (!url) {
-      window.showToast?.('Silakan masukkan atau tempel link musik terlebih dahulu!', 'warning');
+      window.showToast?.('Silakan masukkan atau tempel link musik terlebih dahulu!', 'warning', 'download');
       return;
     }
 
@@ -327,10 +327,10 @@ export const DownloadCenter = {
       const data = await API.resolveLink(url);
       currentResolvedData = data;
       this.renderResults(data);
-      window.showToast?.(`Berhasil memuat ${data.count || 1} lagu dari ${data.provider?.toUpperCase()}!`, 'success');
+      window.showToast?.(`Berhasil memuat ${data.count || 1} lagu dari ${data.provider?.toUpperCase()}!`, 'success', 'download');
     } catch (err) {
       console.error('Download resolve error:', err);
-      window.showToast?.(err.message || 'Gagal mengambil audio dari link tersebut.', 'danger');
+      window.showToast?.(err.message || 'Gagal mengambil audio dari link tersebut.', 'danger', 'download');
       if (this.resultCard) this.resultCard.classList.remove('active');
     } finally {
       if (this.submitBtn) {
@@ -425,7 +425,7 @@ export const DownloadCenter = {
   async downloadBatch() {
     if (!currentResolvedData || !currentResolvedData.data || currentResolvedData.data.length === 0) return;
     if (isDownloadingBatch) {
-      window.showToast?.('Unduhan batch sedang berjalan...', 'warning');
+      window.showToast?.('Unduhan batch sedang berjalan...', 'warning', 'download');
       return;
     }
 
@@ -433,7 +433,7 @@ export const DownloadCenter = {
     isDownloadingBatch = true;
 
     if (this.progressBarWrap) this.progressBarWrap.classList.add('active');
-    window.showToast?.(`Memulai unduhan ${tracks.length} lagu secara berurutan...`, 'info');
+    window.showToast?.(`Memulai unduhan ${tracks.length} lagu secara berurutan...`, 'info', 'download');
 
     for (let i = 0; i < tracks.length; i++) {
       const t = tracks[i];
@@ -460,7 +460,7 @@ export const DownloadCenter = {
     }
 
     isDownloadingBatch = false;
-    window.showToast?.(`Selesai mengunduh ${tracks.length} lagu! Tersimpan di riwayat.`, 'success');
+    window.showToast?.(`Selesai mengunduh ${tracks.length} lagu! Tersimpan di riwayat.`, 'success', 'download');
 
     setTimeout(() => {
       if (this.progressBarWrap) this.progressBarWrap.classList.remove('active');
@@ -493,7 +493,7 @@ window.recordSingleDownload = (idx) => {
   if (!currentResolvedData?.data?.[idx]) return;
   const track = currentResolvedData.data[idx];
   DownloadHistory.add(track);
-  window.showToast?.(`Mengunduh "${track.title}"...`, 'info');
+  window.showToast?.(`Mengunduh "${track.title}"...`, 'info', 'download');
 };
 
 window.downloadBatchAll = () => DownloadCenter.downloadBatch();
@@ -509,7 +509,7 @@ window.recordHistoryRedownload = (id) => {
   const item = DownloadHistory.items.find(it => it.id === id);
   if (item) {
     DownloadHistory.add(item);
-    window.showToast?.(`Mengunduh ulang "${item.title}"...`, 'info');
+    window.showToast?.(`Mengunduh ulang "${item.title}"...`, 'info', 'download');
   }
 };
 

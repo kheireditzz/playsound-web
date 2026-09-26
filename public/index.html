@@ -28,6 +28,7 @@
   <!-- Modular Tactile Neumorphic Stylesheets -->
   <link rel="stylesheet" href="/css/neumorphic.css">
   <link rel="stylesheet" href="/css/download-center.css">
+  <link rel="stylesheet" href="/css/settings.css">
 </head>
 <body>
 
@@ -67,6 +68,16 @@
         </div>
         <span class="header-loved-text">Riwayat Love</span>
         <span class="header-loved-badge" id="headerLovedBadge">0</span>
+      </button>
+      <button type="button" class="header-menu-btn" id="headerMenuBtn" onclick="window.toggleSettingsMenu()" title="Buka Pengaturan & Menu" aria-label="Menu Pengaturan">
+        <div class="header-loved-icon-wrap" style="color: var(--color-primary);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </div>
+        <span class="header-loved-text">Pengaturan</span>
       </button>
     </div>
   </header>
@@ -741,7 +752,272 @@
   <audio id="audioEngine" preload="auto"></audio>
 
 
+  <!-- Neumorphic Settings Backdrop & Modal -->
+  <div class="settings-backdrop" id="settingsBackdrop" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle">
+    <div class="settings-modal" id="settingsModal" onclick="event.stopPropagation()">
+      <!-- Settings Header -->
+      <div class="settings-header">
+        <div class="settings-header-left">
+          <div class="settings-header-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+          </div>
+          <div>
+            <div class="settings-header-title" id="settingsModalTitle">Pengaturan & Preferensi</div>
+            <div class="settings-header-sub">Play Music Engine • Konfigurasi Lengkap</div>
+          </div>
+        </div>
+        <button type="button" class="settings-close-btn" onclick="window.toggleSettingsMenu(false)" title="Tutup Pengaturan" aria-label="Tutup">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Settings Nav Tabs -->
+      <div class="settings-tabs">
+        <button type="button" class="settings-tab-btn active" data-tab="notifications" onclick="window.switchSettingsTab('notifications')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          Notifikasi
+        </button>
+        <button type="button" class="settings-tab-btn" data-tab="audio" onclick="window.switchSettingsTab('audio')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+          Audio & Pemutar
+        </button>
+        <button type="button" class="settings-tab-btn" data-tab="display" onclick="window.switchSettingsTab('display')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+          Tampilan
+        </button>
+        <button type="button" class="settings-tab-btn" data-tab="storage" onclick="window.switchSettingsTab('storage')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+          Penyimpanan
+        </button>
+      </div>
+
+      <!-- Settings Content Body -->
+      <div class="settings-body">
+        <!-- 1. NOTIFIKASI -->
+        <div class="settings-section active" data-tab="notifications">
+          <div class="settings-group-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            Preferensi Notifikasi Realtime
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-card-info">
+              <div class="settings-card-label">
+                Notifikasi Putar Musik
+                <span class="settings-badge-pill">Aktif Default</span>
+              </div>
+              <div class="settings-card-desc">Menampilkan pop-up judul & musisi saat lagu mulai diputar.</div>
+            </div>
+            <label class="neu-switch">
+              <input type="checkbox" id="settingNotifyMusic" checked onchange="window.Settings.set('notifyMusicPlay', this.checked)">
+              <span class="neu-slider"></span>
+            </label>
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-card-info">
+              <div class="settings-card-label">
+                Notifikasi Unduhan Musik
+                <span class="settings-badge-pill danger">Nonaktif</span>
+              </div>
+              <div class="settings-card-desc">Pemberitahuan proses download atau penambahan ke riwayat unduhan.</div>
+            </div>
+            <label class="neu-switch">
+              <input type="checkbox" id="settingNotifyDownload" onchange="window.Settings.set('notifyDownloads', this.checked)">
+              <span class="neu-slider"></span>
+            </label>
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-card-info">
+              <div class="settings-card-label">
+                Notifikasi Lagu Favorit
+                <span class="settings-badge-pill danger">Nonaktif</span>
+              </div>
+              <div class="settings-card-desc">Pemberitahuan saat menyimpan atau menghapus lagu dari favorit.</div>
+            </div>
+            <label class="neu-switch">
+              <input type="checkbox" id="settingNotifyFavorite" onchange="window.Settings.set('notifyFavorites', this.checked)">
+              <span class="neu-slider"></span>
+            </label>
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-card-info">
+              <div class="settings-card-label">
+                Notifikasi Sistem & Jaringan
+                <span class="settings-badge-pill danger">Nonaktif</span>
+              </div>
+              <div class="settings-card-desc">Pesan sinkronisasi realtime, pembaruan musik, atau kendala jaringan.</div>
+            </div>
+            <label class="neu-switch">
+              <input type="checkbox" id="settingNotifySystem" onchange="window.Settings.set('notifySystem', this.checked)">
+              <span class="neu-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 2. AUDIO & PEMUTAR -->
+        <div class="settings-section" data-tab="audio">
+          <div class="settings-group-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+            Mesin Audio & Kualitas Stream
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-card-info">
+              <div class="settings-card-label">Kualitas Audio Unduh & Stream</div>
+              <div class="settings-card-desc">Prioritas bitrate unduhan musik dan pemutaran.</div>
+            </div>
+            <select class="neu-select" id="settingAudioQuality" onchange="window.Settings.set('audioQuality', this.value)">
+              <option value="320k">320 kbps (Ultra Hi-Fi)</option>
+              <option value="192k">192 kbps (Standar HD)</option>
+              <option value="auto">Otomatis (Adaptif)</option>
+            </select>
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-card-info">
+              <div class="settings-card-label">Putar Otomatis Lagu Berikutnya</div>
+              <div class="settings-card-desc">Lanjutkan memutar track berikutnya ketika lagu selesai diputar.</div>
+            </div>
+            <label class="neu-switch">
+              <input type="checkbox" id="settingAutoplay" checked onchange="window.Settings.set('autoplayNext', this.checked)">
+              <span class="neu-slider"></span>
+            </label>
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-card-info">
+              <div class="settings-card-label">Transisi Halus Antar Lagu</div>
+              <div class="settings-card-desc">Peralihan audio tanpa lonjakan volume yang mengejutkan.</div>
+            </div>
+            <label class="neu-switch">
+              <input type="checkbox" id="settingCrossfade" checked onchange="window.Settings.set('crossfade', this.checked)">
+              <span class="neu-slider"></span>
+            </label>
+          </div>
+
+          <div class="settings-card" style="flex-direction: column; align-items: flex-start;">
+            <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div class="settings-card-label">Volume Awal Pemutar</div>
+                <div class="settings-card-desc">Level volume default saat memutar musik baru.</div>
+              </div>
+              <span class="neu-range-val" id="settingVolumeVal">90%</span>
+            </div>
+            <div class="neu-range-wrap">
+              <input type="range" class="neu-range-slider" id="settingDefaultVolume" min="10" max="100" value="90">
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. TAMPILAN & ANTARMUKA -->
+        <div class="settings-section" data-tab="display">
+          <div class="settings-group-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="5"></circle></svg>
+            Tema Neumorphism & Taktil
+          </div>
+
+          <div style="margin-bottom: 14px;">
+            <div class="settings-card-label">Skema Warna Permukaan</div>
+            <div class="settings-card-desc">Pilih nuansa bayangan taktil sesuai kenyamanan mata Anda.</div>
+            <div class="theme-options-grid">
+              <div class="theme-option-card active" data-theme="default" onclick="window.selectTheme('default')">
+                <div class="theme-option-dot" style="background: #E7E5E4; border: 2px solid #c5c3c2;"></div>
+                <div class="theme-option-name">Soft Stone</div>
+              </div>
+              <div class="theme-option-card" data-theme="dark" onclick="window.selectTheme('dark')">
+                <div class="theme-option-dot" style="background: #1E293B; border: 2px solid #293548;"></div>
+                <div class="theme-option-name">Dark Slate</div>
+              </div>
+              <div class="theme-option-card" data-theme="midnight" onclick="window.selectTheme('midnight')">
+                <div class="theme-option-dot" style="background: #0F172A; border: 2px solid #1E293B;"></div>
+                <div class="theme-option-name">Midnight</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-card-info">
+              <div class="settings-card-label">Umpan Balik Taktil (Haptic)</div>
+              <div class="settings-card-desc">Getaran halus saat menekan tombol pada perangkat HP/Tablet.</div>
+            </div>
+            <label class="neu-switch">
+              <input type="checkbox" id="settingHaptic" checked onchange="window.Settings.set('hapticFeedback', this.checked)">
+              <span class="neu-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 4. PENYIMPANAN & DATA -->
+        <div class="settings-section" data-tab="storage">
+          <div class="settings-group-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+            Data Lokal & Pembersihan Cache
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-card-info">
+              <div class="settings-card-label">Riwayat Unduhan Musik</div>
+              <div class="settings-card-desc">Daftar unduhan musik yang tercatat di peramban ini.</div>
+            </div>
+            <span class="settings-badge-pill" id="statDlCount">0 Lagu</span>
+          </div>
+          <button type="button" class="settings-action-btn danger" onclick="window.clearDownloadHistoryFromSettings()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            Bersihkan Riwayat Unduhan Musik
+          </button>
+
+          <div class="settings-card" style="margin-top: 10px;">
+            <div class="settings-card-info">
+              <div class="settings-card-label">Riwayat Lagu Terakhir Diputar</div>
+              <div class="settings-card-desc">Lagu-lagu yang baru saja Anda dengarkan di sesi ini.</div>
+            </div>
+            <span class="settings-badge-pill" id="statHistCount">0 Lagu</span>
+          </div>
+          <button type="button" class="settings-action-btn danger" onclick="window.clearPlayHistoryFromSettings()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            Bersihkan Riwayat Putar Musik
+          </button>
+
+          <div class="settings-card" style="margin-top: 10px;">
+            <div class="settings-card-info">
+              <div class="settings-card-label">Daftar Lagu Disukai (Favorit)</div>
+              <div class="settings-card-desc">Lagu yang Anda beri tanda hati merah.</div>
+            </div>
+            <span class="settings-badge-pill" id="statLovedCount">0 Disimpan</span>
+          </div>
+          <button type="button" class="settings-action-btn danger" onclick="window.clearFavoritesFromSettings()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            Kosongkan Lagu Favorit
+          </button>
+
+          <div style="margin-top: 20px; border-top: 1px solid rgba(0,0,0,0.06); padding-top: 14px;">
+            <button type="button" class="settings-action-btn" onclick="window.resetSettingsToDefault()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2.5 2v6h6M21.5 22v-6h-6"/><path d="M22 11.5A10 10 0 0 0 3.2 7.2M2 12.5a10 10 0 0 0 18.8 4.2"/></svg>
+              Kembalikan Semua Pengaturan ke Standar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Footer -->
+      <div class="settings-footer">
+        <span>PLAY MUSIC ENGINE v2.4.0</span>
+        <span>NEUMORPHISM TACTILE UI</span>
+      </div>
+    </div>
+  </div>
+
   <!-- Modular Scripts -->
+  <script src="/js/settings.js"></script>
   <script src="/js/core.js"></script>
   <script type="module" src="/js/downloader.js"></script>
 </body>
