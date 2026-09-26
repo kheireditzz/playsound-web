@@ -69,15 +69,12 @@
         <span class="header-loved-text">Riwayat Love</span>
         <span class="header-loved-badge" id="headerLovedBadge">0</span>
       </button>
-      <button type="button" class="header-menu-btn" id="headerMenuBtn" onclick="window.toggleSettingsMenu()" title="Buka Pengaturan & Menu" aria-label="Menu Pengaturan">
-        <div class="header-loved-icon-wrap" style="color: var(--color-primary);">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="3" y1="12" x2="21" y2="12"></line>
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <line x1="3" y1="18" x2="21" y2="18"></line>
-          </svg>
+      <button type="button" class="header-menu-btn" id="headerMenuBtn" onclick="window.toggleSettingsMenu()" title="Buka Menu Pengaturan" aria-label="Menu Hamburger Pengaturan">
+        <div class="hamburger-box">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
         </div>
-        <span class="header-loved-text">Pengaturan</span>
       </button>
     </div>
   </header>
@@ -774,6 +771,22 @@
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
+        </button>
+      </div>
+
+      <!-- Quick Nav Shortcuts -->
+      <div style="display: flex; gap: 8px; padding: 12px 24px 0; overflow-x: auto;">
+        <button type="button" class="settings-tab-btn" onclick="window.exitDownloadCenter(); window.exitLovedView(); window.toggleSettingsMenu(false);" style="flex: 1; justify-content: center;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+          Dashboard
+        </button>
+        <button type="button" class="settings-tab-btn" onclick="window.openDownloadCenter(); window.toggleSettingsMenu(false);" style="flex: 1; justify-content: center; color: var(--color-primary);">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          Unduh Musik
+        </button>
+        <button type="button" class="settings-tab-btn" onclick="window.openLovedView(); window.toggleSettingsMenu(false);" style="flex: 1; justify-content: center; color: var(--color-danger);">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="#FF2157" stroke="#FF2157" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+          Riwayat Love
         </button>
       </div>
 

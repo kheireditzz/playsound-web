@@ -1,34 +1,54 @@
 /* ── Neumorphic Settings Drawer / Modal & Hamburger Menu Styles ── */
 
-/* Header Hamburger Button */
+/* Header Hamburger Button (Sebelah Kanan Atas) */
 .header-menu-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   background: var(--bg-surface);
   border: none;
-  border-radius: 12px;
-  padding: 8px 14px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
   box-shadow: var(--neu-extruded-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  font-family: 'Space Mono', monospace;
-  font-size: 0.78rem;
-  font-weight: 700;
   color: var(--color-text);
   transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   user-select: none;
   -webkit-user-select: none;
-  text-decoration: none;
+  flex-shrink: 0;
+  margin-left: 2px;
 }
 
 .header-menu-btn:hover {
-  color: var(--color-primary);
   transform: translateY(-1px);
 }
 
 .header-menu-btn:active {
   box-shadow: var(--neu-inset);
   transform: translateY(1px);
+}
+
+.hamburger-box {
+  width: 20px;
+  height: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hamburger-line {
+  display: block;
+  width: 100%;
+  height: 2.2px;
+  background-color: var(--color-text);
+  border-radius: 2px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.header-menu-btn:hover .hamburger-line {
+  background-color: var(--color-primary);
 }
 
 /* Modal Overlay Backdrop */
