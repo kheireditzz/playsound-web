@@ -207,8 +207,8 @@
             </svg>
             <span>Kategori Pencarian Universal</span>
           </div>
-          <button type="button" class="search-cat-clear-btn" onclick="window.clearSearchAndReturnToCharts()" title="Reset ke Tangga Lagu">
-            ✕ Tutup Pencarian
+          <button type="button" class="search-cat-clear-btn" onclick="window.clearSearchAndReturnToCharts()" title="Tutup Pencarian" aria-label="Tutup Pencarian">
+            ✕
           </button>
         </div>
         <div class="search-cat-chips" id="searchCatChips">
@@ -1230,10 +1230,32 @@
     </div>
   </div>
 
+  <!-- Neumorphic In-App Alert/Confirm Dialog Modal (Anti-AI-Slop & Zero Browser Prompts) -->
+  <div class="neu-alert-backdrop" id="neuAlertBackdrop" role="dialog" aria-modal="true" style="display:none;">
+    <div class="neu-alert-box" id="neuAlertBox">
+      <div class="neu-alert-icon-wrapper" id="neuAlertIconWrapper">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#006666" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+      </div>
+      <div class="neu-alert-header">
+        <span class="neu-alert-badge" id="neuAlertBadge">SISTEM PLAYMUSIC</span>
+        <h3 class="neu-alert-title" id="neuAlertTitle">Pemberitahuan</h3>
+      </div>
+      <div class="neu-alert-body" id="neuAlertBody"></div>
+      <div class="neu-alert-actions" id="neuAlertActions">
+        <button type="button" class="neu-alert-btn neu-alert-btn-cancel" id="neuAlertCancelBtn" style="display:none;">Batal</button>
+        <button type="button" class="neu-alert-btn neu-alert-btn-confirm" id="neuAlertConfirmBtn">Mengerti</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modular Scripts -->
-  <script src="/js/neu-dialog.js?v=2.5.0"></script>
-  <script src="/js/settings.js?v=2.5.0"></script>
-  <script src="/js/core.js?v=2.4.7"></script>
-  <script type="module" src="/js/downloader.js?v=2.4.7"></script>
+  <script src="/js/neu-dialog.js?v=2.5.1"></script>
+  <script src="/js/settings.js?v=2.5.1"></script>
+  <script src="/js/core.js?v=2.5.1"></script>
+  <script type="module" src="/js/downloader.js?v=2.5.1"></script>
 </body>
 </html>

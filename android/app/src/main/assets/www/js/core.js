@@ -1088,6 +1088,13 @@
       rawSearchResults = [];
       activeSearchCategory = 'all';
 
+      // Kembalikan Trending Banner & Riwayat jika ada
+      const trendingBanner = document.getElementById('trendingBanner');
+      if (trendingBanner) trendingBanner.style.display = 'block';
+      if (historySection && state.history && state.history.length > 0) {
+        historySection.style.display = 'block';
+      }
+
       // Aktifkan tab pertama (Global Viral)
       document.querySelectorAll('.neu-tab-btn').forEach(b => {
         b.classList.toggle('active', b.dataset.cat === 'global');
@@ -1103,12 +1110,29 @@
       document.documentElement.scrollLeft = 0;
       document.body.scrollLeft = 0;
 
-      // Sembunyikan panel riwayat pencarian & simpan keyword
+      // 1. Sembunyikan panel riwayat pencarian & simpan keyword
       const historyPanel = document.getElementById('searchHistoryPanel');
       if (historyPanel) historyPanel.style.display = 'none';
       if (typeof saveSearchHistory === 'function') saveSearchHistory(cleanQ);
 
-      // Tampilkan Category Bar Pencarian Universal
+      // 2. Sembunyikan view sekunder, banner, dan riwayat agar hasil pencarian langsung terlihat paling atas
+      const dlView = document.getElementById('downloadViewContainer');
+      if (dlView) dlView.style.display = 'none';
+      const lovedPageBar = document.getElementById('lovedPageBar');
+      if (lovedPageBar) lovedPageBar.style.display = 'none';
+      const trendingBanner = document.getElementById('trendingBanner');
+      if (trendingBanner) trendingBanner.style.display = 'none';
+      if (historySection) historySection.style.display = 'none';
+
+      const controlsWrapper = document.querySelector('.controls-wrapper');
+      if (controlsWrapper) controlsWrapper.style.display = 'block';
+      const sectionMeta = document.querySelector('.section-meta');
+      if (sectionMeta) sectionMeta.style.display = 'flex';
+      tracksGrid.style.display = 'grid';
+
+      state.currentCategory = 'search';
+
+      // 3. Tampilkan Category Bar Pencarian Universal
       const searchCategoryBar = document.getElementById('searchCategoryBar');
       if (searchCategoryBar) searchCategoryBar.style.display = 'flex';
       activeSearchCategory = 'all';
@@ -1124,8 +1148,8 @@
         if (categoryHeading) categoryHeading.textContent = `MENGIMPOR LINK: "${cleanQ.slice(0, 36)}..."`;
         if (categorySubtitle) categorySubtitle.textContent = 'Menganalisis audio resmi & metadata lagu...';
       } else {
-        if (categoryHeading) categoryHeading.textContent = `PENCARIAN UNIVERSAL: "${cleanQ.toUpperCase()}"`;
-        if (categorySubtitle) categorySubtitle.textContent = 'Menelusuri semua platform musik: YouTube, Spotify, JioSaavn, Apple, Deezer.';
+        if (categoryHeading) categoryHeading.textContent = `PENCARIAN: "${cleanQ.toUpperCase()}"`;
+        if (categorySubtitle) categorySubtitle.textContent = 'Menelusuri platform musik: YouTube, Spotify, JioSaavn, Apple, Deezer, SoundCloud.';
       }
       tracksGrid.innerHTML = renderTracksSkeleton(4);
 
@@ -1135,7 +1159,7 @@
         rawSearchResults = data.data || [];
         state.tracks = [...rawSearchResults];
         renderTracks();
-        if (trackCountBadge) trackCountBadge.textContent = `${state.tracks.length} Hasil (Universal)`;
+        if (trackCountBadge) trackCountBadge.textContent = `${state.tracks.length} Hasil (${activeSearchCategory === 'all' ? 'Universal' : activeSearchCategory})`;
 
         // SpotiFlyer-Style Link Import Response Handler
         if (data.isLinkImport && state.tracks.length > 0) {

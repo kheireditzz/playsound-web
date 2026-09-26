@@ -232,7 +232,7 @@ export async function searchYouTubeTracks(query, limit = 20) {
   try {
     const cleanCmdQ = q.replace(/["$`\\]/g, ' ').trim();
     const cmd = `yt-dlp "ytsearch${limit}:${cleanCmdQ}" --print "%(id)s\\t%(title)s\\t%(duration)s\\t%(uploader)s" --no-warnings`;
-    const { stdout } = await execPromise(cmd, { timeout: 14000 });
+    const { stdout } = await execPromise(cmd, { timeout: 2500 });
     const lines = (stdout || '').trim().split('\n').filter(Boolean);
     const results = [];
 
@@ -268,7 +268,6 @@ export async function searchYouTubeTracks(query, limit = 20) {
 
     return results;
   } catch (ytErr) {
-    console.warn('yt-dlp multi-search warning:', ytErr.message);
     return [];
   }
 }

@@ -1,8 +1,8 @@
 /**
- * PlayMusic Neumorphic Dialog System (neu-dialog.js)
+ * PlayMusic Neumorphic Alert & Confirm Dialog System (neu-dialog.js)
  * Modern tactile dialog replacement for native alert/confirm.
  * Eliminates browser chrome, domain leaks ("... says"), and UI freezes.
- * Follows Neumorphism & Anti-AI-Slop design guidelines.
+ * Fully follows Neumorphism & Anti-AI-Slop design guidelines.
  */
 (function () {
   'use strict';
@@ -10,57 +10,76 @@
   let currentResolve = null;
 
   function ensureDialogDom() {
-    if (document.getElementById('neuDialogBackdrop')) return;
+    if (document.getElementById('neuAlertBackdrop')) return;
 
     const dialogHtml = `
-      <div class="neu-dialog-backdrop" id="neuDialogBackdrop" role="dialog" aria-modal="true" style="display:none;">
-        <div class="neu-dialog-box" id="neuDialogBox">
-          <div class="neu-dialog-icon-wrapper" id="neuDialogIconWrapper">
-            <svg id="neuDialogIconSvg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
+      <div class="neu-alert-backdrop" id="neuAlertBackdrop" role="dialog" aria-modal="true" style="display:none;">
+        <div class="neu-alert-box" id="neuAlertBox">
+          <div class="neu-alert-icon-wrapper" id="neuAlertIconWrapper">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#006666" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
             </svg>
           </div>
-          <div class="neu-dialog-header">
-            <span class="neu-dialog-badge" id="neuDialogBadge">SISTEM PLAYMUSIC</span>
-            <h3 class="neu-dialog-title" id="neuDialogTitle">Pemberitahuan</h3>
+          <div class="neu-alert-header">
+            <span class="neu-alert-badge" id="neuAlertBadge">SISTEM PLAYMUSIC</span>
+            <h3 class="neu-alert-title" id="neuAlertTitle">Pemberitahuan</h3>
           </div>
-          <div class="neu-dialog-body" id="neuDialogBody"></div>
-          <div class="neu-dialog-actions" id="neuDialogActions">
-            <button type="button" class="neu-dialog-btn neu-dialog-btn-cancel" id="neuDialogCancelBtn" style="display:none;">Batal</button>
-            <button type="button" class="neu-dialog-btn neu-dialog-btn-confirm" id="neuDialogConfirmBtn">Mengerti</button>
+          <div class="neu-alert-body" id="neuAlertBody"></div>
+          <div class="neu-alert-actions" id="neuAlertActions">
+            <button type="button" class="neu-alert-btn neu-alert-btn-cancel" id="neuAlertCancelBtn" style="display:none;">Batal</button>
+            <button type="button" class="neu-alert-btn neu-alert-btn-confirm" id="neuAlertConfirmBtn">Mengerti</button>
           </div>
         </div>
       </div>
     `;
 
-    document.body.insertAdjacentHTML('beforeend', dialogHtml);
+    if (document.body) {
+      document.body.insertAdjacentHTML('beforeend', dialogHtml);
+    } else {
+      document.addEventListener('DOMContentLoaded', () => {
+        if (!document.getElementById('neuAlertBackdrop') && document.body) {
+          document.body.insertAdjacentHTML('beforeend', dialogHtml);
+          bindEvents();
+        }
+      });
+      return;
+    }
 
-    const backdrop = document.getElementById('neuDialogBackdrop');
-    const cancelBtn = document.getElementById('neuDialogCancelBtn');
-    const confirmBtn = document.getElementById('neuDialogConfirmBtn');
+    bindEvents();
+  }
+
+  function bindEvents() {
+    const backdrop = document.getElementById('neuAlertBackdrop');
+    const cancelBtn = document.getElementById('neuAlertCancelBtn');
+    const confirmBtn = document.getElementById('neuAlertConfirmBtn');
+    if (!backdrop || !confirmBtn) return;
 
     function triggerHaptic() {
       if (window.navigator && window.navigator.vibrate) {
-        window.navigator.vibrate(18);
+        try { window.navigator.vibrate(18); } catch (e) {}
       }
     }
 
-    cancelBtn.addEventListener('click', () => {
-      triggerHaptic();
-      closeDialog(false);
-    });
+    if (cancelBtn) {
+      cancelBtn.onclick = () => {
+        triggerHaptic();
+        closeDialog(false);
+      };
+    }
 
-    confirmBtn.addEventListener('click', () => {
+    confirmBtn.onclick = () => {
       triggerHaptic();
       closeDialog(true);
-    });
+    };
 
-    backdrop.addEventListener('click', (e) => {
+    backdrop.onclick = (e) => {
       if (e.target === backdrop) {
         triggerHaptic();
         closeDialog(false);
       }
-    });
+    };
 
     document.addEventListener('keydown', (e) => {
       if (backdrop.classList.contains('active') && e.key === 'Escape') {
@@ -70,7 +89,7 @@
   }
 
   function closeDialog(result) {
-    const backdrop = document.getElementById('neuDialogBackdrop');
+    const backdrop = document.getElementById('neuAlertBackdrop');
     if (!backdrop) return;
 
     backdrop.classList.remove('active');
@@ -81,7 +100,7 @@
         currentResolve = null;
         resolve(result);
       }
-    }, 220);
+    }, 200);
   }
 
   const icons = {
@@ -107,40 +126,47 @@
       ensureDialogDom();
       currentResolve = resolve;
 
-      const backdrop = document.getElementById('neuDialogBackdrop');
-      const badgeEl = document.getElementById('neuDialogBadge');
-      const titleEl = document.getElementById('neuDialogTitle');
-      const bodyEl = document.getElementById('neuDialogBody');
-      const iconWrapper = document.getElementById('neuDialogIconWrapper');
-      const cancelBtn = document.getElementById('neuDialogCancelBtn');
-      const confirmBtn = document.getElementById('neuDialogConfirmBtn');
+      const backdrop = document.getElementById('neuAlertBackdrop');
+      const badgeEl = document.getElementById('neuAlertBadge');
+      const titleEl = document.getElementById('neuAlertTitle');
+      const bodyEl = document.getElementById('neuAlertBody');
+      const iconWrapper = document.getElementById('neuAlertIconWrapper');
+      const cancelBtn = document.getElementById('neuAlertCancelBtn');
+      const confirmBtn = document.getElementById('neuAlertConfirmBtn');
 
-      badgeEl.textContent = badge;
-      titleEl.textContent = title;
+      if (badgeEl) badgeEl.textContent = badge;
+      if (titleEl) titleEl.textContent = title;
 
-      // Format teks dengan baris baru rapi
-      if (typeof message === 'string') {
-        const formatted = message
-          .split('\n\n')
-          .map(p => `<p style="margin: 0 0 8px 0;">${p.replace(/\n/g, '<br>')}</p>`)
-          .join('');
-        bodyEl.innerHTML = formatted;
-      } else {
-        bodyEl.innerHTML = '';
-        bodyEl.appendChild(message);
+      if (bodyEl) {
+        if (typeof message === 'string') {
+          const formatted = message
+            .split('\n\n')
+            .map(p => `<p style="margin: 0 0 8px 0;">${p.replace(/\n/g, '<br>')}</p>`)
+            .join('');
+          bodyEl.innerHTML = formatted;
+        } else {
+          bodyEl.innerHTML = '';
+          bodyEl.appendChild(message);
+        }
       }
 
-      iconWrapper.innerHTML = icons[type] || icons.info;
-      cancelBtn.style.display = 'none';
+      if (iconWrapper) iconWrapper.innerHTML = icons[type] || icons.info;
+      if (cancelBtn) cancelBtn.style.display = 'none';
 
-      confirmBtn.textContent = confirmText;
-      confirmBtn.className = 'neu-dialog-btn neu-dialog-btn-confirm';
+      if (confirmBtn) {
+        confirmBtn.textContent = confirmText;
+        confirmBtn.className = 'neu-alert-btn neu-alert-btn-confirm';
+      }
 
-      backdrop.style.display = 'flex';
-      requestAnimationFrame(() => {
-        backdrop.classList.add('active');
-        confirmBtn.focus();
-      });
+      if (backdrop) {
+        backdrop.style.display = 'flex';
+        requestAnimationFrame(() => {
+          backdrop.classList.add('active');
+          if (confirmBtn) confirmBtn.focus();
+        });
+      } else {
+        resolve(true);
+      }
     });
   };
 
@@ -162,45 +188,55 @@
       ensureDialogDom();
       currentResolve = resolve;
 
-      const backdrop = document.getElementById('neuDialogBackdrop');
-      const badgeEl = document.getElementById('neuDialogBadge');
-      const titleEl = document.getElementById('neuDialogTitle');
-      const bodyEl = document.getElementById('neuDialogBody');
-      const iconWrapper = document.getElementById('neuDialogIconWrapper');
-      const cancelBtn = document.getElementById('neuDialogCancelBtn');
-      const confirmBtn = document.getElementById('neuDialogConfirmBtn');
+      const backdrop = document.getElementById('neuAlertBackdrop');
+      const badgeEl = document.getElementById('neuAlertBadge');
+      const titleEl = document.getElementById('neuAlertTitle');
+      const bodyEl = document.getElementById('neuAlertBody');
+      const iconWrapper = document.getElementById('neuAlertIconWrapper');
+      const cancelBtn = document.getElementById('neuAlertCancelBtn');
+      const confirmBtn = document.getElementById('neuAlertConfirmBtn');
 
-      badgeEl.textContent = badge;
-      titleEl.textContent = title;
+      if (badgeEl) badgeEl.textContent = badge;
+      if (titleEl) titleEl.textContent = title;
 
-      if (typeof message === 'string') {
-        const formatted = message
-          .split('\n\n')
-          .map(p => `<p style="margin: 0 0 8px 0;">${p.replace(/\n/g, '<br>')}</p>`)
-          .join('');
-        bodyEl.innerHTML = formatted;
-      } else {
-        bodyEl.innerHTML = '';
-        bodyEl.appendChild(message);
+      if (bodyEl) {
+        if (typeof message === 'string') {
+          const formatted = message
+            .split('\n\n')
+            .map(p => `<p style="margin: 0 0 8px 0;">${p.replace(/\n/g, '<br>')}</p>`)
+            .join('');
+          bodyEl.innerHTML = formatted;
+        } else {
+          bodyEl.innerHTML = '';
+          bodyEl.appendChild(message);
+        }
       }
 
-      iconWrapper.innerHTML = icons[type] || icons.warning;
+      if (iconWrapper) iconWrapper.innerHTML = icons[type] || icons.warning;
 
-      cancelBtn.style.display = 'inline-flex';
-      cancelBtn.textContent = cancelText;
+      if (cancelBtn) {
+        cancelBtn.style.display = 'inline-flex';
+        cancelBtn.textContent = cancelText;
+      }
 
-      confirmBtn.textContent = confirmText;
-      confirmBtn.className = 'neu-dialog-btn neu-dialog-btn-confirm' + (isDanger ? ' btn-danger' : '');
+      if (confirmBtn) {
+        confirmBtn.textContent = confirmText;
+        confirmBtn.className = 'neu-alert-btn neu-alert-btn-confirm' + (isDanger ? ' btn-danger' : '');
+      }
 
-      backdrop.style.display = 'flex';
-      requestAnimationFrame(() => {
-        backdrop.classList.add('active');
-        confirmBtn.focus();
-      });
+      if (backdrop) {
+        backdrop.style.display = 'flex';
+        requestAnimationFrame(() => {
+          backdrop.classList.add('active');
+          if (confirmBtn) confirmBtn.focus();
+        });
+      } else {
+        resolve(true);
+      }
     });
   };
 
-  // Override window.alert globally agar tidak ada lagi dialog jelek browser ("... says")
+  // Override window.alert & window.confirm globally to eliminate domain prompts ("... says")
   window.alert = function (msg) {
     return window.showNeuAlert({
       title: 'PlayMusic',
@@ -209,4 +245,20 @@
       type: 'info'
     });
   };
+
+  window.confirm = function (msg) {
+    return window.showNeuConfirm({
+      title: 'PlayMusic',
+      badge: 'KONFIRMASI',
+      message: String(msg),
+      type: 'warning'
+    });
+  };
+
+  // Pastikan DOM dialog di-mount sedini mungkin
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', ensureDialogDom);
+  } else {
+    ensureDialogDom();
+  }
 })();

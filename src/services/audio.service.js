@@ -2,7 +2,7 @@ import https from 'node:https';
 import CryptoJS from 'crypto-js';
 import { BAD_TRACK_KEYWORDS } from '../config/constants.js';
 import { getSpotifyToken } from './spotify.service.js';
-import { searchYouTubeVideo, searchYouTubeTracks } from './youtube-audio.service.js';
+import { searchYouTubeVideo, searchYouTubeTracks, getDirectYouTubeAudioUrl } from './youtube-audio.service.js';
 
 // ── Native HTTPS JSON Requester (Bypass undici TLS alerts di Node 26) ──
 export function httpsGetJson(urlStr, timeoutMs = 5000) {
@@ -192,25 +192,7 @@ export async function scrapeFullAudio(query, expectedArtist = '', expectedTitle 
       return found;
     }
 
-    // 2. Prioritaskan YouTube Audio Engine Resmi (100% FULL DURASI lagu lengkap original)
-    const ytVideo = await searchYouTubeVideo(`${expectedArtist} ${expectedTitle || cleanQ}`);
-    if (ytVideo && ytVideo.videoId) {
-      return {
-        found: true,
-        isVerifiedOriginal: true,
-        isFullTrack: true,
-        source: 'youtube_hifi',
-        title: ytVideo.title || expectedTitle || query,
-        artist: expectedArtist || 'Artist',
-        album: 'YouTube Music Original',
-        duration: ytVideo.duration || 210,
-        cover: ytVideo.cover,
-        streamUrl: `/api/stream-audio?id=${ytVideo.videoId}`,
-        bitrate: '320kbps HD'
-      };
-    }
-
-    // 3. Cadangan: SoundCloud Stream (Full-length progressive MP3, durasi > 60s)
+    // 2. Prioritaskan SoundCloud Stream (Full-length progressive MP3, durasi > 60s, direct CDN)
     let scFound = await searchSoundCloudStream(`${cleanQ}`, expectedArtist);
     if (!scFound && expectedArtist && expectedTitle) {
       scFound = await searchSoundCloudStream(`${expectedArtist} ${expectedTitle}`, expectedArtist);
@@ -222,23 +204,54 @@ export async function scrapeFullAudio(query, expectedArtist = '', expectedTitle 
       return scFound;
     }
 
-    // 4. Cadangan Terakhir: Eksekusi pencarian global YouTube
-    const ytFallback = await searchYouTubeVideo(`${cleanQ}`);
-    if (ytFallback && ytFallback.videoId) {
-      return {
-        found: true,
-        isVerifiedOriginal: true,
-        isFullTrack: true,
-        source: 'youtube_hifi',
-        title: ytFallback.title || expectedTitle || query,
-        artist: expectedArtist || 'Artist',
-        album: 'YouTube Music Original',
-        duration: ytFallback.duration || 210,
-        cover: ytFallback.cover,
-        streamUrl: `/api/stream-audio?id=${ytFallback.videoId}`,
-        bitrate: '320kbps HD'
-      };
+    // 3. Cadangan: YouTube Audio Engine Resmi (Hanya jika stream langsung bisa diverifikasi)
+    const ytVideo = await searchYouTubeVideo(`${expectedArtist} ${expectedTitle || cleanQ}`);
+    if (ytVideo && ytVideo.videoId) {
+      try {
+        const ytDirect = await getDirectYouTubeAudioUrl(ytVideo.videoId);
+        if (ytDirect && ytDirect.directUrl) {
+          return {
+            found: true,
+            isVerifiedOriginal: true,
+            isFullTrack: true,
+            source: 'youtube_hifi',
+            title: ytVideo.title || expectedTitle || query,
+            artist: expectedArtist || 'Artist',
+            album: 'YouTube Music Original',
+            duration: ytVideo.duration || 210,
+            cover: ytVideo.cover,
+            streamUrl: `/api/stream-audio?id=${ytVideo.videoId}`,
+            bitrate: '320kbps HD'
+          };
+        }
+      } catch {}
     }
+
+    // 4. Cadangan: iTunes Audio Preview Resmi
+    try {
+      const itUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(cleanQ)}&entity=song&limit=6`;
+      const itRes = await fetch(itUrl, { signal: AbortSignal.timeout(3500) });
+      if (itRes.ok) {
+        const itData = await itRes.json();
+        for (const item of (itData.results || [])) {
+          if (item.previewUrl) {
+            return {
+              found: true,
+              isVerifiedOriginal: true,
+              isFullTrack: false,
+              source: 'itunes_preview',
+              title: item.trackName,
+              artist: item.artistName,
+              album: item.collectionName || 'Single',
+              duration: 30,
+              cover: (item.artworkUrl100 || '').replace('100x100bb', '300x300bb'),
+              streamUrl: item.previewUrl,
+              bitrate: '256kbps AAC'
+            };
+          }
+        }
+      }
+    } catch {}
 
   } catch (err) {
     console.error('Free music scraper error:', err.message);
@@ -365,7 +378,7 @@ export async function searchSongs(query) {
         artist: t.artist?.name || 'Artist',
         album: t.album?.title || 'Single',
         cover: t.album?.cover_medium || t.album?.cover_big || t.album?.cover || '',
-        preview: '',
+        preview: t.preview || '',
         fullStreamUrl: '',
         duration: t.duration || 180,
         origin: 'Deezer'
@@ -379,7 +392,7 @@ export async function searchSongs(query) {
   const itunesPromise = (async () => {
     try {
       const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(rawQ)}&entity=song&limit=20`, {
-        signal: AbortSignal.timeout(4000)
+        signal: AbortSignal.timeout(3500)
       });
       if (!res.ok) return [];
       const json = await res.json();
@@ -389,7 +402,7 @@ export async function searchSongs(query) {
         artist: item.artistName,
         album: item.collectionName || 'Single',
         cover: (item.artworkUrl100 || '').replace('100x100bb', '300x300bb'),
-        preview: '',
+        preview: item.previewUrl || '',
         fullStreamUrl: '',
         duration: Math.round((item.trackTimeMillis || 180000) / 1000),
         origin: 'Apple'
@@ -399,8 +412,40 @@ export async function searchSongs(query) {
     }
   })();
 
-  const [ytRes, spotifyRes, saavnRes, deezerRes, itunesRes] = await Promise.allSettled([
-    youtubePromise, spotifyPromise, saavnPromise, deezerPromise, itunesPromise
+  // 6. Search SoundCloud
+  const soundcloudPromise = (async () => {
+    try {
+      const sUrl = `https://api-v2.soundcloud.com/search/tracks?q=${encodeURIComponent(cleanQ)}&client_id=${scClientId}&limit=15`;
+      let res = await fetch(sUrl, { signal: AbortSignal.timeout(3500) });
+      if (res.status === 401) {
+        await refreshSoundCloudClientId();
+        res = await fetch(`https://api-v2.soundcloud.com/search/tracks?q=${encodeURIComponent(cleanQ)}&client_id=${scClientId}&limit=15`, { signal: AbortSignal.timeout(3500) });
+      }
+      if (!res.ok) return [];
+      const data = await res.json();
+      return (data.collection || []).map(t => {
+        const durSec = Math.round((t.duration || 0) / 1000);
+        if (durSec < 45 || durSec > 600) return null;
+        if (isForbiddenTrack(t.title, t.user?.username || '', '')) return null;
+        return {
+          id: `sc-sr-${t.id}`,
+          title: t.title,
+          artist: t.user?.username || 'Artist',
+          album: 'SoundCloud Original',
+          cover: t.artwork_url ? t.artwork_url.replace('large.jpg', 't300x300.jpg') : '',
+          preview: '',
+          fullStreamUrl: '',
+          duration: durSec,
+          origin: 'SoundCloud'
+        };
+      }).filter(Boolean);
+    } catch {
+      return [];
+    }
+  })();
+
+  const [ytRes, spotifyRes, saavnRes, deezerRes, itunesRes, scRes] = await Promise.allSettled([
+    youtubePromise, spotifyPromise, saavnPromise, deezerPromise, itunesPromise, soundcloudPromise
   ]);
 
   const rawList = [
@@ -408,7 +453,8 @@ export async function searchSongs(query) {
     ...(spotifyRes.status === 'fulfilled' ? spotifyRes.value : []),
     ...(saavnRes.status === 'fulfilled' ? saavnRes.value : []),
     ...(deezerRes.status === 'fulfilled' ? deezerRes.value : []),
-    ...(itunesRes.status === 'fulfilled' ? itunesRes.value : [])
+    ...(itunesRes.status === 'fulfilled' ? itunesRes.value : []),
+    ...(scRes.status === 'fulfilled' ? scRes.value : [])
   ];
 
   const lowerQ = rawQ.toLowerCase().trim();

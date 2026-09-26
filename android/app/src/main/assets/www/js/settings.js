@@ -350,46 +350,38 @@
 
       if (serverVersionCode > localVersionCode) {
         const changelogList = (data.changelog || []).map(c => `• ${c}`).join('\n');
-        const proceed = await (window.showNeuConfirm ? window.showNeuConfirm({
-          title: `Pembaruan Tersedia`,
+        const proceed = await window.showNeuConfirm({
+          title: 'Pembaruan Tersedia',
           badge: `VERSI BARU v${serverVersionName}`,
           message: `Tersedia rilis pembaruan v${serverVersionName}.\n\nCatatan Rilis:\n${changelogList}\n\nAplikasi ditandatangani dengan keystore tetap sehingga pembaruan dapat langsung dipasang tanpa perlu uninstal.\n\nUnduh dan pasang pembaruan sekarang?`,
           type: 'info',
           confirmText: 'Unduh Pembaruan',
           cancelText: 'Nanti'
-        }) : Promise.resolve(confirm(`Pembaruan Tersedia: v${serverVersionName}!\n\nUnduh sekarang?`)));
+        });
 
         if (proceed) {
           window.downloadAndroidApk();
         }
       } else {
         if (isManual) {
-          if (window.showNeuAlert) {
-            await window.showNeuAlert({
-              title: 'Versi Terkini',
-              badge: `VERSI v${serverVersionName}`,
-              message: `Aplikasi Anda sudah versi terbaru (v${serverVersionName})!\n\nTanda tangan keystore tetap aktif sehingga update berikutnya dapat langsung dipasang tanpa perlu uninstal.`,
-              type: 'success',
-              confirmText: 'Mengerti'
-            });
-          } else {
-            alert(`Aplikasi Anda sudah versi terbaru (v${serverVersionName})!`);
-          }
+          await window.showNeuAlert({
+            title: 'Versi Terkini',
+            badge: `VERSI v${serverVersionName}`,
+            message: `Aplikasi Anda sudah versi terbaru (v${serverVersionName})!\n\nTanda tangan keystore tetap aktif sehingga update berikutnya dapat langsung dipasang tanpa perlu uninstal.`,
+            type: 'success',
+            confirmText: 'Mengerti'
+          });
         }
       }
     } catch (e) {
       if (isManual) {
-        if (window.showNeuAlert) {
-          await window.showNeuAlert({
-            title: 'Koneksi Terganggu',
-            badge: 'PERIKSA KONEKSI',
-            message: 'Gagal memeriksa pembaruan server. Pastikan koneksi internet aktif.',
-            type: 'error',
-            confirmText: 'Tutup'
-          });
-        } else {
-          alert('Gagal memeriksa pembaruan server. Pastikan koneksi internet aktif.');
-        }
+        await window.showNeuAlert({
+          title: 'Koneksi Terganggu',
+          badge: 'PERIKSA KONEKSI',
+          message: 'Gagal memeriksa pembaruan server. Pastikan koneksi internet aktif.',
+          type: 'error',
+          confirmText: 'Tutup'
+        });
       }
     }
   };

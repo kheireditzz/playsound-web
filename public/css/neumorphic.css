@@ -923,20 +923,34 @@
     }
 
     .search-cat-clear-btn {
-      background: transparent;
-      border: none;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.68rem;
-      font-weight: 700;
-      color: var(--color-danger);
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      border-radius: 50%;
+      background: var(--bg-surface, #E7E5E4);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: var(--neu-extruded-sm);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--color-danger, #FF2157);
       cursor: pointer;
-      padding: 3px 6px;
-      border-radius: 6px;
-      transition: background 0.15s ease;
+      padding: 0;
+      line-height: 1;
+      transition: all 0.16s ease;
+      touch-action: manipulation;
     }
 
     .search-cat-clear-btn:hover {
       background: rgba(255, 33, 87, 0.08);
+      color: var(--color-danger, #FF2157);
+    }
+
+    .search-cat-clear-btn:active {
+      box-shadow: var(--neu-inset-sm);
+      transform: scale(0.92);
     }
 
     .search-cat-chips {
@@ -3478,13 +3492,13 @@
        NEUMORPHIC UNIVERSAL DIALOG MODAL (ANTI-AI-SLOP & TACTILE NEUMORPHISM)
        Replaces ugly browser alert/confirm without domain leaks
        ========================================================================== */
-    .neu-dialog-backdrop {
+    .neu-alert-backdrop {
       position: fixed;
       inset: 0;
-      z-index: 100000;
-      background: rgba(30, 41, 56, 0.45);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      z-index: 1000000;
+      background: rgba(30, 41, 56, 0.55);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -3494,19 +3508,19 @@
       transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .neu-dialog-backdrop.active {
+    .neu-alert-backdrop.active {
       opacity: 1;
       pointer-events: auto;
     }
 
-    .neu-dialog-box {
+    .neu-alert-box {
       background: var(--bg-surface, #E7E5E4);
       width: 100%;
       max-width: 420px;
       border-radius: 28px;
       padding: 28px 24px 22px;
-      box-shadow: 14px 14px 32px var(--shadow-dark, #c5c3c2), -14px -14px 32px var(--shadow-light, #ffffff);
-      border: 1px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 16px 16px 36px var(--shadow-dark, #c5c3c2), -16px -16px 36px var(--shadow-light, #ffffff);
+      border: 1px solid rgba(255, 255, 255, 0.85);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -3516,11 +3530,11 @@
       box-sizing: border-box;
     }
 
-    .neu-dialog-backdrop.active .neu-dialog-box {
+    .neu-alert-backdrop.active .neu-alert-box {
       transform: scale(1) translateY(0);
     }
 
-    .neu-dialog-icon-wrapper {
+    .neu-alert-icon-wrapper {
       width: 66px;
       height: 66px;
       border-radius: 50%;
@@ -3533,7 +3547,7 @@
       flex-shrink: 0;
     }
 
-    .neu-dialog-header {
+    .neu-alert-header {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -3542,7 +3556,7 @@
       width: 100%;
     }
 
-    .neu-dialog-badge {
+    .neu-alert-badge {
       font-family: 'Space Mono', monospace;
       font-size: 11px;
       font-weight: 700;
@@ -3552,46 +3566,46 @@
       border-radius: 20px;
       background: rgba(0, 102, 102, 0.08);
       color: var(--color-primary, #006666);
-      border: 1px solid rgba(0, 102, 102, 0.15);
+      border: 1px solid rgba(0, 102, 102, 0.18);
       display: inline-block;
     }
 
-    .neu-dialog-title {
+    .neu-alert-title {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 1.2rem;
+      font-size: 1.22rem;
       font-weight: 800;
       color: var(--color-text, #1E2938);
       margin: 0;
       line-height: 1.3;
     }
 
-    .neu-dialog-body {
+    .neu-alert-body {
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.88rem;
       line-height: 1.6;
-      color: var(--color-text-muted, #64748B);
+      color: var(--color-text-muted, #475569);
       margin-bottom: 22px;
       width: 100%;
       word-break: break-word;
       text-align: center;
     }
 
-    .neu-dialog-body p {
+    .neu-alert-body p {
       margin: 0 0 8px 0;
     }
 
-    .neu-dialog-body p:last-child {
+    .neu-alert-body p:last-child {
       margin-bottom: 0;
     }
 
-    .neu-dialog-actions {
+    .neu-alert-actions {
       display: flex;
       gap: 12px;
       width: 100%;
       justify-content: center;
     }
 
-    .neu-dialog-btn {
+    .neu-alert-btn {
       flex: 1;
       padding: 13px 18px;
       border-radius: 16px;
@@ -3609,29 +3623,29 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    .neu-dialog-btn-confirm {
+    .neu-alert-btn-confirm {
       background: var(--color-primary, #006666);
       color: #ffffff;
-      box-shadow: 4px 4px 10px rgba(0, 102, 102, 0.3), -2px -2px 8px var(--shadow-light, #ffffff);
+      box-shadow: 4px 4px 12px rgba(0, 102, 102, 0.35), -2px -2px 8px var(--shadow-light, #ffffff);
     }
 
-    .neu-dialog-btn-confirm:active {
+    .neu-alert-btn-confirm:active {
       transform: scale(0.97);
       box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.35);
     }
 
-    .neu-dialog-btn-confirm.btn-danger {
+    .neu-alert-btn-confirm.btn-danger {
       background: var(--color-danger, #FF2157);
-      box-shadow: 4px 4px 10px rgba(255, 33, 87, 0.3), -2px -2px 8px var(--shadow-light, #ffffff);
+      box-shadow: 4px 4px 12px rgba(255, 33, 87, 0.35), -2px -2px 8px var(--shadow-light, #ffffff);
     }
 
-    .neu-dialog-btn-cancel {
+    .neu-alert-btn-cancel {
       background: var(--bg-surface, #E7E5E4);
       color: var(--color-text, #1E2938);
       box-shadow: var(--neu-extruded-sm);
     }
 
-    .neu-dialog-btn-cancel:active {
+    .neu-alert-btn-cancel:active {
       box-shadow: var(--neu-inset);
       transform: scale(0.97);
     }
