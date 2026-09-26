@@ -103,7 +103,8 @@
       align-items: center;
       justify-content: space-between;
       padding: 0 24px;
-      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+      transition: transform 0.42s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+      will-change: transform, opacity;
     }
 
     /* Sembunyikan header atas sementara saat pemutar layar penuh aktif */
@@ -886,7 +887,7 @@
       margin: 0;
       width: calc(100% - 32px);
       max-width: 1200px;
-      height: 88px;
+      height: 84px;
       background: var(--bg-surface);
       border-radius: 20px;
       border: 1px solid rgba(255, 255, 255, 0.75);
@@ -897,11 +898,22 @@
       padding: 0 24px;
       gap: 20px;
       box-sizing: border-box;
+      transition: transform 0.42s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+      will-change: transform, opacity;
     }
 
     .neu-player-dock.visible {
       display: flex;
       transform: translateX(-50%);
+    }
+
+    /* Saat layar penuh aktif: dock kecil ikut meluncur NAIK ke atas dan menyatu mulus (tidak ada yang tertinggal di bawah!) */
+    body.full-player-active .neu-player-dock,
+    .neu-player-dock.is-rising {
+      transform: translate(-50%, -100vh) scale(0.96) !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      transition: transform 0.42s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease !important;
     }
 
     .dock-track-info {
@@ -988,18 +1000,100 @@
       background: var(--color-primary);
       color: #fff;
       box-shadow: 4px 4px 10px rgba(0, 102, 102, 0.4), -4px -4px 10px #ffffff;
+      position: relative;
+      z-index: 2;
     }
 
     .btn-main-play:active {
       box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.5);
     }
 
-    /* Tactile Progress Bar */
+    /* Wave Pulse di Belakang Tombol Play / Pause (Ritme Gelombang Halus) */
+    .main-play-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 54px;
+      height: 54px;
+      flex-shrink: 0;
+    }
+
+    .play-wave-emitter {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .play-wave-emitter .wave-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1.8px solid rgba(0, 102, 102, 0.6);
+      box-shadow: 0 0 12px rgba(0, 166, 61, 0.35);
+      opacity: 0;
+      transform: scale(0.9);
+      pointer-events: none;
+    }
+
+    /* Gelombang aktif berdenyut membesar hanya saat audio berputar */
+    .neu-player-dock.is-playing .play-wave-emitter .wave-ring,
+    .main-play-wrap.is-playing .play-wave-emitter .wave-ring,
+    body.is-audio-playing .play-wave-emitter .wave-ring {
+      animation: neuPlayWavePulse 2.1s cubic-bezier(0.18, 0.65, 0.35, 1) infinite;
+    }
+
+    .neu-player-dock.is-playing .play-wave-emitter .wave-1,
+    .main-play-wrap.is-playing .play-wave-emitter .wave-1,
+    body.is-audio-playing .play-wave-emitter .wave-1 {
+      animation-delay: 0s;
+    }
+
+    .neu-player-dock.is-playing .play-wave-emitter .wave-2,
+    .main-play-wrap.is-playing .play-wave-emitter .wave-2,
+    body.is-audio-playing .play-wave-emitter .wave-2 {
+      animation-delay: 0.7s;
+    }
+
+    .neu-player-dock.is-playing .play-wave-emitter .wave-3,
+    .main-play-wrap.is-playing .play-wave-emitter .wave-3,
+    body.is-audio-playing .play-wave-emitter .wave-3 {
+      animation-delay: 1.4s;
+    }
+
+    @keyframes neuPlayWavePulse {
+      0% {
+        transform: scale(0.88);
+        opacity: 0.85;
+        border-color: rgba(0, 102, 102, 0.75);
+      }
+      50% {
+        opacity: 0.45;
+        border-color: rgba(0, 166, 61, 0.55);
+      }
+      100% {
+        transform: scale(1.95);
+        opacity: 0;
+        border-color: rgba(0, 166, 61, 0);
+      }
+    }
+
+    /* Tactile Progress Bar (Sleek tanpa angka durasi di dock bawah) */
     .progress-bar-container {
       width: 100%;
+      max-width: 480px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      justify-content: center;
+      gap: 0;
+      padding: 0 4px;
+      box-sizing: border-box;
     }
 
     .time-stamp {
@@ -1010,11 +1104,16 @@
       text-align: center;
     }
 
+    .time-stamp-hidden {
+      display: none !important;
+    }
+
     .neu-range-wrap {
       flex: 1;
+      width: 100%;
       position: relative;
-      height: 10px;
-      border-radius: 5px;
+      height: 7px;
+      border-radius: 999px;
       background: var(--bg-surface);
       box-shadow: var(--neu-inset);
       cursor: pointer;
@@ -1028,7 +1127,7 @@
       height: 100%;
       background: linear-gradient(90deg, var(--color-primary), #00A63D);
       width: 0%;
-      border-radius: 5px;
+      border-radius: 999px;
       pointer-events: none;
       transition: width 0.05s linear;
     }
@@ -1038,12 +1137,12 @@
       top: 50%;
       left: 0%;
       transform: translate(-50%, -50%);
-      width: 15px;
-      height: 15px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
       background: #ffffff;
       box-shadow: 2px 2px 5px var(--shadow-dark), -2px -2px 5px var(--shadow-light);
-      border: 2.5px solid var(--color-primary);
+      border: 2px solid var(--color-primary);
       cursor: grab;
       transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
       pointer-events: none;
@@ -1051,7 +1150,7 @@
 
     .neu-range-wrap:hover .neu-progress-thumb,
     .neu-range-wrap.is-dragging .neu-progress-thumb {
-      transform: translate(-50%, -50%) scale(1.3);
+      transform: translate(-50%, -50%) scale(1.25);
       border-color: #00A63D;
       box-shadow: 0 0 10px rgba(0, 166, 61, 0.6);
       cursor: grabbing;
@@ -1081,36 +1180,9 @@
       color: #00A63D !important;
     }
 
-    /* Rhythm Equalizer Visualizer (Rime-Rime Lagu Spotify-Style) */
+    /* Sembunyikan ritme lama di samping info lagu agar bersih */
     .sound-wave {
-      display: inline-flex;
-      align-items: flex-end;
-      gap: 3px;
-      height: 22px;
-      padding: 3px 6px;
-      background: var(--bg-surface);
-      border-radius: 8px;
-      box-shadow: var(--neu-inset);
-      flex-shrink: 0;
-    }
-
-    .wave-bar {
-      width: 3.5px;
-      height: 4px;
-      background: var(--color-primary);
-      border-radius: 2px;
-      transition: height 0.15s ease;
-    }
-
-    .is-playing .wave-bar:nth-child(1) { animation: rhythmBounce 0.85s infinite ease-in-out 0.1s; }
-    .is-playing .wave-bar:nth-child(2) { animation: rhythmBounce 0.65s infinite ease-in-out 0.3s; }
-    .is-playing .wave-bar:nth-child(3) { animation: rhythmBounce 1.05s infinite ease-in-out 0.0s; }
-    .is-playing .wave-bar:nth-child(4) { animation: rhythmBounce 0.75s infinite ease-in-out 0.4s; }
-    .is-playing .wave-bar:nth-child(5) { animation: rhythmBounce 0.95s infinite ease-in-out 0.2s; }
-
-    @keyframes rhythmBounce {
-      0%, 100% { height: 4px; opacity: 0.5; }
-      50% { height: 18px; opacity: 1; background: #00A63D; }
+      display: none !important;
     }
 
     /* ── Spotify-Style Fullscreen Now Playing Player ── */
@@ -1699,13 +1771,15 @@
         max-width: calc(100% - 20px);
         display: none;
         height: auto;
-        min-height: 104px;
+        min-height: 96px;
         border-radius: 18px;
-        padding: 12px 14px;
+        padding: 10px 14px;
         flex-direction: column;
         gap: 8px;
         box-shadow: 0 12px 28px rgba(0, 0, 0, 0.16), 0 3px 8px rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.9);
         box-sizing: border-box;
+        transition: transform 0.42s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+        will-change: transform, opacity;
       }
       .neu-player-dock.visible {
         display: flex;
@@ -2943,16 +3017,9 @@
         <div id="dockTitle" class="dock-title"></div>
         <div id="dockArtist" class="dock-artist"></div>
       </div>
-      <div class="sound-wave" id="soundWave" title="Rhythm Equalizer">
-        <div class="wave-bar"></div>
-        <div class="wave-bar"></div>
-        <div class="wave-bar"></div>
-        <div class="wave-bar"></div>
-        <div class="wave-bar"></div>
-      </div>
     </div>
 
-    <!-- Center Play Controls & Progress -->
+    <!-- Center Play Controls & Sleek Progress Bar (Tanpa Angka Durasi) -->
     <div class="dock-center">
       <div class="player-buttons">
         <button id="prevBtn" class="dock-ctrl-btn btn-step" title="Sebelumnya">
@@ -2962,15 +3029,23 @@
           </svg>
         </button>
 
-        <button id="mainPlayBtn" class="dock-ctrl-btn btn-main-play" title="Play/Pause">
-          <svg id="playIcon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <polygon points="6 3 20 12 6 21 6 3"></polygon>
-          </svg>
-          <svg id="pauseIcon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display: none;">
-            <rect x="6" y="4" width="4" height="16"></rect>
-            <rect x="14" y="4" width="4" height="16"></rect>
-          </svg>
-        </button>
+        <div class="main-play-wrap" id="mainPlayWrap">
+          <!-- Efek Ritme Gelombang Lembut di Belakang Tombol Play/Pause -->
+          <div class="play-wave-emitter" id="playWaveEmitter" aria-hidden="true">
+            <span class="wave-ring wave-1"></span>
+            <span class="wave-ring wave-2"></span>
+            <span class="wave-ring wave-3"></span>
+          </div>
+          <button id="mainPlayBtn" class="dock-ctrl-btn btn-main-play" title="Play/Pause">
+            <svg id="playIcon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="6 3 20 12 6 21 6 3"></polygon>
+            </svg>
+            <svg id="pauseIcon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display: none;">
+              <rect x="6" y="4" width="4" height="16"></rect>
+              <rect x="14" y="4" width="4" height="16"></rect>
+            </svg>
+          </button>
+        </div>
 
         <button id="nextBtn" class="dock-ctrl-btn btn-step" title="Selanjutnya">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -2981,12 +3056,12 @@
       </div>
 
       <div class="progress-bar-container">
-        <span class="time-stamp" id="currentTimeText">0:00</span>
-        <div class="neu-range-wrap" id="progressBar" title="Geser untuk atur durasi">
+        <span class="time-stamp-hidden" id="currentTimeText">0:00</span>
+        <div class="neu-range-wrap" id="progressBar" title="Geser untuk atur posisi lagu">
           <div class="neu-progress-fill" id="progressFill"></div>
           <div class="neu-progress-thumb" id="progressThumb"></div>
         </div>
-        <span class="time-stamp" id="totalDurationText">0:30</span>
+        <span class="time-stamp-hidden" id="totalDurationText">0:30</span>
       </div>
     </div>
 
@@ -3364,7 +3439,9 @@
       playerDock.style.display = 'flex';
       playerDock.classList.add('visible');
       document.body.classList.add('has-player');
-      openFullPlayer();
+      if (spotifyFullPlayer && spotifyFullPlayer.classList.contains('is-open')) {
+        updateFullPlayerDetails();
+      }
 
       // 1. Matikan audio sebelumnya seketika dan kosongkan pipeline agar audio lama tidak bocor
       try {
@@ -4314,12 +4391,16 @@
     window.openFullPlayer = function() {
       if (!spotifyFullPlayer) return;
       updateFullPlayerDetails();
+      const playerDock = document.getElementById('playerDock');
+      if (playerDock) playerDock.classList.add('is-rising');
       spotifyFullPlayer.classList.add('is-open');
       document.body.classList.add('full-player-active');
     };
 
     window.closeFullPlayer = function() {
       if (!spotifyFullPlayer) return;
+      const playerDock = document.getElementById('playerDock');
+      if (playerDock) playerDock.classList.remove('is-rising');
       spotifyFullPlayer.classList.remove('is-open');
       document.body.classList.remove('full-player-active');
     };
@@ -4503,8 +4584,10 @@
       playerDock.classList.add('visible');
       document.body.classList.add('has-player');
 
-      // Pas pertama klik putar, langsung munculkan Spotify Full Player
-      openFullPlayer();
+      // Jika full player sedang aktif terbuka, update tampilannya
+      if (spotifyFullPlayer && spotifyFullPlayer.classList.contains('is-open')) {
+        updateFullPlayerDetails();
+      }
 
       if (state.currentTrack && state.currentTrack.id === track.id) {
         if (state.isPlaying) {
@@ -4594,18 +4677,27 @@
 
     // Update Player UI
     function updatePlayerUI() {
+      const playerDock = document.getElementById('playerDock');
+      const mainPlayWrap = document.getElementById('mainPlayWrap');
+
       if (state.isPlaying) {
         playIcon.style.display = 'none';
         pauseIcon.style.display = 'block';
         if (fullPlayIcon) fullPlayIcon.style.display = 'none';
         if (fullPauseIcon) fullPauseIcon.style.display = 'block';
-        soundWave.classList.add('is-playing');
+        if (soundWave) soundWave.classList.add('is-playing');
+        if (playerDock) playerDock.classList.add('is-playing');
+        if (mainPlayWrap) mainPlayWrap.classList.add('is-playing');
+        document.body.classList.add('is-audio-playing');
       } else {
         playIcon.style.display = 'block';
         pauseIcon.style.display = 'none';
         if (fullPlayIcon) fullPlayIcon.style.display = 'block';
         if (fullPauseIcon) fullPauseIcon.style.display = 'none';
-        soundWave.classList.remove('is-playing');
+        if (soundWave) soundWave.classList.remove('is-playing');
+        if (playerDock) playerDock.classList.remove('is-playing');
+        if (mainPlayWrap) mainPlayWrap.classList.remove('is-playing');
+        document.body.classList.remove('is-audio-playing');
       }
 
       updateFullPlayerDetails();
@@ -4635,6 +4727,168 @@
       }
     }
 
+    // ── Session State Persistence across Refresh / Reload ──
+    const SESSION_STORAGE_KEY = 'kheir_viral_music_playback_session';
+
+    function savePlaybackSession() {
+      if (!state.currentTrack) return;
+      try {
+        const sessionData = {
+          track: state.currentTrack,
+          currentIndex: state.currentIndex,
+          currentTime: audioEngine.currentTime || 0,
+          duration: audioEngine.duration || state.currentTrack.duration || 30,
+          isPlaying: !audioEngine.paused && !audioEngine.ended && (audioEngine.currentTime > 0 || state.isPlaying),
+          timestamp: Date.now()
+        };
+        localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(sessionData));
+      } catch (e) {}
+    }
+
+    let lastSessionSave = 0;
+    function throttleSaveSession() {
+      const now = Date.now();
+      if (now - lastSessionSave > 600) {
+        lastSessionSave = now;
+        savePlaybackSession();
+      }
+    }
+
+    function clearPlaybackSession() {
+      try {
+        localStorage.removeItem(SESSION_STORAGE_KEY);
+      } catch (e) {}
+    }
+
+    function restorePlaybackSession() {
+      try {
+        const raw = localStorage.getItem(SESSION_STORAGE_KEY);
+        if (!raw) return;
+        const session = JSON.parse(raw);
+        if (!session || !session.track || !session.track.title) return;
+
+        // Cek umur sesi (valid dalam 24 jam)
+        if (Date.now() - (session.timestamp || 0) > 24 * 60 * 60 * 1000) {
+          return;
+        }
+
+        const track = session.track;
+        state.currentTrack = track;
+        state.currentIndex = session.currentIndex ?? -1;
+
+        // Tampilkan dock pemutar bawah
+        const playerDock = document.getElementById('playerDock');
+        if (playerDock) {
+          playerDock.style.display = 'flex';
+          playerDock.classList.add('visible');
+          document.body.classList.add('has-player');
+        }
+
+        if (dockTitle) dockTitle.textContent = track.title;
+        if (dockArtist) dockArtist.textContent = track.artist;
+        if (dockCover) {
+          dockCover.src = track.cover || DEFAULT_NEU_COVER;
+          dockCover.onerror = () => { dockCover.src = DEFAULT_NEU_COVER; };
+        }
+
+        const initialAudio = track.fullStreamUrl || track.preview;
+        if (dockDownloadBtn) {
+          if (initialAudio) {
+            dockDownloadBtn.href = '/api/download?url=' + encodeURIComponent(initialAudio) + '&name=' + encodeURIComponent(track.artist + ' - ' + track.title);
+          } else {
+            dockDownloadBtn.href = '/api/download?artist=' + encodeURIComponent(track.artist) + '&title=' + encodeURIComponent(track.title) + '&name=' + encodeURIComponent(track.artist + ' - ' + track.title);
+          }
+          dockDownloadBtn.style.display = 'inline-flex';
+        }
+
+        updateFullPlayerDetails();
+        if (!initialAudio) return;
+
+        audioEngine.src = initialAudio;
+
+        const targetPos = Math.max(0, parseFloat(session.currentTime) || 0);
+        const estDuration = parseFloat(session.duration) || track.duration || 30;
+
+        if (estDuration > 0 && progressFill) {
+          const pct = Math.min(100, Math.max(0, (targetPos / estDuration) * 100));
+          progressFill.style.width = `${pct}%`;
+          if (progressThumb) progressThumb.style.left = `${pct}%`;
+          const fullFill = document.getElementById('fullProgressFill');
+          const fullThumb = document.getElementById('fullProgressThumb');
+          if (fullFill) fullFill.style.width = `${pct}%`;
+          if (fullThumb) fullThumb.style.left = `${pct}%`;
+        }
+
+        let hasRestoredTime = false;
+        const applySavedPosition = () => {
+          if (hasRestoredTime) return;
+          try {
+            if (targetPos > 0) {
+              audioEngine.currentTime = targetPos;
+              hasRestoredTime = true;
+            }
+          } catch(e) {}
+        };
+
+        audioEngine.addEventListener('loadedmetadata', applySavedPosition, { once: true });
+        audioEngine.addEventListener('canplay', applySavedPosition, { once: true });
+
+        // Lanjutkan putar bila status sebelum refresh sedang berputar
+        if (session.isPlaying) {
+          state.isPlaying = true;
+          updatePlayerUI();
+
+          const resumePromise = audioEngine.play();
+          if (resumePromise !== undefined) {
+            resumePromise.then(() => {
+              state.isPlaying = true;
+              updatePlayerUI();
+              if (targetPos > 0 && Math.abs(audioEngine.currentTime - targetPos) > 1) {
+                try { audioEngine.currentTime = targetPos; } catch(e) {}
+              }
+            }).catch(err => {
+              // Jika browser membatasi autoplay reload tanpa user gesture baru:
+              const gestureResume = () => {
+                applySavedPosition();
+                audioEngine.play().then(() => {
+                  state.isPlaying = true;
+                  updatePlayerUI();
+                }).catch(() => {});
+                ['pointerdown', 'touchstart', 'click', 'keydown'].forEach(evt => {
+                  window.removeEventListener(evt, gestureResume, true);
+                });
+              };
+              ['pointerdown', 'touchstart', 'click', 'keydown'].forEach(evt => {
+                window.addEventListener(evt, gestureResume, { once: true, capture: true });
+              });
+            });
+          }
+        } else {
+          state.isPlaying = false;
+          updatePlayerUI();
+        }
+
+        // Latar belakang: upgrade stream 320kbps jika belum ada
+        if (!track.fullStreamUrl) {
+          fetch('/api/stream?artist=' + encodeURIComponent(track.artist) + '&title=' + encodeURIComponent(track.title))
+            .then(r => r.json())
+            .then(streamData => {
+              if (streamData.found && streamData.streamUrl && state.currentTrack && (state.currentTrack.id === track.id || state.currentTrack.title === track.title)) {
+                state.currentTrack.fullStreamUrl = streamData.streamUrl;
+                track.fullStreamUrl = streamData.streamUrl;
+                if (dockDownloadBtn) {
+                  dockDownloadBtn.href = '/api/download?url=' + encodeURIComponent(streamData.streamUrl) + '&name=' + encodeURIComponent(track.artist + ' - ' + track.title);
+                }
+                if (fullPlayerQualityBadge) fullPlayerQualityBadge.textContent = '320 KBPS HI-FI';
+                savePlaybackSession();
+              }
+            }).catch(() => {});
+        }
+      } catch (e) {
+        console.warn('Session restore error:', e);
+      }
+    }
+
     // Audio Engine Listeners
     const setPlayerBuffering = (isBuffering) => {
       const playerDock = document.getElementById('playerDock');
@@ -4653,6 +4907,7 @@
       state.isPlaying = true;
       setPlayerBuffering(false);
       updatePlayerUI();
+      savePlaybackSession();
       if (state.currentCategory === 'album-detail') {
         updateAlbumTrackListView();
       } else {
@@ -4664,6 +4919,7 @@
       state.isPlaying = false;
       setPlayerBuffering(false);
       updatePlayerUI();
+      savePlaybackSession();
       if (state.currentCategory === 'album-detail') {
         updateAlbumTrackListView();
       } else {
@@ -4739,6 +4995,8 @@
         if (fullCur) fullCur.textContent = curFormatted;
         if (fullDur) fullDur.textContent = durFormatted;
       }
+
+      throttleSaveSession();
     });
 
     audioEngine.addEventListener('ended', () => {
@@ -4746,8 +5004,17 @@
         audioEngine.currentTime = 0;
         audioEngine.play().catch(() => {});
       } else {
+        clearPlaybackSession();
         playNextTrack();
       }
+    });
+
+    window.addEventListener('beforeunload', () => {
+      savePlaybackSession();
+    });
+
+    window.addEventListener('pagehide', () => {
+      savePlaybackSession();
     });
 
     // Controls
@@ -4769,8 +5036,11 @@
       closeDockBtn.addEventListener('click', (e) => {
         if (e) e.stopPropagation();
         closeFullPlayer();
+        clearPlaybackSession();
         audioEngine.pause();
+        audioEngine.removeAttribute('src');
         state.isPlaying = false;
+        state.currentTrack = null;
         const playerDock = document.getElementById('playerDock');
         playerDock.classList.remove('visible');
         playerDock.style.display = 'none';
@@ -5102,9 +5372,10 @@
       }
     });
 
-    // Init: muat history, loved tracks, dan tampilkan langsung dari data server atau fetch fallback
+    // Init: muat history, loved tracks, dan pulihkan sesi pemutaran audio
     loadLovedTracks();
     loadHistory();
+    restorePlaybackSession();
 
     if (window.INITIAL_TRACKS && Array.isArray(window.INITIAL_TRACKS) && window.INITIAL_TRACKS.length > 0) {
       state.tracks = window.INITIAL_TRACKS;

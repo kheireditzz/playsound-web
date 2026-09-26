@@ -1348,10 +1348,7 @@ export async function handleRequest(req, res) {
 
 const server = http.createServer(handleRequest);
 
-const isMain = process.argv[1] && (
-  process.argv[1].endsWith('server.js') ||
-  fileURLToPath(import.meta.url) === process.argv[1]
-);
+const isMain = !process.env.VERCEL;
 
 if (isMain) {
   server.listen(PORT, '0.0.0.0', () => {
