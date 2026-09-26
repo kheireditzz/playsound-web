@@ -1220,29 +1220,37 @@ export async function handleRequest(req, res) {
       let videoId = null;
       let videoTitle = '';
 
-      // Layer 1: Direct YouTube HTML Search Scraper (Fastest, High Reliability)
+      // Layer 1: Direct YouTube HTML Search Scraper (Prioritize Official MV & Verified Tracks)
       try {
-        const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`;
-        const r = await fetch(searchUrl, {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
-            'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7'
-          },
-          signal: AbortSignal.timeout(5000)
-        });
-        if (r.ok) {
-          const html = await r.text();
-          const videoMatches = html.match(/\/watch\?v=([a-zA-Z0-9_-]{11})/g);
-          if (videoMatches && videoMatches.length > 0) {
-            for (const m of videoMatches) {
-              const id = m.replace('/watch?v=', '');
-              if (id && id.length === 11) {
-                videoId = id;
-                videoTitle = q;
-                break;
+        const queriesToTry = [
+          q.toLowerCase().includes('official') ? q : `${q} official mv`,
+          q
+        ];
+
+        for (const queryStr of queriesToTry) {
+          const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(queryStr)}`;
+          const r = await fetch(searchUrl, {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+              'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7'
+            },
+            signal: AbortSignal.timeout(5000)
+          });
+          if (r.ok) {
+            const html = await r.text();
+            const videoMatches = html.match(/\/watch\?v=([a-zA-Z0-9_-]{11})/g);
+            if (videoMatches && videoMatches.length > 0) {
+              for (const m of videoMatches) {
+                const id = m.replace('/watch?v=', '');
+                if (id && id.length === 11) {
+                  videoId = id;
+                  videoTitle = q;
+                  break;
+                }
               }
             }
           }
+          if (videoId) break;
         }
       } catch (err) {
         console.warn('Direct YouTube search in server error:', err.message);
