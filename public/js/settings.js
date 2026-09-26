@@ -181,6 +181,7 @@
   // ── Modal & Drawer Controller ──
   window.toggleSettingsMenu = function(forcedState) {
     const backdrop = document.getElementById('settingsBackdrop');
+    const menuBtn = document.getElementById('headerMenuBtn');
     if (!backdrop) return;
 
     Settings.triggerHaptic();
@@ -189,9 +190,11 @@
     if (shouldOpen) {
       Settings.syncUI();
       backdrop.classList.add('is-open');
+      if (menuBtn) menuBtn.classList.add('is-active');
       document.body.style.overflow = 'hidden';
     } else {
       backdrop.classList.remove('is-open');
+      if (menuBtn) menuBtn.classList.remove('is-active');
       document.body.style.overflow = '';
     }
   };

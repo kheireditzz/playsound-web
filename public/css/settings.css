@@ -51,50 +51,143 @@
   background-color: var(--color-primary);
 }
 
-/* Modal Overlay Backdrop */
+/* Active Hamburger Icon Morph to Cross */
+.header-menu-btn.is-active {
+  box-shadow: var(--neu-inset);
+  color: var(--color-primary);
+}
+
+.header-menu-btn.is-active .hamburger-line:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+  background-color: var(--color-primary);
+}
+
+.header-menu-btn.is-active .hamburger-line:nth-child(2) {
+  opacity: 0;
+}
+
+.header-menu-btn.is-active .hamburger-line:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+  background-color: var(--color-primary);
+}
+
+/* Full-Screen Hamburger Menu Backdrop & Drawer (Bukan Melayang, Header Tetap Tampak di Atas) */
 .settings-backdrop {
   position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.42);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  z-index: 9990;
+  top: 76px; /* Tepat di bawah header 76px agar header tetap selalu tampak */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: calc(100vh - 76px);
+  background: var(--bg-surface);
+  z-index: 1990;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.28s ease;
+  transition: opacity 0.26s cubic-bezier(0.16, 1, 0.3, 1), transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(-10px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .settings-backdrop.is-open {
   opacity: 1;
   pointer-events: auto;
+  transform: translateY(0);
 }
 
-/* Settings Modal Container */
+/* Settings Full Container */
 .settings-modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.94);
-  width: 92%;
-  max-width: 580px;
-  max-height: 88vh;
+  position: relative;
+  top: 0;
+  left: 0;
+  transform: none !important;
+  width: 100%;
+  max-width: 820px;
+  margin: 0 auto;
+  min-height: 100%;
   background: var(--bg-surface);
-  border-radius: 24px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25), var(--neu-extruded-card);
-  z-index: 9999;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  padding: 20px 20px 80px;
+  opacity: 1 !important;
+  pointer-events: auto !important;
 }
 
-.settings-backdrop.is-open .settings-modal {
-  transform: translate(-50%, -50%) scale(1);
-  opacity: 1;
-  pointer-events: auto;
+/* Menu Featured Hero Navigation Grid (Unduhan Musik & Love) */
+.menu-hero-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.menu-nav-card {
+  background: var(--bg-surface);
+  border-radius: 18px;
+  padding: 16px 18px;
+  box-shadow: var(--neu-extruded-card);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.menu-nav-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08), var(--neu-extruded-card);
+}
+
+.menu-nav-card:active {
+  box-shadow: var(--neu-inset);
+  transform: translateY(1px);
+}
+
+.menu-nav-card-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: var(--bg-surface);
+  box-shadow: var(--neu-inset);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.menu-nav-card-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.menu-nav-card-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+}
+
+.menu-nav-card-sub {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.menu-nav-card-arrow {
+  color: var(--color-text-muted);
+  opacity: 0.6;
 }
 
 /* Modal Header */
