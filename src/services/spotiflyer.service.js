@@ -55,7 +55,7 @@ export async function resolveSpotiFlyerLink(rawUrl) {
                   fullStreamUrl: streamUrl,
                   duration: durSec,
                   trendVelocity: 'SPOTIFY',
-                  origin: 'Spotify SpotiFlyer',
+                  origin: 'Spotify',
                   youtubeQuery: `${artist} ${title} official audio`,
                   externalUrls: {
                     spotify: cleanUrl,
@@ -106,7 +106,7 @@ export async function resolveSpotiFlyerLink(rawUrl) {
                   ...best,
                   id: `sp-${trackId}`,
                   cover: best.cover || songCover,
-                  origin: 'Spotify SpotiFlyer'
+                  origin: 'Spotify'
                 }]
               };
             }
@@ -234,7 +234,7 @@ export async function resolveSpotiFlyerLink(rawUrl) {
             fullStreamUrl: streamUrl,
             duration: streamData?.duration || 180,
             trendVelocity: 'YOUTUBE',
-            origin: 'YouTube SpotiFlyer',
+            origin: 'YouTube',
             youtubeQuery: `${artist} ${cleanTitle}`,
             externalUrls: {
               youtube: `https://www.youtube.com/watch?v=${videoId}`,
@@ -325,7 +325,7 @@ export async function resolveSpotiFlyerLink(rawUrl) {
                   fullStreamUrl: streamUrl || '',
                   duration,
                   trendVelocity: 'SAAVN 320K',
-                  origin: 'JioSaavn SpotiFlyer',
+                  origin: 'JioSaavn 320k',
                   youtubeQuery: `${artist} ${title} official audio`,
                   externalUrls: {
                     saavn: cleanUrl,
@@ -381,7 +381,7 @@ export async function resolveSpotiFlyerLink(rawUrl) {
             fullStreamUrl: streamUrl,
             duration: streamData?.duration || 180,
             trendVelocity: 'SOUNDCLOUD',
-            origin: 'SoundCloud SpotiFlyer',
+            origin: 'SoundCloud',
             youtubeQuery: `${artist} ${title}`,
             externalUrls: {
               soundcloud: cleanUrl,

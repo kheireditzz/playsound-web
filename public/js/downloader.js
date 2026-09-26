@@ -208,6 +208,10 @@ export const DownloadCenter = {
   open(prefillUrl = '') {
     if (!this.viewContainer) this.init();
 
+    // Sembunyikan Tombol Unduh Musik di Header saat sudah masuk ke dalam
+    const headerDownloadBtn = document.getElementById('headerDownloadBtn');
+    if (headerDownloadBtn) headerDownloadBtn.style.display = 'none';
+
     // 1. Sembunyikan Dashboard Utama
     const banner = document.getElementById('trendingBanner');
     if (banner) banner.style.display = 'none';
@@ -252,7 +256,11 @@ export const DownloadCenter = {
       this.viewContainer.style.display = 'none';
     }
 
-    // 2. Tampilkan kembali Dashboard Utama
+    // 2. Tampilkan kembali Tombol Unduh Musik di Header
+    const headerDownloadBtn = document.getElementById('headerDownloadBtn');
+    if (headerDownloadBtn) headerDownloadBtn.style.display = 'inline-flex';
+
+    // 3. Tampilkan kembali Dashboard Utama
     const banner = document.getElementById('trendingBanner');
     if (banner) banner.style.display = 'block';
 
@@ -268,7 +276,7 @@ export const DownloadCenter = {
     const grid = document.getElementById('tracksGrid');
     if (grid) grid.style.display = 'grid';
 
-    // 3. Reset Active Tab ke 'global'
+    // 4. Reset Active Tab ke 'global'
     document.querySelectorAll('.neu-tab-btn').forEach(b => {
       b.classList.toggle('active', b.dataset.cat === 'global');
     });

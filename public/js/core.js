@@ -422,6 +422,11 @@
     };
 
     window.openLovedView = function() {
+      const dlView = document.getElementById('downloadViewContainer');
+      if (dlView) dlView.style.display = 'none';
+      const headerDlBtn = document.getElementById('headerDownloadBtn');
+      if (headerDlBtn) headerDlBtn.style.display = 'inline-flex';
+
       state.currentCategory = 'loved';
 
       // 1. Sembunyikan Trending Banner
@@ -455,6 +460,9 @@
     };
 
     window.exitLovedView = function() {
+      const headerDlBtn = document.getElementById('headerDownloadBtn');
+      if (headerDlBtn) headerDlBtn.style.display = 'inline-flex';
+
       state.currentCategory = 'global';
 
       // 1. Tampilkan kembali Trending Banner
