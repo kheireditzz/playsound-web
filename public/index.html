@@ -1613,17 +1613,28 @@
       }
     }
 
+    /* Lock Background Scroll when Modal is Open */
+    html.modal-open,
+    body.modal-open {
+      overflow: hidden !important;
+      touch-action: none !important;
+      overscroll-behavior: none !important;
+    }
+
     /* Modal for YouTube Player */
     .neu-modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(30, 41, 56, 0.5);
-      backdrop-filter: blur(6px);
-      z-index: 2200;
+      background: rgba(30, 41, 56, 0.65);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 3000;
       display: none;
       align-items: center;
       justify-content: center;
       padding: 16px;
+      touch-action: none;
+      overscroll-behavior: contain;
     }
 
     .neu-modal-backdrop.open {
@@ -1633,13 +1644,19 @@
     .neu-modal-box {
       background: var(--bg-surface);
       border-radius: 20px;
-      box-shadow: var(--neu-extruded-card);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.28), var(--neu-extruded-card);
+      border: 1px solid rgba(255, 255, 255, 0.85);
       width: 100%;
       max-width: 680px;
       padding: 24px;
       display: flex;
       flex-direction: column;
       gap: 16px;
+      touch-action: auto;
+      max-height: 90vh;
+      max-height: 90dvh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .modal-header {
@@ -5196,7 +5213,7 @@
       window.openYouTubeModal(track.artist + ' ' + track.title, track.title);
     };
 
-    // ── YouTube video ID lookup (client-side Invidious → server fallback) ──
+    // ── YouTube video ID lookup (Server-first direct search → Invidious fallback) ──
     const ytIdCache = {};
     const INVIDIOUS_INSTANCES = [
       'https://inv.nadeko.net',
@@ -5210,12 +5227,26 @@
     async function getYtVideoId(query) {
       if (ytIdCache[query]) return ytIdCache[query];
 
-      // Layer 1: browser hits Invidious directly (different network than server)
+      // Layer 1: Server-side Direct YouTube Engine (Super Cepat, Akurat, Tanpa Delay)
+      try {
+        const r = await fetch(`/api/yt-search?q=${encodeURIComponent(query)}`, { signal: AbortSignal.timeout(6000) });
+        if (r.ok) {
+          const d = await r.json();
+          if (d.videoId) {
+            ytIdCache[query] = d.videoId;
+            return d.videoId;
+          }
+        }
+      } catch (e) {
+        console.warn('Server yt-search error, falling back to Invidious:', e.message);
+      }
+
+      // Layer 2: Client-side Invidious Fallback jika server terhalang
       for (const inst of INVIDIOUS_INSTANCES) {
         try {
           const r = await fetch(
             `${inst}/api/v1/search?q=${encodeURIComponent(query)}&type=video&fields=videoId,title&page=1`,
-            { signal: AbortSignal.timeout(4000) }
+            { signal: AbortSignal.timeout(3000) }
           );
           if (!r.ok) continue;
           const data = await r.json();
@@ -5225,13 +5256,6 @@
           }
         } catch { continue; }
       }
-
-      // Layer 2: server-side fallback (/api/yt-search)
-      try {
-        const r = await fetch(`/api/yt-search?q=${encodeURIComponent(query)}`);
-        const d = await r.json();
-        if (d.videoId) { ytIdCache[query] = d.videoId; return d.videoId; }
-      } catch { }
 
       return null;
     }
@@ -5254,37 +5278,51 @@
             <div class="skeleton-shimmer-box" style="width: 48%; height: 12px; border-radius: 4px;"></div>
           </div>
         </div>`;
+
+      // Kunci scroll background belakang sepenuhnya
       videoModal.classList.add('open');
+      document.body.classList.add('modal-open');
+      document.documentElement.classList.add('modal-open');
       audioEngine.pause();
 
       const searchQ  = `${rawQuery} official audio`;
       const videoId  = await getYtVideoId(searchQ) || await getYtVideoId(rawQuery);
 
       const embedSrc = videoId
-        ? `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0`
+        ? `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&playsinline=1`
         : `https://www.youtube-nocookie.com/embed?listType=search&list=${encodeURIComponent(searchQ)}&autoplay=1`;
 
       videoFrameContainer.innerHTML = `
         <iframe
           src="${embedSrc}"
           title="YouTube Music Player"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowfullscreen>
         </iframe>`;
     };
 
-
-    modalCloseBtn.addEventListener('click', () => {
+    window.closeYouTubeModal = function() {
+      if (!videoModal) return;
       videoModal.classList.remove('open');
+      document.body.classList.remove('modal-open');
+      document.documentElement.classList.remove('modal-open');
       videoFrameContainer.innerHTML = '';
-    });
+    };
+
+    modalCloseBtn.addEventListener('click', window.closeYouTubeModal);
 
     videoModal.addEventListener('click', (e) => {
       if (e.target === videoModal) {
-        videoModal.classList.remove('open');
-        videoFrameContainer.innerHTML = '';
+        window.closeYouTubeModal();
       }
     });
+
+    // Mencegah scroll / swipe tembus ke background saat touch pada area backdrop
+    videoModal.addEventListener('touchmove', (e) => {
+      if (e.target === videoModal) {
+        e.preventDefault();
+      }
+    }, { passive: false });
 
     // ── Trending Banner ──
     const bannerStrip = document.getElementById('bannerStrip');
@@ -5400,10 +5438,7 @@
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         if (typeof closeAlbumModal === 'function') closeAlbumModal();
-        if (videoModal && videoModal.classList.contains('open')) {
-          videoModal.classList.remove('open');
-          videoFrameContainer.innerHTML = '';
-        }
+        if (typeof window.closeYouTubeModal === 'function') window.closeYouTubeModal();
       }
     });
 

@@ -1217,29 +1217,61 @@ export async function handleRequest(req, res) {
         return;
       }
 
-      const INVIDIOUS = [
-        'https://inv.nadeko.net',
-        'https://invidious.privacyredirect.com',
-        'https://yewtu.be',
-        'https://iv.datura.network'
-      ];
-
       let videoId = null;
       let videoTitle = '';
-      for (const instance of INVIDIOUS) {
-        try {
-          const r = await fetch(
-            `${instance}/api/v1/search?q=${encodeURIComponent(q)}&type=video&fields=videoId,title&page=1`,
-            { signal: AbortSignal.timeout(5000) }
-          );
-          if (!r.ok) continue;
-          const hits = await r.json();
-          if (Array.isArray(hits) && hits[0]?.videoId) {
-            videoId   = hits[0].videoId;
-            videoTitle = hits[0].title || '';
-            break;
+
+      // Layer 1: Direct YouTube HTML Search Scraper (Fastest, High Reliability)
+      try {
+        const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`;
+        const r = await fetch(searchUrl, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+            'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7'
+          },
+          signal: AbortSignal.timeout(5000)
+        });
+        if (r.ok) {
+          const html = await r.text();
+          const videoMatches = html.match(/\/watch\?v=([a-zA-Z0-9_-]{11})/g);
+          if (videoMatches && videoMatches.length > 0) {
+            for (const m of videoMatches) {
+              const id = m.replace('/watch?v=', '');
+              if (id && id.length === 11) {
+                videoId = id;
+                videoTitle = q;
+                break;
+              }
+            }
           }
-        } catch { continue; }
+        }
+      } catch (err) {
+        console.warn('Direct YouTube search in server error:', err.message);
+      }
+
+      // Layer 2: Fallback ke Invidious jika Layer 1 tidak menemukan videoId
+      if (!videoId) {
+        const INVIDIOUS = [
+          'https://inv.nadeko.net',
+          'https://invidious.privacyredirect.com',
+          'https://yewtu.be',
+          'https://iv.datura.network'
+        ];
+
+        for (const instance of INVIDIOUS) {
+          try {
+            const r = await fetch(
+              `${instance}/api/v1/search?q=${encodeURIComponent(q)}&type=video&fields=videoId,title&page=1`,
+              { signal: AbortSignal.timeout(4500) }
+            );
+            if (!r.ok) continue;
+            const hits = await r.json();
+            if (Array.isArray(hits) && hits[0]?.videoId) {
+              videoId   = hits[0].videoId;
+              videoTitle = hits[0].title || '';
+              break;
+            }
+          } catch { continue; }
+        }
       }
 
       const ytResult = { videoId, title: videoTitle, found: !!videoId };
