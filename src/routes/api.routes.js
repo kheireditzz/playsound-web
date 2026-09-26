@@ -235,6 +235,17 @@ export async function handleApiRoute(req, res, pathname, parsedUrl) {
         reqHeaders['range'] = req.headers.range;
       }
 
+      if (req.method === 'HEAD') {
+        res.writeHead(200, {
+          'Content-Type': 'audio/mp4',
+          'Accept-Ranges': 'bytes',
+          'Access-Control-Allow-Origin': '*',
+          'Cache-Control': 'public, max-age=18000'
+        });
+        res.end();
+        return;
+      }
+
       const audioStreamRes = await fetch(audioInfo.directUrl, { headers: reqHeaders });
       const statusCode = audioStreamRes.status;
       const resHeaders = {
@@ -251,13 +262,12 @@ export async function handleApiRoute(req, res, pathname, parsedUrl) {
       }
 
       res.writeHead(statusCode, resHeaders);
-      const reader = audioStreamRes.body.getReader();
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        res.write(value);
+      if (audioStreamRes.body) {
+        const { Readable } = await import('node:stream');
+        Readable.fromWeb(audioStreamRes.body).pipe(res);
+      } else {
+        res.end();
       }
-      res.end();
     } catch (err) {
       console.error('Audio streaming proxy error:', err.message);
       if (!res.headersSent) {

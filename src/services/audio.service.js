@@ -192,7 +192,25 @@ export async function scrapeFullAudio(query, expectedArtist = '', expectedTitle 
       return found;
     }
 
-    // 2. Coba SoundCloud Stream (Full-length progressive MP3, durasi > 60s)
+    // 2. Prioritaskan YouTube Audio Engine Resmi (100% FULL DURASI lagu lengkap original)
+    const ytVideo = await searchYouTubeVideo(`${expectedArtist} ${expectedTitle || cleanQ}`);
+    if (ytVideo && ytVideo.videoId) {
+      return {
+        found: true,
+        isVerifiedOriginal: true,
+        isFullTrack: true,
+        source: 'youtube_hifi',
+        title: ytVideo.title || expectedTitle || query,
+        artist: expectedArtist || 'Artist',
+        album: 'YouTube Music Original',
+        duration: ytVideo.duration || 210,
+        cover: ytVideo.cover,
+        streamUrl: `/api/stream-audio?id=${ytVideo.videoId}`,
+        bitrate: '320kbps HD'
+      };
+    }
+
+    // 3. Cadangan: SoundCloud Stream (Full-length progressive MP3, durasi > 60s)
     let scFound = await searchSoundCloudStream(`${cleanQ}`, expectedArtist);
     if (!scFound && expectedArtist && expectedTitle) {
       scFound = await searchSoundCloudStream(`${expectedArtist} ${expectedTitle}`, expectedArtist);
@@ -204,77 +222,23 @@ export async function scrapeFullAudio(query, expectedArtist = '', expectedTitle 
       return scFound;
     }
 
-    // 3. Coba YouTube Audio Engine (100% lagu lengkap dengan streaming proxy /api/stream-audio)
-    const ytVideo = await searchYouTubeVideo(`${expectedArtist} ${expectedTitle || cleanQ}`);
-    if (ytVideo && ytVideo.videoId) {
+    // 4. Cadangan Terakhir: Eksekusi pencarian global YouTube
+    const ytFallback = await searchYouTubeVideo(`${cleanQ}`);
+    if (ytFallback && ytFallback.videoId) {
       return {
         found: true,
         isVerifiedOriginal: true,
         isFullTrack: true,
         source: 'youtube_hifi',
-        title: expectedTitle || query,
+        title: ytFallback.title || expectedTitle || query,
         artist: expectedArtist || 'Artist',
         album: 'YouTube Music Original',
-        duration: 210, // Default durasi placeholder; disinkronkan otomatis saat audio dimuat
-        cover: ytVideo.cover,
-        streamUrl: `/api/stream-audio?id=${ytVideo.videoId}`,
+        duration: ytFallback.duration || 210,
+        cover: ytFallback.cover,
+        streamUrl: `/api/stream-audio?id=${ytFallback.videoId}`,
         bitrate: '320kbps HD'
       };
     }
-
-    // 4. Fallback Terakhir: Cari iTunes Audio Preview Resmi
-    try {
-      const itUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(cleanQ)}&entity=song&limit=6`;
-      const itRes = await fetch(itUrl, { signal: AbortSignal.timeout(5000) });
-      if (itRes.ok) {
-        const itData = await itRes.json();
-        for (const item of (itData.results || [])) {
-          if (!item.previewUrl) continue;
-          if (isForbiddenTrack(item.trackName, item.artistName || '', '')) continue;
-          if (expectedArtist && !isArtistMatching(expectedArtist, item.artistName || '')) continue;
-          return {
-            found: true,
-            isVerifiedOriginal: false,
-            isFullTrack: false,
-            source: 'itunes_official',
-            title: item.trackName,
-            artist: item.artistName || expectedArtist,
-            album: item.collectionName || '',
-            duration: 30, // Realistis durasi preview 30 detik
-            cover: (item.artworkUrl100 || '').replace('100x100bb', '250x250bb'),
-            streamUrl: item.previewUrl,
-            bitrate: 'Audio Preview 30s'
-          };
-        }
-      }
-    } catch {}
-
-    // 5. Fallback: Deezer Preview
-    try {
-      const dzUrl = `https://api.deezer.com/search?q=${encodeURIComponent(cleanQ)}&limit=6`;
-      const dzRes = await fetch(dzUrl, { signal: AbortSignal.timeout(5000) });
-      if (dzRes.ok) {
-        const dzData = await dzRes.json();
-        for (const item of (dzData.data || [])) {
-          if (!item.preview) continue;
-          if (isForbiddenTrack(item.title, item.artist?.name || '', '')) continue;
-          if (expectedArtist && !isArtistMatching(expectedArtist, item.artist?.name || '')) continue;
-          return {
-            found: true,
-            isVerifiedOriginal: false,
-            isFullTrack: false,
-            source: 'deezer_official',
-            title: item.title,
-            artist: item.artist?.name || expectedArtist,
-            album: item.album?.title || '',
-            duration: 30, // Realistis durasi preview 30 detik
-            cover: item.album?.cover_medium || '',
-            streamUrl: item.preview,
-            bitrate: 'Audio Preview 30s'
-          };
-        }
-      }
-    } catch {}
 
   } catch (err) {
     console.error('Free music scraper error:', err.message);

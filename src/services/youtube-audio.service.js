@@ -68,6 +68,35 @@ export async function searchYouTubeVideo(query) {
     }
   } catch {}
 
+  // Fallback Terakhir: Eksekusi yt-dlp internal CLI (100% akurat menemukan full audio resmi)
+  try {
+    const cleanCmdQ = q.replace(/["$`\\]/g, ' ').trim();
+    const cmd = `yt-dlp "ytsearch1:${cleanCmdQ} official audio" --get-id --get-duration --get-title --no-warnings`;
+    const { stdout } = await execPromise(cmd, { timeout: 12000 });
+    const lines = (stdout || '').trim().split('\n').filter(Boolean);
+    if (lines.length >= 2) {
+      const videoTitle = lines[0];
+      const videoId = lines[1];
+      const durStr = lines[2] || '';
+      let duration = 210;
+      if (durStr.includes(':')) {
+        const parts = durStr.split(':').map(Number);
+        if (parts.length === 2) duration = parts[0] * 60 + parts[1];
+        else if (parts.length === 3) duration = parts[0] * 3600 + parts[1] * 60 + parts[2];
+      }
+      if (videoId && videoId.length === 11) {
+        return {
+          videoId,
+          title: videoTitle,
+          duration,
+          cover: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`
+        };
+      }
+    }
+  } catch (ytDlpErr) {
+    console.warn('yt-dlp search fallback warning:', ytDlpErr.message);
+  }
+
   return null;
 }
 

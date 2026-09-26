@@ -2071,31 +2071,28 @@
         }
       }
 
-      const initialAudio = track.fullStreamUrl || track.preview;
-      setDownloadLink(initialAudio);
+      // 1. Jika sudah punya fullStreamUrl, langsung putar lagu penuh dari awal
+      if (track.fullStreamUrl && track.fullStreamUrl !== track.preview) {
+        audioEngine.src = track.fullStreamUrl;
+        audioEngine.play().catch(err => console.warn('Full stream play error:', err));
+        setDownloadLink(track.fullStreamUrl);
+        if (fullPlayerQualityBadge) {
+          fullPlayerQualityBadge.textContent = '320 KBPS HI-FI';
+        }
+      } else {
+        // Tampilkan indikator memuat audio penuh
+        if (fullPlayerQualityBadge) {
+          fullPlayerQualityBadge.textContent = 'MEMUAT FULL AUDIO...';
+        }
 
-      // Pastikan audio native 100% aktif tanpa mute/fade
-      try {
-        audioEngine.muted = false;
-        audioEngine.volume = 1;
-      } catch (e) {}
+        // Putar audio awal sementara jika tersedia
+        const initialAudio = track.fullStreamUrl || track.preview;
+        if (initialAudio) {
+          audioEngine.src = initialAudio;
+          audioEngine.play().catch(err => console.warn('Initial audio play error:', err));
+          setDownloadLink(initialAudio);
+        }
 
-      updateMediaSession(track);
-
-      // Sinkronisasi Lirik Karaoke jika tab lirik sedang terbuka
-      if (state.activePlayerTab === 'lyrics') {
-        loadLyricsForTrack(track);
-      }
-
-      if (initialAudio) {
-        audioEngine.src = initialAudio;
-        audioEngine.play().catch(err => {
-          console.warn('Playback error:', err);
-        });
-      }
-
-      // Concurrently lookup verified clean full stream
-      if (!track.fullStreamUrl || track.fullStreamUrl === track.preview) {
         const abortCtrl = new AbortController();
         currentStreamAbortController = abortCtrl;
 
@@ -2124,18 +2121,17 @@
                 fullPlayerQualityBadge.textContent = streamData.bitrate === '320kbps HD' ? '320 KBPS HI-FI' : (streamData.bitrate || 'FULL AUDIO');
               }
 
-              // SEAMLESS STREAM UPGRADE: Jika audio saat ini adalah preview (30s) atau belum full:
-              // Transisi ke stream penuh tanpa memotong posisi dengar pengguna
+              // SEAMLESS STREAM UPGRADE KE FULL TRACK:
               const currentSrc = audioEngine.src || '';
               const isDiff = !currentSrc.includes(streamData.streamUrl);
-              const isFull = streamData.isFullTrack !== false;
+              const wasPlaying = !audioEngine.paused && state.isPlaying;
 
-              if (isFull && isDiff) {
+              if (isDiff) {
                 const currentPos = audioEngine.currentTime || 0;
-                const wasPlaying = !audioEngine.paused && state.isPlaying;
                 audioEngine.src = streamData.streamUrl;
-
-                if (currentPos > 0) {
+                if (currentPos > 0 && currentPos < 12) {
+                  audioEngine.currentTime = 0; // Putar dari intro lagu lengkap
+                } else if (currentPos >= 12) {
                   const onMeta = () => {
                     try {
                       if (audioEngine.duration && currentPos < audioEngine.duration) {
@@ -2521,12 +2517,26 @@
     });
 
     audioEngine.addEventListener('ended', () => {
-      // 0. Cek jika yang berakhir adalah cuplikan preview (30s) dan lagu FULL telah siap
-      if (state.currentTrack && state.currentTrack.fullStreamUrl && !audioEngine.src.includes(state.currentTrack.fullStreamUrl)) {
-        audioEngine.src = state.currentTrack.fullStreamUrl;
-        audioEngine.currentTime = 30;
-        audioEngine.play().catch(() => {});
-        return;
+      // 0. Cek jika yang berakhir adalah cuplikan pendek (<= 35s), putar versi FULL dari awal!
+      if (audioEngine.duration && audioEngine.duration <= 35) {
+        if (state.currentTrack && state.currentTrack.fullStreamUrl && !audioEngine.src.includes(state.currentTrack.fullStreamUrl)) {
+          audioEngine.src = state.currentTrack.fullStreamUrl;
+          audioEngine.currentTime = 0;
+          audioEngine.play().catch(() => {});
+          return;
+        } else if (state.currentTrack) {
+          fetch('/api/stream?artist=' + encodeURIComponent(state.currentTrack.artist) + '&title=' + encodeURIComponent(state.currentTrack.title))
+            .then(r => r.json())
+            .then(data => {
+              if (data.found && data.streamUrl) {
+                state.currentTrack.fullStreamUrl = data.streamUrl;
+                audioEngine.src = data.streamUrl;
+                audioEngine.currentTime = 0;
+                audioEngine.play().catch(() => {});
+              }
+            }).catch(() => {});
+          return;
+        }
       }
 
       // 1. Cek Sleep Timer: Selesai Lagu Ini

@@ -3,34 +3,20 @@
 .download-view-container {
   width: 100%;
   max-width: 1060px;
-  margin: 18px auto 0 auto;
-  padding: 16px 8px 140px 8px;
+  margin: 0 auto;
+  padding: 0 4px 120px 4px;
   box-sizing: border-box;
-  animation: fadeInDownView 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: neuFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes fadeInDownView {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Nav Bar Back to Dashboard */
+/* Nav Bar Back to Dashboard (Persis sama posisi & styling dengan Lihat Track) */
 .download-view-nav-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 8px;
-  margin-bottom: 24px;
   gap: 12px;
   flex-wrap: wrap;
-  position: relative;
-  z-index: 10;
+  margin-bottom: 12px;
 }
 
 .download-back-btn {
@@ -742,18 +728,16 @@
 
 @media (max-width: 600px) {
   .download-view-container {
-    margin-top: 24px;
-    padding: 18px 4px 150px 4px;
+    margin: 0 auto;
+    padding: 0 4px 130px 4px;
   }
   .download-view-nav-bar {
-    margin-top: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     gap: 10px;
   }
   .download-back-btn {
     padding: 10px 18px;
-    font-size: 0.82rem;
-    min-height: 44px;
+    font-size: 0.78rem;
   }
   .download-hero-card {
     padding: 20px 16px;
