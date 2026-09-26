@@ -466,6 +466,40 @@ export async function handleApiRoute(req, res, pathname, parsedUrl) {
     return;
   }
 
+  // 9. ── APP VERSION & IN-APP UPDATE ENDPOINT ──
+  if (pathname === '/api/app-version') {
+    res.writeHead(200, {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache, no-store, must-revalidate'
+    });
+    res.end(JSON.stringify({
+      version: '2.4.6',
+      versionCode: 246,
+      appName: 'Play Music',
+      packageName: 'id.my.kheireditz.playmusic',
+      releaseDate: '2026-09-26',
+      downloadUrl: 'https://github.com/kheireditzz/playsound-web/releases/latest/download/playmusic-release.apk',
+      githubReleasesUrl: 'https://github.com/kheireditzz/playsound-web/releases',
+      changelog: [
+        'Pemutaran musik 100% full duration (anti-cut 30 detik)',
+        'Arsitektur audio multi-source: JioSaavn 320kbps, SoundCloud Full, & YouTube Hi-Fi',
+        'Pembaruan menu pengaturan taktil & perbaikan hamburger menu non-transparan',
+        'Pusat Unduhan Musik yang disempurnakan dengan auto-paste clipboard',
+        'Aplikasi Android siap produksi dengan fitur pembaruan langsung tanpa uninstal'
+      ]
+    }));
+    return;
+  }
+
+  // 10. ── DIRECT APK DOWNLOAD REDIRECT ──
+  if (pathname === '/download/apk' || pathname === '/api/apk/latest' || pathname === '/download-apk') {
+    res.writeHead(302, {
+      'Location': 'https://github.com/kheireditzz/playsound-web/releases/latest/download/playmusic-release.apk'
+    });
+    res.end();
+    return;
+  }
+
   // 404 for unknown API routes
   res.writeHead(404);
   res.end(JSON.stringify({ error: 'API endpoint not found' }));

@@ -275,9 +275,68 @@
     }
   };
 
+  // ── Android APK Download & In-App Update Engine ──
+  const CURRENT_APP_VERSION = '2.4.6';
+  const CURRENT_VERSION_CODE = 246;
+
+  window.downloadAndroidApk = function() {
+    Settings.triggerHaptic();
+    const downloadUrl = 'https://github.com/kheireditzz/playsound-web/releases/latest/download/playmusic-release.apk';
+
+    if (window.AndroidApp && typeof window.AndroidApp.downloadAndInstallUpdate === 'function') {
+      window.AndroidApp.downloadAndInstallUpdate(downloadUrl);
+    } else {
+      window.location.href = '/download/apk';
+    }
+  };
+
+  window.checkAppUpdate = async function(isManual = true) {
+    Settings.triggerHaptic();
+    try {
+      const res = await fetch('/api/app-version', { cache: 'no-store' });
+      if (!res.ok) throw new Error('Network error');
+      const data = await res.json();
+
+      const serverVersionCode = data.versionCode || 246;
+      const serverVersionName = data.version || '2.4.6';
+
+      const localVersionCode = (window.AndroidApp && typeof window.AndroidApp.getAppVersionCode === 'function')
+        ? window.AndroidApp.getAppVersionCode()
+        : CURRENT_VERSION_CODE;
+
+      if (serverVersionCode > localVersionCode) {
+        const changelogList = (data.changelog || []).map(c => `• ${c}`).join('\n');
+        const proceed = confirm(`Pembaruan Tersedia: v${serverVersionName}!\n\nCatatan Rilis:\n${changelogList}\n\nAplikasi ditandatangani dengan keystore tetap sehingga Anda dapat langsung memperbarui tanpa perlu uninstal.\n\nUnduh dan pasang pembaruan sekarang?`);
+        if (proceed) {
+          window.downloadAndroidApk();
+        }
+      } else {
+        if (isManual) {
+          alert(`Aplikasi Anda sudah versi terbaru (v${serverVersionName})!\n\nTanda tangan keystore tetap aktif sehingga update berikutnya dapat langsung dipasang tanpa perlu uninstal.`);
+        }
+      }
+    } catch (e) {
+      if (isManual) {
+        alert('Gagal memeriksa pembaruan server. Pastikan koneksi internet aktif.');
+      }
+    }
+  };
+
   // Bind Listeners on DOM Ready
   document.addEventListener('DOMContentLoaded', () => {
     Settings.initTheme();
+
+    // Deteksi Lingkungan Aplikasi (Native Android vs Web)
+    const envBadge = document.getElementById('appEnvironmentBadge');
+    if (envBadge) {
+      if (window.AndroidApp && typeof window.AndroidApp.isAndroidApp === 'function') {
+        const v = window.AndroidApp.getAppVersionName ? window.AndroidApp.getAppVersionName() : '2.4.6';
+        envBadge.textContent = `Aplikasi Android (v${v})`;
+        envBadge.style.color = '#00A63D';
+      } else {
+        envBadge.textContent = 'Versi Web (Siap Unduh APK)';
+      }
+    }
 
     // Backdrop Click to close
     const backdrop = document.getElementById('settingsBackdrop');

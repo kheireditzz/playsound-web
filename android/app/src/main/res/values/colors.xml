@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary_teal">#006666</color>
+    <color name="primary_dark">#004D4D</color>
+    <color name="accent_teal">#008080</color>
+    <color name="neu_bg">#E7E5E4</color>
+    <color name="neu_text">#1E2938</color>
+    <color name="white">#FFFFFF</color>
+</resources>

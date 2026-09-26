@@ -52,8 +52,8 @@ export async function handleRequest(req, res) {
     return;
   }
 
-  // 1. API Routing
-  if (pathname.startsWith('/api/')) {
+  // 1. API Routing & Download Redirects
+  if (pathname.startsWith('/api/') || pathname === '/download/apk' || pathname === '/download-apk') {
     try {
       await handleApiRoute(req, res, pathname, parsedUrl);
     } catch (err) {

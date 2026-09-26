@@ -1,0 +1,102 @@
+name: Build & Release Android APK
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Production Signed APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Ensure Keystore Exists
+        run: |
+          if [ ! -f android/app/release.p12 ]; then
+            echo "Generating production release keystore..."
+            keytool -genkeypair -v -keystore android/app/release.p12 -storetype PKCS12 -alias playmusic -keyalg RSA -keysize 2048 -validity 10000 -storepass "playmusic123" -keypass "playmusic123" -dname "CN=PlayMusic, OU=Kheireditz, O=Kheireditz, L=Jakarta, ST=Jakarta, C=ID"
+          fi
+          ls -la android/app/release.p12
+
+      - name: Grant Execute Permission to gradlew
+        run: chmod +x android/gradlew
+
+      - name: Build Release APK with Gradle
+        run: |
+          cd android
+          ./gradlew assembleRelease --no-daemon --stacktrace
+
+      - name: Prepare APK Release Artifacts
+        run: |
+          mkdir -p release-output
+          APK_PATH=$(find android/app/build/outputs/apk/release -name "*.apk" | head -n 1)
+          if [ -z "$APK_PATH" ]; then
+            echo "Error: Release APK not found!"
+            exit 1
+          fi
+          echo "Found APK at $APK_PATH"
+          cp "$APK_PATH" release-output/playmusic-release.apk
+          cp "$APK_PATH" release-output/playmusic-v2.4.6.apk
+          cd release-output
+          sha256sum playmusic-release.apk > playmusic-release.apk.sha256
+          ls -lh
+
+      - name: Upload APK Artifact to GitHub Actions
+        uses: actions/upload-artifact@v4
+        with:
+          name: playmusic-v2.4.6-production-apk
+          path: release-output/*
+
+      - name: Publish to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main'
+        with:
+          tag_name: v2.4.6
+          name: "Play Music v2.4.6 (Official Production APK)"
+          body: |
+            ### 🎵 Play Music v2.4.6 — Official Production Android APK
+            
+            Versi rilis resmi Play Music untuk platform Android. Aplikasi ditandatangani dengan keystore produksi tetap (*persistent release signature*), sehingga pembaruan versi mendatang dapat langsung dipasang tanpa perlu uninstal aplikasi sebelumnya.
+            
+            #### 🌟 Fitur & Perubahan Terbaru:
+            - **Pemutaran Penuh 100%**: Bebas dari batas cuplikan 30 detik (didukung multi-source audio JioSaavn 320kbps, SoundCloud Full, dan YouTube Hi-Fi).
+            - **Pembaruan Langsung (In-App Update)**: Dapat langsung memperbarui aplikasi via menu Pengaturan tanpa kehilangan data/uninstal.
+            - **Desain Neumorphism Tactile**: Tampilan taktil modern monokromatik (`#E7E5E4`) dengan status bar & navigation bar terintegrasi rapi.
+            - **Native Audio & Download Manager**: Unduhan MP3 berkecepatan tinggi langsung tersimpan di folder *Downloads* perangkat.
+            - **Lirik Karaoke Real-Time**: Sinkronisasi lirik bergulir otomatis per bait/detik.
+            
+            #### 📥 Cara Pasang / Update:
+            1. Unduh file **`playmusic-release.apk`** di bawah ini.
+            2. Buka file APK di HP Android Anda, lalu pilih **Install** (atau **Update** jika sudah terpasang).
+            3. Aplikasi siap digunakan!
+          files: |
+            release-output/playmusic-release.apk
+            release-output/playmusic-v2.4.6.apk
+            release-output/playmusic-release.apk.sha256
+          draft: false
+          prerelease: false
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -312,7 +312,7 @@ body.menu-open .controls-wrapper {
 
 .settings-category-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 12px;
   margin-bottom: 22px;
 }
@@ -374,6 +374,7 @@ body.menu-open .controls-wrapper {
 .cat-audio { color: var(--color-success); }
 .cat-display { color: var(--color-warning); }
 .cat-storage { color: var(--color-danger); }
+.cat-apk { color: #00A63D; }
 
 .cat-card-text {
   flex: 1;

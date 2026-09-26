@@ -4,3 +4,7 @@ node_modules/
 .env*
 .DS_Store
 .vercel
+android/.gradle/
+android/app/build/
+android/build/
+*.apk
