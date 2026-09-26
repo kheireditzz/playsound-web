@@ -326,15 +326,15 @@
   document.addEventListener('DOMContentLoaded', () => {
     Settings.initTheme();
 
-    // Deteksi Lingkungan Aplikasi (Native Android vs Web)
+    // Deteksi Lingkungan Aplikasi
     const envBadge = document.getElementById('appEnvironmentBadge');
     if (envBadge) {
       if (window.AndroidApp && typeof window.AndroidApp.isAndroidApp === 'function') {
-        const v = window.AndroidApp.getAppVersionName ? window.AndroidApp.getAppVersionName() : '2.4.6';
-        envBadge.textContent = `Aplikasi Android (v${v})`;
+        const v = window.AndroidApp.getAppVersionName ? window.AndroidApp.getAppVersionName() : '2.5.0';
+        envBadge.textContent = `v${v}`;
         envBadge.style.color = '#00A63D';
       } else {
-        envBadge.textContent = 'Aplikasi Android Resmi (PlayMusic Native APK)';
+        envBadge.textContent = 'Pro Edition';
       }
     }
 
