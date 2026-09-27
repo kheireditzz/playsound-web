@@ -435,6 +435,8 @@
       state.currentCategory = 'loved';
 
       // 1. Sembunyikan Trending Banner
+      const promoCarousel = document.querySelector('.promo-carousel');
+      if (promoCarousel) promoCarousel.style.display = 'none';
       const trendingBanner = document.getElementById('trendingBanner');
       if (trendingBanner) trendingBanner.style.display = 'none';
 
@@ -471,6 +473,8 @@
       state.currentCategory = 'global';
 
       // 1. Tampilkan kembali Trending Banner
+      const promoCarousel = document.querySelector('.promo-carousel');
+      if (promoCarousel) promoCarousel.style.display = '';
       const trendingBanner = document.getElementById('trendingBanner');
       if (trendingBanner) trendingBanner.style.display = 'block';
 
@@ -690,6 +694,8 @@
       state.currentCategory = 'album-detail';
 
       // 1. Sembunyikan Trending Banner saat melihat track album
+      const promoCarousel = document.querySelector('.promo-carousel');
+      if (promoCarousel) promoCarousel.style.display = 'none';
       const trendingBanner = document.getElementById('trendingBanner');
       if (trendingBanner) trendingBanner.style.display = 'none';
 
@@ -898,6 +904,8 @@
 
     function exitAlbumView() {
       // 1. Tampilkan kembali Trending Banner
+      const promoCarousel = document.querySelector('.promo-carousel');
+      if (promoCarousel) promoCarousel.style.display = '';
       const trendingBanner = document.getElementById('trendingBanner');
       if (trendingBanner) trendingBanner.style.display = 'block';
 
@@ -972,6 +980,8 @@
     // Load Category Tracks (Realtime with fresh cache-busting)
     async function loadTracks(cat, forceRefresh = false) {
       // Pastikan banner, controls, dan section meta kembali tampil saat berganti kategori
+      const promoCarousel = document.querySelector('.promo-carousel');
+      if (promoCarousel) promoCarousel.style.display = '';
       const trendingBanner = document.getElementById('trendingBanner');
       if (trendingBanner) trendingBanner.style.display = 'block';
       const controlsWrapper = document.querySelector('.controls-wrapper');
@@ -1221,6 +1231,9 @@
       if (!searchView) return;
 
       // Sembunyikan seluruh dashboard agar fokus pada pencarian penuh
+      // (termasuk promo banner carousel agar hanya header pencarian yang tampil)
+      const promoCarousel = document.querySelector('.promo-carousel');
+      if (promoCarousel) promoCarousel.style.display = 'none';
       const trendingBanner = document.getElementById('trendingBanner');
       if (trendingBanner) trendingBanner.style.display = 'none';
       if (historySection) historySection.style.display = 'none';
@@ -1283,6 +1296,8 @@
       searchView.style.display = 'none';
 
       // Pulihkan dashboard
+      const promoCarousel = document.querySelector('.promo-carousel');
+      if (promoCarousel) promoCarousel.style.display = '';
       const controlsWrapper = document.querySelector('.controls-wrapper');
       if (controlsWrapper) controlsWrapper.style.display = 'flex';
       const sectionMeta = document.querySelector('.section-meta');

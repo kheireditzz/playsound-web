@@ -224,6 +224,9 @@ export const DownloadCenter = {
     if (headerDownloadBtn) headerDownloadBtn.style.display = 'none';
 
     // 1. Sembunyikan Dashboard Utama
+    const promoCarousel = document.querySelector('.promo-carousel');
+    if (promoCarousel) promoCarousel.style.display = 'none';
+
     const banner = document.getElementById('trendingBanner');
     if (banner) banner.style.display = 'none';
 
@@ -274,6 +277,9 @@ export const DownloadCenter = {
     if (headerDownloadBtn) headerDownloadBtn.style.display = 'inline-flex';
 
     // 3. Tampilkan kembali Dashboard Utama
+    const promoCarousel = document.querySelector('.promo-carousel');
+    if (promoCarousel) promoCarousel.style.display = '';
+
     const banner = document.getElementById('trendingBanner');
     if (banner) banner.style.display = 'block';
 
