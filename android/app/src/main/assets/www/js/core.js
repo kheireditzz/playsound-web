@@ -1179,6 +1179,306 @@
       }
     }
 
+    // ── Full-Page Search View Controller (halaman pencarian penuh) ──
+    let fullSearchRawResults = [];
+    let fullSearchCategory = 'all';
+    let fullSearchDebounceTimer = null;
+
+    function fullSearchGrid() {
+      return document.getElementById('fullSearchResultsGrid');
+    }
+
+    function fullSearchHistorySectionEl() {
+      return document.getElementById('fullSearchHistorySection');
+    }
+
+    function renderFullSearchHistory() {
+      const section = fullSearchHistorySectionEl();
+      const chipsWrap = document.getElementById('fullSearchHistoryChips');
+      if (!section || !chipsWrap) return;
+
+      const history = getSearchHistory();
+      if (history.length === 0) {
+        section.style.display = 'none';
+        chipsWrap.innerHTML = '';
+        return;
+      }
+
+      section.style.display = 'block';
+      chipsWrap.innerHTML = history.map(item => `
+        <div class="history-chip" onclick="window.applyFullSearchKeyword('${escapeHtml(item)}')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <span>${escapeHtml(item)}</span>
+        </div>
+      `).join('');
+    }
+
+    window.openSearchPage = function() {
+      if (window.toggleSettingsMenu) window.toggleSettingsMenu(false);
+      if (window.exitDownloadCenter) window.exitDownloadCenter();
+
+      const searchView = document.getElementById('searchViewContainer');
+      if (!searchView) return;
+
+      // Sembunyikan seluruh dashboard agar fokus pada pencarian penuh
+      const trendingBanner = document.getElementById('trendingBanner');
+      if (trendingBanner) trendingBanner.style.display = 'none';
+      if (historySection) historySection.style.display = 'none';
+      const controlsWrapper = document.querySelector('.controls-wrapper');
+      if (controlsWrapper) controlsWrapper.style.display = 'none';
+      const sectionMeta = document.querySelector('.section-meta');
+      if (sectionMeta) sectionMeta.style.display = 'none';
+      const lovedPageBar = document.getElementById('lovedPageBar');
+      if (lovedPageBar) lovedPageBar.style.display = 'none';
+      const dlView = document.getElementById('downloadViewContainer');
+      if (dlView) dlView.style.display = 'none';
+      const headerDlBtn = document.getElementById('headerDownloadBtn');
+      if (headerDlBtn) headerDlBtn.style.display = 'none';
+
+      // Kosongkan grid dashboard (hindari ID kartu duplikat dengan grid pencarian)
+      if (tracksGrid) {
+        tracksGrid.style.display = 'none';
+        tracksGrid.innerHTML = '';
+      }
+
+      // Tampilkan halaman pencarian penuh
+      searchView.style.display = 'block';
+
+      // Render riwayat & reset hasil
+      renderFullSearchHistory();
+      fullSearchRawResults = [];
+      fullSearchCategory = 'all';
+      state.currentCategory = 'search';
+      state.tracks = [];
+      const grid = fullSearchGrid();
+      if (grid) grid.innerHTML = '';
+
+      const suggestions = document.getElementById('fullSearchSuggestionsCard');
+      if (suggestions) suggestions.style.display = 'block';
+      const resultsSection = document.getElementById('fullSearchResultsSection');
+      if (resultsSection) resultsSection.style.display = 'none';
+
+      // Reset chip filter
+      document.querySelectorAll('#fullSearchCatChips .search-cat-chip').forEach(chip => {
+        chip.classList.toggle('active', chip.dataset.source === 'all');
+      });
+      const badge = document.getElementById('fullSearchResultsBadge');
+      if (badge) badge.textContent = 'Semua Platform';
+
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+
+      const input = document.getElementById('fullSearchInput');
+      if (input) {
+        const clearBtn = document.getElementById('fullSearchClearBtn');
+        if (clearBtn) clearBtn.style.display = input.value ? 'flex' : 'none';
+        setTimeout(() => input.focus(), 120);
+      }
+    };
+
+    window.exitSearchPage = function() {
+      const searchView = document.getElementById('searchViewContainer');
+      if (!searchView || searchView.style.display === 'none') return;
+      searchView.style.display = 'none';
+
+      // Pulihkan dashboard
+      const controlsWrapper = document.querySelector('.controls-wrapper');
+      if (controlsWrapper) controlsWrapper.style.display = 'flex';
+      const sectionMeta = document.querySelector('.section-meta');
+      if (sectionMeta) sectionMeta.style.display = 'flex';
+      if (tracksGrid) tracksGrid.style.display = 'grid';
+      const headerDlBtn = document.getElementById('headerDownloadBtn');
+      if (headerDlBtn) headerDlBtn.style.display = 'inline-flex';
+
+      state.currentCategory = 'global';
+      document.querySelectorAll('.neu-tab-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.cat === 'global');
+      });
+      loadTracks('global');
+
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
+
+    async function runFullSearch(query) {
+      const cleanQ = (query || '').trim();
+      if (!cleanQ) return;
+
+      if (typeof saveSearchHistory === 'function') saveSearchHistory(cleanQ);
+      renderFullSearchHistory();
+
+      const grid = fullSearchGrid();
+      const suggestions = document.getElementById('fullSearchSuggestionsCard');
+      if (suggestions) suggestions.style.display = 'none';
+      const resultsSection = document.getElementById('fullSearchResultsSection');
+      if (resultsSection) resultsSection.style.display = 'block';
+
+      if (grid) grid.innerHTML = renderTracksSkeleton(4);
+
+      state.currentCategory = 'search';
+      const badge = document.getElementById('fullSearchResultsBadge');
+      if (badge) badge.textContent = 'Mencari...';
+
+      try {
+        const res = await fetch(`/api/search?q=${encodeURIComponent(cleanQ)}`);
+        const data = await res.json();
+        fullSearchRawResults = data.data || [];
+        applyFullSearchFilter();
+      } catch (err) {
+        console.error(err);
+        if (grid) {
+          grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--color-danger); font-family: 'Space Mono'; width: 100%; box-sizing: border-box; word-break: break-word;">Gagal memproses pencarian. Periksa koneksi internet.</div>`;
+        }
+      }
+    }
+
+    function applyFullSearchFilter() {
+      if (fullSearchCategory === 'all') {
+        state.tracks = [...fullSearchRawResults];
+      } else {
+        state.tracks = fullSearchRawResults.filter(t => {
+          const orig = (t.origin || '').toLowerCase();
+          return orig.includes(fullSearchCategory.toLowerCase());
+        });
+      }
+
+      const badge = document.getElementById('fullSearchResultsBadge');
+      if (badge) {
+        badge.textContent = `${state.tracks.length} Hasil • ${fullSearchCategory === 'all' ? 'Semua Platform' : fullSearchCategory}`;
+      }
+      renderTracks();
+    }
+
+    window.submitFullSearch = function() {
+      const input = document.getElementById('fullSearchInput');
+      const value = (input?.value || '').trim();
+      if (!value) {
+        window.showToast?.('Silakan ketik judul lagu atau artis terlebih dahulu.', 'warning', 'search');
+        if (input) input.focus();
+        return;
+      }
+      clearTimeout(fullSearchDebounceTimer);
+      if (input) input.blur();
+      fullSearchCategory = 'all';
+      document.querySelectorAll('#fullSearchCatChips .search-cat-chip').forEach(chip => {
+        chip.classList.toggle('active', chip.dataset.source === 'all');
+      });
+      runFullSearch(value);
+    };
+
+    window.filterFullSearchResults = function(source) {
+      fullSearchCategory = source || 'all';
+      document.querySelectorAll('#fullSearchCatChips .search-cat-chip').forEach(chip => {
+        chip.classList.toggle('active', chip.dataset.source === fullSearchCategory);
+      });
+      applyFullSearchFilter();
+    };
+
+    window.clearFullSearchInput = function() {
+      const input = document.getElementById('fullSearchInput');
+      if (input) {
+        input.value = '';
+        input.focus();
+      }
+      const clearBtn = document.getElementById('fullSearchClearBtn');
+      if (clearBtn) clearBtn.style.display = 'none';
+      fullSearchRawResults = [];
+      state.tracks = [];
+      const grid = fullSearchGrid();
+      if (grid) grid.innerHTML = '';
+      const suggestions = document.getElementById('fullSearchSuggestionsCard');
+      if (suggestions) suggestions.style.display = 'block';
+      const resultsSection = document.getElementById('fullSearchResultsSection');
+      if (resultsSection) resultsSection.style.display = 'none';
+      const badge = document.getElementById('fullSearchResultsBadge');
+      if (badge) badge.textContent = 'Semua Platform';
+    };
+
+    window.pasteToFullSearch = async function() {
+      if (window.Settings && window.Settings.triggerHaptic) window.Settings.triggerHaptic();
+      const input = document.getElementById('fullSearchInput');
+      let text = '';
+      try {
+        if (window.AndroidApp && typeof window.AndroidApp.getClipboardText === 'function') {
+          text = window.AndroidApp.getClipboardText() || '';
+        }
+        if (!text && navigator.clipboard && navigator.clipboard.readText) {
+          text = await navigator.clipboard.readText();
+        }
+      } catch (e) {
+        console.warn('Clipboard error:', e);
+      }
+
+      if (text && text.trim()) {
+        if (input) {
+          input.value = text.trim();
+          const clearBtn = document.getElementById('fullSearchClearBtn');
+          if (clearBtn) clearBtn.style.display = 'flex';
+        }
+        window.showToast?.('Teks berhasil ditempel!', 'success', 'search');
+        window.submitFullSearch();
+      } else {
+        window.showToast?.('Papan klip kosong. Ketik manual untuk mencari.', 'info', 'search');
+        if (input) input.focus();
+      }
+    };
+
+    window.applyFullSearchKeyword = function(keyword) {
+      const input = document.getElementById('fullSearchInput');
+      if (input) {
+        input.value = keyword;
+        const clearBtn = document.getElementById('fullSearchClearBtn');
+        if (clearBtn) clearBtn.style.display = 'flex';
+      }
+      window.submitFullSearch();
+    };
+
+    window.clearFullSearchHistory = function() {
+      clearAllSearchHistory();
+      renderFullSearchHistory();
+    };
+
+    // Inisialisasi listener halaman pencarian penuh
+    (function initFullSearchPage() {
+      const input = document.getElementById('fullSearchInput');
+      const clearBtn = document.getElementById('fullSearchClearBtn');
+      if (!input) return;
+
+      input.addEventListener('input', () => {
+        const val = input.value.trim();
+        if (clearBtn) clearBtn.style.display = val ? 'flex' : 'none';
+        clearTimeout(fullSearchDebounceTimer);
+        if (val.length >= 3) {
+          fullSearchDebounceTimer = setTimeout(() => {
+            fullSearchCategory = 'all';
+            document.querySelectorAll('#fullSearchCatChips .search-cat-chip').forEach(chip => {
+              chip.classList.toggle('active', chip.dataset.source === 'all');
+            });
+            runFullSearch(val);
+          }, 420);
+        } else if (val.length === 0) {
+          fullSearchRawResults = [];
+          state.tracks = [];
+          const grid = fullSearchGrid();
+          if (grid) grid.innerHTML = '';
+          const suggestions = document.getElementById('fullSearchSuggestionsCard');
+          if (suggestions) suggestions.style.display = 'block';
+          const resultsSection = document.getElementById('fullSearchResultsSection');
+          if (resultsSection) resultsSection.style.display = 'none';
+          renderFullSearchHistory();
+        }
+      });
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          window.submitFullSearch();
+        }
+      });
+    })();
+
     // Safe HTML Escape
     function escapeHtml(text) {
       if (!text) return '';
@@ -1190,11 +1490,22 @@
         .replace(/'/g, '&#39;');
     }
 
+    // Tentukan grid kartu aktif (dashboard atau halaman pencarian penuh)
+    function activeTrackGrid() {
+      const searchView = document.getElementById('searchViewContainer');
+      if (searchView && searchView.style.display !== 'none') {
+        const fsGrid = document.getElementById('fullSearchResultsGrid');
+        if (fsGrid) return fsGrid;
+      }
+      return tracksGrid;
+    }
+
     // Render Track Cards
     function renderTracks() {
+      const grid = activeTrackGrid();
       if (state.tracks.length === 0) {
         if (state.currentCategory === 'loved') {
-          tracksGrid.innerHTML = `
+          grid.innerHTML = `
             <div style="grid-column: 1/-1; text-align: center; padding: 48px 16px; color: var(--color-text-muted); font-family: 'Space Mono', monospace; width: 100%; box-sizing: border-box;">
               <div style="font-size: 0.9rem; font-weight: 700; color: var(--color-primary); margin-bottom: 8px; letter-spacing: 1px;">KOSONG</div>
               <div style="font-size: 1rem; font-weight: 700; color: var(--color-text); margin-bottom: 8px;">Belum Ada Musik yang di-Love</div>
@@ -1209,11 +1520,12 @@
           return;
         }
 
-        tracksGrid.innerHTML = `
+        const isFullSearch = document.getElementById('searchViewContainer')?.style.display !== 'none';
+        grid.innerHTML = `
           <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--color-text-muted); font-family: 'Space Mono';">
             Tidak ada musik ditemukan.
             <div style="margin-top: 14px;">
-              <button class="tactile-btn play-btn-primary" onclick="loadTracks(state.currentCategory)">Muat Ulang</button>
+              <button class="tactile-btn play-btn-primary" onclick="${isFullSearch ? 'window.submitFullSearch()' : 'loadTracks(state.currentCategory)'}">${isFullSearch ? 'Cari Lagi' : 'Muat Ulang'}</button>
             </div>
           </div>
         `;
@@ -1228,7 +1540,7 @@
         }
       });
 
-      tracksGrid.innerHTML = state.tracks.map((track, idx) => {
+      grid.innerHTML = state.tracks.map((track, idx) => {
         const isCurrent = state.currentTrack && state.currentTrack.id === track.id;
         const isPlayingThis = isCurrent && state.isPlaying;
         const isLoved = isTrackLoved(track);
@@ -1377,6 +1689,14 @@
       if (settingsBackdrop && (settingsBackdrop.classList.contains('is-open') || document.body.classList.contains('menu-open'))) {
         if (typeof window.toggleSettingsMenu === 'function') {
           window.toggleSettingsMenu(false);
+          return true;
+        }
+      }
+      // 5B. Jika Halaman Penuh Pencarian terbuka
+      const searchView = document.getElementById('searchViewContainer');
+      if (searchView && searchView.style.display !== 'none') {
+        if (typeof window.exitSearchPage === 'function') {
+          window.exitSearchPage();
           return true;
         }
       }
@@ -3145,7 +3465,7 @@
       }
     }, { passive: false });
 
-// ── Promo Carousel (Lapor Bug + Mau Nonton) — auto-slide ──
+    // ── Promo Carousel (Lapor Bug + Mau Nonton) — auto-slide ──
     function initPromoCarousel() {
       const track = document.getElementById('promoCarouselTrack');
       const dotsHost = document.getElementById('promoCarouselDots');
@@ -3223,7 +3543,7 @@
     }
     window.initPromoCarousel = initPromoCarousel;
 
-        // ── Trending Banner ──
+    // ── Trending Banner ──
     const bannerStrip = document.getElementById('bannerStrip');
     const bannerDots  = document.getElementById('bannerDots');
 
