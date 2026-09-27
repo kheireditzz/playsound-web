@@ -307,9 +307,20 @@ export async function handleApiRoute(req, res, pathname, parsedUrl) {
       }
     }
 
-    const results = await searchSongs(q);
+    const cacheKey = `search_${trimmedQ.toLowerCase()}`;
+    const cached = getFromCache(cacheKey);
+    if (cached && cached.length > 0) {
+      res.writeHead(200);
+      res.end(JSON.stringify({ query: q, cached: true, count: cached.length, data: cached }));
+      return;
+    }
+
+    const results = await searchSongs(trimmedQ);
+    if (results && results.length > 0) {
+      setCache(cacheKey, results);
+    }
     res.writeHead(200);
-    res.end(JSON.stringify({ query: q, count: results.length, data: results }));
+    res.end(JSON.stringify({ query: q, cached: false, count: results.length, data: results }));
     return;
   }
 

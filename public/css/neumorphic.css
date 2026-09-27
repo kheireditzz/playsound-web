@@ -3660,3 +3660,266 @@
       box-shadow: var(--neu-inset);
       transform: scale(0.97);
     }
+
+    /* ── Dedicated Full-Page Search View (BUKAN MELAYANG) ── */
+    .search-view-container {
+      width: 100%;
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 0 4px 120px 4px;
+      box-sizing: border-box;
+      animation: neuFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .search-view-nav-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .search-back-btn {
+      padding: 10px 20px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--color-primary);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 14px;
+      background: var(--bg-surface);
+      box-shadow: var(--neu-extruded-sm);
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+      min-height: 44px;
+      box-sizing: border-box;
+    }
+
+    .search-back-btn:hover {
+      color: var(--color-primary-light);
+    }
+
+    .search-back-btn:active {
+      box-shadow: var(--neu-inset);
+      transform: translateY(1px);
+    }
+
+    .search-hero-card {
+      background: var(--bg-surface);
+      border-radius: 24px;
+      box-shadow: var(--neu-extruded-card);
+      padding: 24px 20px;
+      margin-bottom: 22px;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+    }
+
+    .search-hero-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .search-hero-icon-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: var(--bg-surface);
+      box-shadow: var(--neu-extruded);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-primary);
+      flex-shrink: 0;
+    }
+
+    .search-hero-title-group h1 {
+      font-family: 'Space Mono', monospace;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--color-text);
+      letter-spacing: -0.5px;
+      line-height: 1.25;
+      margin: 0;
+    }
+
+    .search-hero-title-group p {
+      font-size: 0.78rem;
+      color: var(--color-text-muted);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    .search-hero-input-container {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 18px;
+      align-items: center;
+    }
+
+    .search-hero-input-wrapper {
+      position: relative;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .search-hero-input-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-text-muted);
+      pointer-events: none;
+    }
+
+    .search-hero-input {
+      width: 100%;
+      height: 52px;
+      background: var(--bg-surface);
+      border: none;
+      outline: none;
+      border-radius: 14px;
+      padding: 0 74px 0 46px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 16px;
+      color: var(--color-text);
+      box-shadow: var(--neu-inset);
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+    }
+
+    .search-hero-input:focus {
+      box-shadow: var(--neu-inset-deep);
+    }
+
+    .search-hero-clear-btn {
+      position: absolute;
+      right: 40px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(0, 0, 0, 0.07);
+      color: var(--color-text);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+
+    .search-hero-clear-btn:active {
+      transform: translateY(-50%) scale(0.92);
+    }
+
+    .search-hero-paste-btn {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      border: none;
+      background: var(--bg-surface);
+      box-shadow: var(--neu-extruded-sm);
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .search-hero-paste-btn:active {
+      box-shadow: var(--neu-inset-sm);
+      transform: translateY(-50%) scale(0.92);
+    }
+
+    .search-hero-submit-btn {
+      padding: 0 20px;
+      height: 52px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--color-primary);
+      color: #FFFFFF;
+      border-radius: 14px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      box-shadow: var(--neu-extruded-sm);
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: all 0.15s ease;
+    }
+
+    .search-hero-submit-btn:active {
+      box-shadow: inset 1px 1px 3px rgba(0,0,0,0.35);
+      transform: translateY(1px);
+    }
+
+    .full-search-chips-wrap {
+      width: 100%;
+    }
+
+    .full-search-results-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--color-primary);
+      background: rgba(0, 102, 102, 0.08);
+      padding: 3px 10px;
+      border-radius: 12px;
+    }
+
+    /* In-Page Suggestions Card (Riwayat & Tren Populer BUKAN MELAYANG) */
+    .full-search-suggestions-card {
+      background: var(--bg-surface);
+      border-radius: 20px;
+      box-shadow: var(--neu-extruded-sm);
+      padding: 18px 20px;
+      margin-bottom: 22px;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+    }
+
+    .full-search-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .full-search-section-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .full-search-history-section {
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px dashed rgba(0, 0, 0, 0.08);
+    }
+
+    .full-search-results-section {
+      width: 100%;
+    }

@@ -11,6 +11,7 @@ body.menu-open main.container,
 body.menu-open #playerDock,
 body.menu-open .neu-player-dock,
 body.menu-open #downloadViewContainer,
+body.menu-open #searchViewContainer,
 body.menu-open #lovedPageBar,
 body.menu-open #historySection,
 body.menu-open #trendingBanner,
@@ -18,7 +19,44 @@ body.menu-open .controls-wrapper {
   display: none !important;
 }
 
-/* ── 2. HEADER HAMBURGER BUTTON (Kanan Atas Header) ── */
+/* ── 2. HEADER ACTIONS (Cari Lagu & Menu Hamburger Kanan Atas) ── */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.header-search-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--bg-surface);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: var(--neu-extruded-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-text);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  -webkit-user-select: none;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.header-search-btn:hover {
+  transform: translateY(-1px);
+  color: var(--color-primary);
+}
+
+.header-search-btn:active {
+  box-shadow: var(--neu-inset);
+  transform: translateY(1px);
+  color: var(--color-primary);
+}
+
 .header-menu-btn {
   width: 44px;
   height: 44px;
@@ -35,7 +73,6 @@ body.menu-open .controls-wrapper {
   user-select: none;
   -webkit-user-select: none;
   flex-shrink: 0;
-  margin-left: auto;
 }
 
 .header-menu-btn:hover {

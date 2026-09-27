@@ -1380,6 +1380,14 @@
           return true;
         }
       }
+      // 5B. Jika Halaman Penuh Pencarian terbuka
+      const searchView = document.getElementById('searchViewContainer');
+      if (searchView && searchView.style.display !== 'none') {
+        if (typeof window.exitSearchPage === 'function') {
+          window.exitSearchPage();
+          return true;
+        }
+      }
       // 6. Jika Pusat Unduh Musik (Download Center) terbuka
       const dlView = document.getElementById('downloadViewContainer');
       if (dlView && dlView.style.display !== 'none') {
@@ -3145,6 +3153,84 @@
       }
     }, { passive: false });
 
+    // ── Promo Carousel (Lapor Bug + Mau Nonton) — auto-slide ──
+    function initPromoCarousel() {
+      const track = document.getElementById('promoCarouselTrack');
+      const dotsHost = document.getElementById('promoCarouselDots');
+      if (!track || !dotsHost) return;
+
+      const slides = Array.from(track.children);
+      if (!slides.length) return;
+
+      const INTERVAL = 5600;
+      let idx = 0;
+      let timer = null;
+      let scrollGuard = null;
+
+      dotsHost.innerHTML = '';
+      const dots = slides.map((_, i) => {
+        const d = document.createElement('button');
+        d.type = 'button';
+        d.className = 'promo-carousel-dot' + (i === 0 ? ' active' : '');
+        d.setAttribute('aria-label', 'Slide ' + (i + 1));
+        d.addEventListener('click', () => { goTo(i); restart(); });
+        dotsHost.appendChild(d);
+        return d;
+      });
+
+      function setActive(i) {
+        idx = i;
+        dots.forEach((d, k) => d.classList.toggle('active', k === i));
+      }
+
+      function goTo(i, smooth = true) {
+        if (!slides.length) return;
+        i = (i + slides.length) % slides.length;
+        setActive(i);
+        const target = slides[i];
+        track.scrollTo({ left: target.offsetLeft - track.offsetLeft, behavior: smooth ? 'smooth' : 'auto' });
+      }
+
+      function restart() {
+        if (timer) clearInterval(timer);
+        if (slides.length < 2) return;
+        timer = setInterval(() => {
+          if (document.hidden) return;
+          if (track.dataset.paused === '1') return;
+          if (spotifyFullPlayer && (spotifyFullPlayer.classList.contains('is-open') || document.body.classList.contains('full-player-active'))) return;
+          goTo(idx + 1);
+        }, INTERVAL);
+      }
+
+      const onScroll = () => {
+        clearTimeout(scrollGuard);
+        scrollGuard = setTimeout(() => {
+          const center = track.scrollLeft + track.clientWidth / 2;
+          let best = 0, bestDist = Infinity;
+          slides.forEach((s, i) => {
+            const c = s.offsetLeft - track.offsetLeft + s.offsetWidth / 2;
+            const dd = Math.abs(c - center);
+            if (dd < bestDist) { bestDist = dd; best = i; }
+          });
+          setActive(best);
+        }, 90);
+      };
+      const pause = () => { track.dataset.paused = '1'; };
+      const resume = () => { track.dataset.paused = '0'; restart(); };
+
+      track.addEventListener('scroll', onScroll, { passive: true });
+      track.addEventListener('pointerdown', pause, { passive: true });
+      track.addEventListener('touchstart', pause, { passive: true });
+      track.addEventListener('pointerup', resume, { passive: true });
+      track.addEventListener('touchend', resume, { passive: true });
+      track.addEventListener('touchcancel', resume, { passive: true });
+      track.addEventListener('mouseenter', pause);
+      track.addEventListener('mouseleave', resume);
+
+      restart();
+    }
+    window.initPromoCarousel = initPromoCarousel;
+
     // ── Trending Banner ──
     const bannerStrip = document.getElementById('bannerStrip');
     const bannerDots  = document.getElementById('bannerDots');
@@ -3341,6 +3427,7 @@
     loadLovedTracks();
     loadHistory();
     restorePlaybackSession();
+    initPromoCarousel();
 
     if (window.INITIAL_TRACKS && Array.isArray(window.INITIAL_TRACKS) && window.INITIAL_TRACKS.length > 0) {
       state.tracks = window.INITIAL_TRACKS;

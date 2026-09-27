@@ -444,8 +444,19 @@ export async function searchSongs(query) {
     }
   })();
 
+  const withTimeout = (promise, ms = 3500, fallback = []) =>
+    Promise.race([
+      promise,
+      new Promise(resolve => setTimeout(() => resolve(fallback), ms))
+    ]);
+
   const [ytRes, spotifyRes, saavnRes, deezerRes, itunesRes, scRes] = await Promise.allSettled([
-    youtubePromise, spotifyPromise, saavnPromise, deezerPromise, itunesPromise, soundcloudPromise
+    withTimeout(youtubePromise, 3500),
+    withTimeout(spotifyPromise, 3500),
+    withTimeout(saavnPromise, 3500),
+    withTimeout(deezerPromise, 3500),
+    withTimeout(itunesPromise, 3500),
+    withTimeout(soundcloudPromise, 3500)
   ]);
 
   const rawList = [

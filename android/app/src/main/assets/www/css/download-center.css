@@ -661,6 +661,127 @@
   display: inline-block !important;
 }
 
+/* ── Carousel Promo (Lapor Bug + Mau Nonton) ─────────────── */
+.promo-carousel {
+  margin: 0 0 4px;
+}
+
+.promo-carousel-track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+  border-radius: 20px;
+}
+.promo-carousel-track::-webkit-scrollbar { display: none; }
+
+.promo-banner {
+  position: relative;
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+  display: block;
+  border-radius: 20px;
+  height: 170px;
+  overflow: hidden;
+  box-shadow: var(--neu-extruded-card);
+  text-decoration: none;
+  color: #fff;
+  cursor: pointer;
+  background: var(--color-primary);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+}
+.promo-banner:hover { transform: translateY(-4px); box-shadow: var(--neu-extruded-lg); }
+.promo-banner:active { transform: translateY(0); box-shadow: var(--neu-inset); }
+
+.promo-banner-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background:
+    radial-gradient(120% 120% at 15% 10%, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 45%),
+    linear-gradient(135deg, var(--color-primary-light), var(--color-primary) 55%, #003d3d);
+}
+.promo-banner-watch .promo-banner-bg {
+  background:
+    radial-gradient(120% 120% at 15% 10%, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0) 45%),
+    linear-gradient(135deg, #7A1E2E, #4d1220 60%, #2a0a11);
+}
+.promo-banner-shine {
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.3) 50%, transparent 65%);
+  transform: translateX(-120%);
+  pointer-events: none;
+}
+.promo-banner:hover .promo-banner-shine { animation: promoShine 1.1s ease; }
+@keyframes promoShine { to { transform: translateX(120%); } }
+
+.promo-banner::after {
+  content: '';
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(180deg, rgba(16, 20, 24, 0) 22%, rgba(16, 20, 24, 0.9) 100%);
+}
+
+.promo-banner-action {
+  position: absolute; top: 14px; right: 14px; z-index: 3;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(0, 102, 102, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+}
+.promo-banner-watch .promo-banner-action { background: rgba(122, 30, 46, 0.55); }
+
+.promo-banner-overlay {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+  padding: 16px 18px;
+  display: flex; flex-direction: column; align-items: flex-start;
+}
+.promo-banner-tag {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.64rem; letter-spacing: 0.06em; font-weight: 700;
+  text-transform: uppercase;
+  color: #33E6DE;
+  background: rgba(0, 102, 102, 0.36);
+  border: 1px solid rgba(51, 230, 222, 0.28);
+  padding: 5px 10px; border-radius: 8px;
+  margin-bottom: 9px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.promo-banner-watch .promo-banner-tag { color: #FFC2CE; background: rgba(122, 30, 46, 0.42); border-color: rgba(255, 194, 206, 0.3); }
+.promo-banner-title {
+  color: #fff; font-weight: 800; font-size: 1.15rem;
+  line-height: 1.25; text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+.promo-banner-meta {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  margin-top: 7px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem; color: #d7e3e3;
+}
+.promo-banner-meta-item { display: inline-flex; align-items: center; gap: 4px; }
+.promo-banner-meta-item + .promo-banner-meta-item::before {
+  content: '•'; margin-right: 8px; opacity: 0.6;
+}
+
+.promo-carousel-dots {
+  display: flex; justify-content: center; gap: 7px; margin-top: 12px;
+}
+.promo-carousel-dot {
+  width: 8px; height: 8px; border-radius: 4px;
+  background: var(--shadow-dark);
+  border: none; padding: 0; cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.promo-carousel-dot.active { width: 26px; background: var(--color-primary); }
+
+@media (min-width: 640px) { .promo-banner { height: 190px; } }
+@media (min-width: 960px) { .promo-banner { height: 210px; } }
+
 .download-quick-banner {
   background: var(--bg-surface);
   border-radius: 16px;
